@@ -18,40 +18,46 @@ TODO – one sentence: what the product does and for whom. Link to [product visi
 
 ## Prerequisites
 
-Exact tools and versions the jury must have installed. Example:
-
 | Tool | Version | Check |
 |---|---|---|
-| TODO (e.g. Node.js) | TODO (e.g. 22.x) | `TODO (e.g. node --version)` |
+| Node.js | 20.19 or newer | `node --version` |
+| npm | 11.x | `npm --version` |
+
+No database server is needed: SQLite is a file in `apps/api/data/` (see [ADR 0001](docs/adr/0001-database-and-api-stack.md)).
 
 ## Setup
 
-Exact commands, in order, from a fresh clone. Example:
+From a fresh clone:
 
 ```bash
-TODO   # e.g. cp .env.example .env
-TODO   # e.g. npm ci
+npm install
+cp apps/api/.env.example apps/api/.env   # PowerShell: Copy-Item apps/api/.env.example apps/api/.env
+npm run db:migrate -w api                # creates the database and seeds demo data
 ```
 
 ## Run
 
 ```bash
-TODO   # the command that starts the application
+npm run dev -w api   # API on http://localhost:3001 (migrates + seeds automatically on start)
 ```
 
-Open TODO (e.g. http://localhost:3000).
+Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
 
 ## Test
 
 ```bash
-TODO   # one command that runs all tests
+npm test -w api   # Vitest: unit + integration tests of the API
 ```
 
 ## Demo users
 
+All demo users have the password `demo1234` (demo data only).
+
 | Role | Sign in with | What to try |
 |---|---|---|
-| TODO | TODO | TODO |
+| Admin | `admin@demo.local` | Manage users (coming in #5) |
+| Project manager | `pm@demo.local` | See bookings on your orders (coming in #6) |
+| Consultant (Acme Consulting) | `consultant@demo.local` | Book time on an order (coming next sprint) |
 
 ## Evidence map
 
@@ -59,7 +65,7 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 
 | Criterion | Evidence |
 |---|---|
-| 1 · Persistence and data model | TODO – schema / migrations, [ER diagram](docs/domain.md) |
+| 1 · Persistence and data model | [schema.ts](apps/api/src/persistence/schema.ts), [migrations](apps/api/drizzle/), [seed.ts](apps/api/src/persistence/seed.ts), [ER diagram](docs/domain.md) |
 | 2 · Business rules and unit tests | TODO – domain rule files, test folder |
 | 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), TODO – mockup views / enforcement code |
 | 4 · Architecture and engineering | TODO – A structure · B [ADRs](docs/adr/) · C Git history · D API docs · E compose file · F [mockup](docs/mockup/) |
