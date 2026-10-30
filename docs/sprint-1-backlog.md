@@ -49,11 +49,11 @@ Not selected: #7 (duplicate of #8, close it), #4 (raw notes, source for later st
 - One command migrates a fresh database and seeds it.
 
 **Tasks**
-- [ ] Choose a migration tool and note it in the DB ADR.
-- [ ] Initial migration for the #8 schema.
-- [ ] `migrate` and `seed` scripts in `package.json`.
-- [ ] Update README *Setup* / *Run*.
-- [ ] Check: delete the DB, run the migrations, and confirm the app starts with seed data.
+- [x] Choose a migration tool and note it in the DB ADR.
+- [x] Initial migration for the #8 schema.
+- [x] `migrate` and `seed` scripts in `package.json`.
+- [x] Update README *Setup* / *Run*.
+- [x] Check: delete the DB, run the migrations, and confirm the app starts with seed data.
 
 ## 3. #5 – US-101 User Accounts & Roles
 

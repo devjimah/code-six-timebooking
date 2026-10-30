@@ -43,6 +43,15 @@ npm run dev -w api   # API on http://localhost:3001 (migrates + seeds automatica
 
 Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
 
+### Database commands
+
+| Command | What it does |
+|---|---|
+| `npm run db:migrate -w api` | Apply pending migrations, then seed demo data (if empty) |
+| `npm run db:seed -w api` | Seed demo data only |
+| `npm run db:reset -w api` | Delete the local database and rebuild it from migrations + seed |
+| `npm run db:generate -w api -- --name <change>` | After editing `schema.ts`: create a new SQL migration in `apps/api/drizzle/` |
+
 ## Test
 
 ```bash

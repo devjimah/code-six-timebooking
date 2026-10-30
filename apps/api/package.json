@@ -9,7 +9,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx src/persistence/migrate.ts"
+    "db:migrate": "tsx src/persistence/migrate.ts",
+    "db:seed": "tsx src/persistence/run-seed.ts",
+    "db:reset": "node -e \"require('fs').rmSync('data',{recursive:true,force:true})\" && npm run db:migrate"
   },
   "dependencies": {
     "@libsql/client": "^0.15.0",

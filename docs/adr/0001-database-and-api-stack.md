@@ -35,3 +35,13 @@ in git. We use `@libsql/client` instead of `better-sqlite3` because it ships pre
   switching later means changing the driver and regenerating migrations – see the operation/scaling ADR (TODO).
 - Next: keep Drizzle table definitions in `persistence/` only, separate from `domain/` and `dto/`.
 
+## Migration workflow (ticket #3)
+
+- The schema changes **only** through SQL files in `apps/api/drizzle/`, committed to git. Never edit the
+  database by hand and never edit a migration that is already merged – add a new one.
+- Change `schema.ts` → `npm run db:generate -w api -- --name <what-changed>` → review the SQL → commit both.
+- `npm run db:migrate -w api` applies pending migrations and seeds demo data; the API does the same on start.
+- `npm run db:reset -w api` deletes the local database and rebuilds it from scratch.
+- Alternative considered: `drizzle-kit push` (syncs the schema without migration files). Rejected because
+  it leaves no versioned history for teammates and the jury.
+
