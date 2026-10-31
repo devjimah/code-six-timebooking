@@ -138,6 +138,35 @@ export const toBookableOrderResponse = (order: Order, supplierName: string): Boo
   supplierName,
 })
 
+// POST /api/orders and PUT /api/orders/:id – purchasing only. Format checks here; business rules in the domain.
+export const orderRequest = z.object({
+  code: z.string().trim().min(3).max(40).meta({ example: "PO-2026-004" }),
+  title: z.string().trim().min(3).max(200).meta({ example: "Data warehouse reporting" }),
+  supplierId: z.number().int().positive(),
+  projectManagerId: z.number().int().positive(),
+  budgetHours: z.number().int().min(1).max(100_000).meta({ description: "Ordered hours; 1 person-day = 8 h" }),
+  hourlyRateCents: z.number().int().min(1).max(10_000_00).meta({ description: "Euro cents: 9500 = 95,00 € per hour" }),
+  startDate: z.iso.date().meta({ example: "2026-11-01" }),
+  endDate: z.iso.date().meta({ example: "2027-03-31" }),
+})
+export type OrderRequest = z.infer<typeof orderRequest>
+
+export const orderResponse = z.object({
+  id: z.number().int(),
+  code: z.string(),
+  title: z.string(),
+  supplierId: z.number().int(),
+  projectManagerId: z.number().int(),
+  budgetHours: z.number().int(),
+  hourlyRateCents: z.number().int(),
+  startDate: z.string(),
+  endDate: z.string(),
+})
+export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
+
+// GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
+export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
+
 // GET /api/orders/:id/budget – the id arrives as text in the URL.
 export const orderIdParams = z.object({ id: z.coerce.number().int().positive() })
 
@@ -179,4 +208,31 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
   remainingCents: budget.remainingCents,
   usedPercent: budget.usedPercent,
   overBudget: budget.overBudget,
+})
+
+// GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
+export const orderOverviewResponse = orderBudgetResponse.extend({
+  supplierId: z.number().int(),
+  supplierName: z.string(),
+  projectManagerId: z.number().int(),
+  projectManagerName: z.string(),
+  hourlyRateCents: z.number().int(),
+  startDate: z.string(),
+  endDate: z.string(),
+})
+
+export const toOrderOverviewResponse = (row: {
+  order: Order
+  budget: OrderBudget
+  supplierName: string
+  projectManagerName: string
+}): z.infer<typeof orderOverviewResponse> => ({
+  ...toOrderBudgetResponse(row.order, row.budget),
+  supplierId: row.order.supplierId,
+  supplierName: row.supplierName,
+  projectManagerId: row.order.projectManagerId,
+  projectManagerName: row.projectManagerName,
+  hourlyRateCents: row.order.hourlyRateCents,
+  startDate: row.order.startDate,
+  endDate: row.order.endDate,
 })

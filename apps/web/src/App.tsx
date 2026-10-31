@@ -6,6 +6,7 @@ import { AppLayout } from "@/components/app-layout.tsx"
 import { AuditPage } from "@/pages/admin/audit-page.tsx"
 import { UsersPage } from "@/pages/admin/users-page.tsx"
 import { HomePage } from "@/pages/home-page.tsx"
+import { OrdersPage } from "@/pages/purchasing/orders-page.tsx"
 import { SuppliersPage } from "@/pages/purchasing/suppliers-page.tsx"
 import { LoginPage } from "@/pages/login-page.tsx"
 import { RedirectIfSignedIn, RequireAuth, RequireRole } from "@/routes/guards.tsx"
@@ -43,6 +44,7 @@ export function App() {
               <Route path="/admin/audit" element={<AuditPage />} />
             </Route>
             <Route element={<RequireRole role="purchasing" />}>
+              <Route path="/purchasing/orders" element={<OrdersPage />} />
               <Route path="/purchasing/suppliers" element={<SuppliersPage />} />
             </Route>
           </Route>

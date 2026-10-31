@@ -25,6 +25,8 @@ export interface Order {
   projectManagerId: number
   budgetHours: number
   hourlyRateCents: number
+  startDate: string // "YYYY-MM-DD", first day work may be booked
+  endDate: string // "YYYY-MM-DD", last day work may be booked
 }
 
 export interface TimeEntry {

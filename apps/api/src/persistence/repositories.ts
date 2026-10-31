@@ -23,6 +23,8 @@ const toOrder = (r: typeof orders.$inferSelect): Order => ({
   projectManagerId: r.projectManagerId,
   budgetHours: r.budgetHours,
   hourlyRateCents: r.hourlyRateCents,
+  startDate: r.startDate,
+  endDate: r.endDate,
 })
 const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   id: r.id,
@@ -90,7 +92,11 @@ export function orderRepository(db: Db) {
       return row ? toOrder(row) : null
     },
     async findAll() {
-      return (await db.select().from(orders)).map(toOrder)
+      return (await db.select().from(orders).orderBy(asc(orders.code))).map(toOrder)
+    },
+    async update(id: number, data: NewOf<Order>) {
+      const [row] = await db.update(orders).set(data).where(eq(orders.id, id)).returning()
+      return toOrder(row!)
     },
     /** Orders a consultant of this supplier may book on, with the supplier's name for display. */
     async findBySupplierWithName(supplierId: number) {
@@ -135,6 +141,14 @@ export function timeEntryRepository(db: Db) {
         .from(timeEntries)
         .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
       return Number(row?.total ?? 0)
+    },
+    /** First and last booked work date of an order, or null without bookings – for the period editing rule. */
+    async bookedDateRange(orderId: number) {
+      const [row] = await db
+        .select({ first: sql<string | null>`min(${timeEntries.workDate})`, last: sql<string | null>`max(${timeEntries.workDate})` })
+        .from(timeEntries)
+        .where(eq(timeEntries.orderId, orderId))
+      return row?.first && row.last ? { first: row.first, last: row.last } : null
     },
     /** For the budget rule: everything booked on this order, by anyone (ADR 0008: computed, not stored). */
     async sumMinutesForOrder(orderId: number) {

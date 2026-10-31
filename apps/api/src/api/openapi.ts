@@ -13,6 +13,10 @@ import {
   loginRequest,
   orderBudgetResponse,
   orderIdParams,
+  orderOverviewResponse,
+  orderRequest,
+  orderResponse,
+  projectManagerResponse,
   supplierIdParams,
   supplierRequest,
   supplierResponse,
@@ -21,7 +25,7 @@ import {
 } from "./dto.js"
 
 type RouteDoc = {
-  method: "get" | "post" | "patch"
+  method: "get" | "post" | "put" | "patch"
   path: string // OpenAPI style: /api/orders/{id}/budget
   summary: string
   tag: string
@@ -93,7 +97,7 @@ export const routes: RouteDoc[] = [
   {
     method: "post", path: "/api/time-entries", tag: "Time entries", roles: ["consultant"],
     summary: "Book time on an order of your own company (max. 10 h per day, within the order budget, not in the future, " +
-      "not on Sundays or public holidays)",
+      "not on Sundays or public holidays, inside the order's period)",
     body: createTimeEntryRequest,
     success: { status: 201, description: "Booked", schema: timeEntryResponse },
     errors: {
@@ -106,6 +110,40 @@ export const routes: RouteDoc[] = [
     method: "get", path: "/api/time-entries/mine", tag: "Time entries", summary: "Your own time entries, newest first",
     roles: ["consultant"],
     success: { status: 200, description: "Your time entries", schema: z.array(timeEntryResponse) },
+  },
+  {
+    method: "get", path: "/api/orders", tag: "Orders", roles: ["purchasing"],
+    summary: "All orders with supplier, project manager, period and budget (sums only, no single bookings)",
+    success: { status: 200, description: "All orders, by code", schema: z.array(orderOverviewResponse) },
+  },
+  {
+    method: "post", path: "/api/orders", tag: "Orders", roles: ["purchasing"],
+    summary: "Place an order with a supplier",
+    body: orderRequest,
+    success: { status: 201, description: "Order created", schema: orderResponse },
+    errors: {
+      400: "Invalid request body",
+      422: "ORDER_CODE_TAKEN, ORDER_PERIOD_INVALID, SUPPLIER_NOT_FOUND, NOT_A_PROJECT_MANAGER",
+    },
+  },
+  {
+    method: "put", path: "/api/orders/{id}", tag: "Orders", roles: ["purchasing"],
+    summary: "Change an order (all fields). Budget not below booked hours; supplier fixed after the first booking; " +
+      "period must include all bookings",
+    params: orderIdParams,
+    body: orderRequest,
+    success: { status: 200, description: "Order changed", schema: orderResponse },
+    errors: {
+      400: "Invalid id or body",
+      404: "ORDER_NOT_FOUND",
+      422: "ORDER_CODE_TAKEN, ORDER_PERIOD_INVALID, SUPPLIER_NOT_FOUND, NOT_A_PROJECT_MANAGER, BUDGET_BELOW_BOOKED, " +
+        "SUPPLIER_FIXED_AFTER_BOOKINGS, PERIOD_EXCLUDES_BOOKINGS",
+    },
+  },
+  {
+    method: "get", path: "/api/project-managers", tag: "Orders", roles: ["purchasing"],
+    summary: "Project managers who can be responsible for an order (names only)",
+    success: { status: 200, description: "Project managers", schema: z.array(projectManagerResponse) },
   },
   {
     method: "get", path: "/api/orders/bookable", tag: "Orders", summary: "Orders of your own company you can book on",

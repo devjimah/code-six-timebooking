@@ -2,14 +2,45 @@
 // and the use case narrows the data to the caller's own orders.
 import { Router } from "express"
 import { getOrderBudget } from "../application/get-order-budget.js"
+import { createOrder, listAllOrders, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
-import { orderIdParams, toBookableOrderResponse, toOrderBudgetResponse } from "./dto.js"
+import {
+  type OrderRequest,
+  orderIdParams,
+  orderRequest,
+  toBookableOrderResponse,
+  toOrderBudgetResponse,
+  toOrderOverviewResponse,
+  toOrderResponse,
+} from "./dto.js"
 
 export function orderRoutes(db: Db) {
   const router = Router()
+
+  // GET /api/orders – purchasing sees every order with its budget (Σ per order, no single bookings).
+  router.get("/", requireRole("purchasing"), async (_req, res) => {
+    res.json((await listAllOrders(db)).map(toOrderOverviewResponse))
+  })
+
+  // POST /api/orders – purchasing places an order with a supplier.
+  router.post("/", requireRole("purchasing"), async (req, res) => {
+    const input = orderRequest.parse(req.body)
+    setAuditContext(res, { details: auditFacts(input) })
+    const order = await createOrder(db, input)
+    setAuditContext(res, { targetType: "order", targetId: order.id })
+    res.status(201).json(toOrderResponse(order))
+  })
+
+  // PUT /api/orders/:id – purchasing changes an order; all fields are sent, like in the form.
+  router.put("/:id", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const input = orderRequest.parse(req.body)
+    setAuditContext(res, { targetType: "order", targetId: id, details: auditFacts(input) })
+    res.json(toOrderResponse(await updateOrder(db, id, input)))
+  })
 
   // GET /api/orders/bookable – the consultant's own supplier's orders, to pick one when booking time.
   router.get("/bookable", requireRole("consultant"), async (req, res) => {
@@ -33,3 +64,14 @@ export function orderRoutes(db: Db) {
 
   return router
 }
+
+/** Key facts of an order for the audit log (ADR 0012): the title is left out – it is free text. */
+const auditFacts = (input: OrderRequest) => ({
+  code: input.code,
+  supplierId: input.supplierId,
+  projectManagerId: input.projectManagerId,
+  budgetHours: input.budgetHours,
+  hourlyRateCents: input.hourlyRateCents,
+  startDate: input.startDate,
+  endDate: input.endDate,
+})

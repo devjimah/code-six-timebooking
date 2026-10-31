@@ -47,6 +47,10 @@ export const orders = sqliteTable("orders", {
   budgetHours: integer("budget_hours").notNull(),
   // Money budget = budgetHours * hourlyRateCents. Cents avoid float rounding.
   hourlyRateCents: integer("hourly_rate_cents").notNull(),
+  // Period of the order, ISO dates. Bookings outside it are rejected (rules/order-period.ts).
+  // Migration 0003 gave orders that existed before it the whole year 2026 – only demo data existed then.
+  startDate: text("start_date").notNull().default("2026-01-01"),
+  endDate: text("end_date").notNull().default("2026-12-31"),
   ...timestamps,
 })
 

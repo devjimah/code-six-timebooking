@@ -8,6 +8,7 @@ import { auditLog, rememberMountPath } from "./audit/audit-log.js"
 import { errorHandler } from "./api/error-handler.js"
 import { buildOpenApiDocument } from "./api/openapi.js"
 import { orderRoutes } from "./api/order-routes.js"
+import { projectManagerRoutes } from "./api/project-manager-routes.js"
 import { supplierRoutes } from "./api/supplier-routes.js"
 import { timeEntryRoutes } from "./api/time-entry-routes.js"
 import { userRoutes } from "./api/user-routes.js"
@@ -45,6 +46,7 @@ export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0
   app.use("/api/suppliers", rememberMountPath, supplierRoutes(db))
   app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db))
   app.use("/api/orders", rememberMountPath, orderRoutes(db))
+  app.use("/api/project-managers", rememberMountPath, projectManagerRoutes(db))
   app.use("/api/audit-events", rememberMountPath, auditRoutes(db))
 
   // Must stay last: turns DomainError into 422 and hides internal errors.

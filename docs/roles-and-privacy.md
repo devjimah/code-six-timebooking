@@ -27,9 +27,10 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See own bookings | ✔ | – | – | – | built |
 | See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
 | See single bookings of an order (date, hours, description) | own only | ✔ own orders, no daily totals per person | – | – | planned |
-| See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | PM built · purchasing planned |
-| See hourly rates and money | – | ✔ own orders | ✔ | – | PM built · purchasing planned |
-| Create and edit purchase orders | – | – | ✔ | – | planned |
+| See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
+| See hourly rates and money | – | ✔ own orders | ✔ | – | built |
+| Create and edit purchase orders | – | – | ✔ | – | built |
+| See names of project managers (to assign an order) | – | – | ✔ names only | ✔ (user list) | built |
 | Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
 | Create user accounts | – | – | – | ✔ | built |
 | Edit and deactivate user accounts | – | – | – | ✔ | planned |
@@ -99,6 +100,9 @@ that is convenience, not security.
 | `GET /api/time-entries/mine` | consultant | only own entries |
 | `GET /api/orders/bookable` | consultant | only own supplier's orders, no money |
 | `GET /api/orders/managed` | project manager | only own orders |
+| `GET /api/orders` | purchasing | sums per order, no single bookings |
+| `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
+| `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `GET /api/suppliers` | admin, purchasing | – |
@@ -107,8 +111,8 @@ that is convenience, not security.
 
 Tests: wrong role and no session in [auth.test.ts](../apps/api/test/auth.test.ts),
 [users.test.ts](../apps/api/test/users.test.ts), [order-list.test.ts](../apps/api/test/order-list.test.ts),
-[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
+[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [orders.test.ts](../apps/api/test/orders.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
 
-**Planned rows** get the same two layers when they are built: purchasing's order routes,
+**Planned rows** get the same two layers when they are built:
 the project manager's booking list (per booking, no per-person totals), and editing, deactivating and resetting
 accounts (admin only). One demo user per role is seeded and listed in the README.

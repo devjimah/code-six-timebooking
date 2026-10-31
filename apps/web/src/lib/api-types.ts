@@ -40,6 +40,43 @@ export type AuditEvent = {
   userAgent: string | null
 }
 
+// GET /api/orders (orderOverviewResponse): one order with its budget, for purchasing
+export type OrderOverview = {
+  orderId: number
+  code: string
+  title: string
+  supplierId: number
+  supplierName: string
+  projectManagerId: number
+  projectManagerName: string
+  hourlyRateCents: number
+  startDate: string // "YYYY-MM-DD"
+  endDate: string
+  budgetHours: number
+  bookedHours: number
+  remainingHours: number // negative when over budget
+  budgetCents: number
+  bookedCents: number
+  remainingCents: number
+  usedPercent: number
+  overBudget: boolean
+}
+
+// Body of POST /api/orders and PUT /api/orders/:id (orderRequest)
+export type OrderRequest = {
+  code: string
+  title: string
+  supplierId: number
+  projectManagerId: number
+  budgetHours: number
+  hourlyRateCents: number
+  startDate: string
+  endDate: string
+}
+
+// GET /api/project-managers: names only
+export type ProjectManager = { id: number; name: string }
+
 // Body of POST /api/users (createUserRequest)
 export type CreateUserRequest = {
   name: string

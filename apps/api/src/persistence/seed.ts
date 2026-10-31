@@ -33,15 +33,15 @@ export async function seed(db: Db): Promise<boolean> {
   const orderRepo = orderRepository(db)
   const portal = await orderRepo.create({
     code: "PO-2026-001", title: "Customer portal relaunch", supplierId: acme.id,
-    projectManagerId: pm.id, budgetHours: 120, hourlyRateCents: 9500,
+    projectManagerId: pm.id, budgetHours: 120, hourlyRateCents: 9500, startDate: "2026-07-01", endDate: "2027-01-31",
   })
   const migration = await orderRepo.create({
     code: "PO-2026-002", title: "SAP data migration", supplierId: acme.id,
-    projectManagerId: pm.id, budgetHours: 40, hourlyRateCents: 11000,
+    projectManagerId: pm.id, budgetHours: 40, hourlyRateCents: 11000, startDate: "2026-09-01", endDate: "2026-12-31",
   })
   await orderRepo.create({
     code: "PO-2026-003", title: "Mobile app security audit", supplierId: nordic.id,
-    projectManagerId: pm.id, budgetHours: 60, hourlyRateCents: 12000,
+    projectManagerId: pm.id, budgetHours: 60, hourlyRateCents: 12000, startDate: "2026-10-01", endDate: "2026-12-18",
   })
 
   const entries = timeEntryRepository(db)

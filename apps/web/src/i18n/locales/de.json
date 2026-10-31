@@ -41,7 +41,8 @@
     "home": "Start",
     "users": "Benutzer",
     "audit": "Protokoll",
-    "suppliers": "Dienstleister"
+    "suppliers": "Dienstleister",
+    "orders": "Bestellungen"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -101,7 +102,13 @@
       "workDate": "Arbeitstag",
       "durationMinutes": "Dauer",
       "timeEntryId": "Buchungs-Nr.",
-      "name": "Name"
+      "name": "Name",
+      "code": "Bestellnummer",
+      "projectManagerId": "Projektleitung-Nr.",
+      "budgetHours": "Budget",
+      "hourlyRateCents": "Stundensatz",
+      "startDate": "Beginn",
+      "endDate": "Ende"
     }
   },
   "auditActions": {
@@ -112,7 +119,8 @@
     },
     "user": {
       "list": "Benutzer angesehen",
-      "create": "Benutzer angelegt"
+      "create": "Benutzer angelegt",
+      "list_project_managers": "Projektleitungen angesehen"
     },
     "supplier": {
       "list": "Dienstleister angesehen",
@@ -126,7 +134,10 @@
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
       "list_managed": "Eigene Bestellungen angesehen",
-      "view_budget": "Budget angesehen"
+      "view_budget": "Budget angesehen",
+      "list_all": "Alle Bestellungen angesehen",
+      "create": "Bestellung angelegt",
+      "update": "Bestellung geändert"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -134,6 +145,55 @@
     "request": {
       "unknown_route": "Unbekannte Adresse aufgerufen"
     }
+  },
+  "suppliers": {
+    "description": "Die Unternehmen, bei denen bestellt wird. Tippen Sie auf einen Namen, um ihn zu ändern.",
+    "new": "Neuer Dienstleister",
+    "newDescription": "Legen Sie ein Unternehmen an, bei dem Sie Leistungen bestellen.",
+    "rename": "Dienstleister umbenennen",
+    "renameNamed": "{{name}} umbenennen",
+    "renameDescription": "Der neue Name gilt sofort für alle Bestellungen und Berater dieses Unternehmens.",
+    "name": "Name",
+    "create": "Anlegen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "created": "{{name}} angelegt.",
+    "renamed": "Umbenannt in {{name}}.",
+    "empty": "Noch keine Dienstleister.",
+    "loadFailed": "Dienstleister konnten nicht geladen werden"
+  },
+  "orders": {
+    "description": "Alle Bestellungen mit ihrem Budget – nur Summen, keine einzelnen Buchungen. Tippen Sie auf eine Bestellung, um sie zu ändern.",
+    "new": "Neue Bestellung",
+    "newDescription": "Bestellen Sie Leistungen bei einem Dienstleister, mit Budget und Laufzeit.",
+    "edit": "Bestellung {{code}} ändern",
+    "editBooked": "Auf diese Bestellung sind schon {{hours}} gebucht: Das Budget darf nicht kleiner werden, der Dienstleister bleibt fest, die Laufzeit muss alle Buchungen enthalten.",
+    "change": "Ändern",
+    "order": "Bestellung",
+    "code": "Bestellnummer",
+    "title": "Bezeichnung",
+    "supplier": "Dienstleister",
+    "supplierLocked": "Es wurde schon Zeit gebucht – der Dienstleister kann nicht mehr geändert werden.",
+    "projectManager": "Projektleitung",
+    "choosePm": "Projektleitung wählen",
+    "budgetHours": "Budget (Stunden)",
+    "hourlyRate": "Stundensatz (€)",
+    "budgetPreview": "Budget gesamt: {{amount}}",
+    "startDate": "Beginn",
+    "endDate": "Ende",
+    "period": "Laufzeit",
+    "used": "Verbraucht",
+    "usedOf": "{{percent}} % des Budgets von {{code}} verbraucht",
+    "left": "noch {{hours}}",
+    "overBudget": "Über Budget",
+    "totalOrdered": "Bestellt",
+    "totalBooked": "Gebucht",
+    "totalRemaining": "Frei",
+    "create": "Bestellen",
+    "created": "Bestellung {{code}} angelegt.",
+    "saved": "Bestellung {{code}} gespeichert.",
+    "empty": "Noch keine Bestellungen.",
+    "loadFailed": "Bestellungen konnten nicht geladen werden"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
@@ -155,22 +215,13 @@
     "NETWORK_ERROR": "Der Server ist nicht erreichbar. Läuft die API?",
     "UNAUTHENTICATED": "Bitte melden Sie sich an.",
     "FORBIDDEN": "Ihre Rolle darf das nicht.",
-    "SUPPLIER_NAME_TAKEN": "Es gibt bereits einen Dienstleister mit diesem Namen."
-  },
-  "suppliers": {
-    "description": "Die Unternehmen, bei denen bestellt wird. Tippen Sie auf einen Namen, um ihn zu ändern.",
-    "new": "Neuer Dienstleister",
-    "newDescription": "Legen Sie ein Unternehmen an, bei dem Sie Leistungen bestellen.",
-    "rename": "Dienstleister umbenennen",
-    "renameNamed": "{{name}} umbenennen",
-    "renameDescription": "Der neue Name gilt sofort für alle Bestellungen und Berater dieses Unternehmens.",
-    "name": "Name",
-    "create": "Anlegen",
-    "save": "Speichern",
-    "saving": "Wird gespeichert …",
-    "created": "{{name}} angelegt.",
-    "renamed": "Umbenannt in {{name}}.",
-    "empty": "Noch keine Dienstleister.",
-    "loadFailed": "Dienstleister konnten nicht geladen werden"
+    "SUPPLIER_NAME_TAKEN": "Es gibt bereits einen Dienstleister mit diesem Namen.",
+    "ORDER_CODE_TAKEN": "Es gibt bereits eine Bestellung mit dieser Bestellnummer.",
+    "ORDER_PERIOD_INVALID": "Das Ende der Laufzeit darf nicht vor dem Beginn liegen.",
+    "NOT_A_PROJECT_MANAGER": "Für eine Bestellung kann nur eine Projektleitung verantwortlich sein.",
+    "BUDGET_BELOW_BOOKED": "Auf diese Bestellung ist schon mehr Zeit gebucht – das Budget darf nicht kleiner sein.",
+    "SUPPLIER_FIXED_AFTER_BOOKINGS": "Auf diese Bestellung wurde schon Zeit gebucht; sie bleibt beim Dienstleister. Legen Sie stattdessen eine neue Bestellung an.",
+    "PERIOD_EXCLUDES_BOOKINGS": "Es gibt Buchungen außerhalb dieser Laufzeit. Die Laufzeit muss alle gebuchten Tage enthalten.",
+    "OUTSIDE_ORDER_PERIOD": "Buchung abgelehnt: Das Datum liegt außerhalb der Laufzeit dieser Bestellung."
   }
 }

@@ -41,7 +41,8 @@
     "home": "Home",
     "users": "Users",
     "audit": "Audit log",
-    "suppliers": "Suppliers"
+    "suppliers": "Suppliers",
+    "orders": "Orders"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -101,7 +102,13 @@
       "workDate": "Work date",
       "durationMinutes": "Duration",
       "timeEntryId": "Booking no.",
-      "name": "Name"
+      "name": "Name",
+      "code": "Order number",
+      "projectManagerId": "Project manager no.",
+      "budgetHours": "Budget",
+      "hourlyRateCents": "Hourly rate",
+      "startDate": "Start",
+      "endDate": "End"
     }
   },
   "auditActions": {
@@ -112,7 +119,8 @@
     },
     "user": {
       "list": "Viewed users",
-      "create": "Created user"
+      "create": "Created user",
+      "list_project_managers": "Viewed project managers"
     },
     "supplier": {
       "list": "Viewed suppliers",
@@ -126,7 +134,10 @@
     "order": {
       "list_bookable": "Viewed bookable orders",
       "list_managed": "Viewed own orders",
-      "view_budget": "Viewed budget"
+      "view_budget": "Viewed budget",
+      "list_all": "Viewed all orders",
+      "create": "Placed order",
+      "update": "Changed order"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -134,6 +145,55 @@
     "request": {
       "unknown_route": "Called unknown address"
     }
+  },
+  "suppliers": {
+    "description": "The companies orders are placed with. Tap a name to change it.",
+    "new": "New supplier",
+    "newDescription": "Add a company you order services from.",
+    "rename": "Rename supplier",
+    "renameNamed": "Rename {{name}}",
+    "renameDescription": "The new name applies at once to all orders and consultants of this company.",
+    "name": "Name",
+    "create": "Create",
+    "save": "Save",
+    "saving": "Saving …",
+    "created": "{{name}} created.",
+    "renamed": "Renamed to {{name}}.",
+    "empty": "No suppliers yet.",
+    "loadFailed": "Suppliers could not be loaded"
+  },
+  "orders": {
+    "description": "All orders with their budget – sums only, no single bookings. Tap an order to change it.",
+    "new": "New order",
+    "newDescription": "Order services from a supplier, with a budget and a period.",
+    "edit": "Change order {{code}}",
+    "editBooked": "{{hours}} are already booked on this order: the budget cannot shrink below that, the supplier is fixed, and the period must include all bookings.",
+    "change": "Change",
+    "order": "Order",
+    "code": "Order number",
+    "title": "Title",
+    "supplier": "Supplier",
+    "supplierLocked": "Time has been booked – the supplier can no longer be changed.",
+    "projectManager": "Project manager",
+    "choosePm": "Choose a project manager",
+    "budgetHours": "Budget (hours)",
+    "hourlyRate": "Hourly rate (€)",
+    "budgetPreview": "Total budget: {{amount}}",
+    "startDate": "Start",
+    "endDate": "End",
+    "period": "Period",
+    "used": "Used",
+    "usedOf": "{{percent}} % of the budget of {{code}} used",
+    "left": "{{hours}} left",
+    "overBudget": "Over budget",
+    "totalOrdered": "Ordered",
+    "totalBooked": "Booked",
+    "totalRemaining": "Free",
+    "create": "Place order",
+    "created": "Order {{code}} created.",
+    "saved": "Order {{code}} saved.",
+    "empty": "No orders yet.",
+    "loadFailed": "Orders could not be loaded"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
@@ -155,22 +215,13 @@
     "NETWORK_ERROR": "The server cannot be reached. Is the API running?",
     "UNAUTHENTICATED": "Please sign in.",
     "FORBIDDEN": "Your role is not allowed to do this.",
-    "SUPPLIER_NAME_TAKEN": "A supplier with this name already exists."
-  },
-  "suppliers": {
-    "description": "The companies orders are placed with. Tap a name to change it.",
-    "new": "New supplier",
-    "newDescription": "Add a company you order services from.",
-    "rename": "Rename supplier",
-    "renameNamed": "Rename {{name}}",
-    "renameDescription": "The new name applies at once to all orders and consultants of this company.",
-    "name": "Name",
-    "create": "Create",
-    "save": "Save",
-    "saving": "Saving …",
-    "created": "{{name}} created.",
-    "renamed": "Renamed to {{name}}.",
-    "empty": "No suppliers yet.",
-    "loadFailed": "Suppliers could not be loaded"
+    "SUPPLIER_NAME_TAKEN": "A supplier with this name already exists.",
+    "ORDER_CODE_TAKEN": "An order with this order number already exists.",
+    "ORDER_PERIOD_INVALID": "The period cannot end before it starts.",
+    "NOT_A_PROJECT_MANAGER": "Only a project manager can be responsible for an order.",
+    "BUDGET_BELOW_BOOKED": "More time is already booked on this order – the budget cannot be smaller.",
+    "SUPPLIER_FIXED_AFTER_BOOKINGS": "Time has already been booked on this order, so it stays with its supplier. Create a new order instead.",
+    "PERIOD_EXCLUDES_BOOKINGS": "There are bookings outside this period. The period must include every booked day.",
+    "OUTSIDE_ORDER_PERIOD": "Booking rejected: the date is outside the period of this order."
   }
 }
