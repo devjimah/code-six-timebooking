@@ -17,7 +17,12 @@
     "ORDER_NOT_FOUND": "Booking rejected: this order does not exist.",
     "ORDER_NOT_ASSIGNED": "Booking rejected: you can only book on orders of your own company.",
     "DATE_IN_FUTURE": "Booking rejected: the date is in the future. Book time once the work is done.",
+    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget.",
     "INVALID_JSON": "The request could not be read.",
-    "INTERNAL_ERROR": "Something went wrong on the server. Please try again."
+    "INTERNAL_ERROR": "Something went wrong on the server. Please try again.",
+    "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",
+    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers and admins work for the client; leave the supplier empty.",
+    "SUPPLIER_NOT_FOUND": "This supplier does not exist.",
+    "EMAIL_TAKEN": "An account with this email address already exists."
   }
 }

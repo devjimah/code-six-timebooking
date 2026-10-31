@@ -32,4 +32,6 @@ and anything else to **500** without internal details. Express 5 forwards errors
 - A new rule only needs `throw new DomainError("CODE", "message")` and its tests.
 - `code` is stable and machine-readable, so the UI can translate it ([ADR 0011](0011-internationalisation.md)).
 - 401 and 403 are not domain errors; the auth middleware sends them ([ADR 0002](0002-identity-and-sign-in.md)).
+- Use cases signal "does not exist" and "not yours" with `NotFoundError` (404) and `AccessDeniedError` (403)
+  from `apps/api/src/application/errors.ts`; the same error handler maps them (added with ticket #18).
 - Covered by `apps/api/test/error-handler.test.ts`.
