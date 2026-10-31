@@ -21,7 +21,9 @@ export function loadUser(db: Db, sessionSecret: string): RequestHandler {
     const token = readCookie(req, SESSION_COOKIE)
     const userId = token ? verifySessionToken(token, sessionSecret) : null
     // Load from the database each time, so a deleted user or a changed role takes effect immediately.
-    req.user = userId ? ((await userRepository(db).findById(userId)) ?? undefined) : undefined
+    const user = userId ? await userRepository(db).findById(userId) : null
+    // A deactivated account counts as signed out, so an open session ends with the next request (step 4).
+    req.user = user && user.deactivatedAt === null ? user : undefined
     next()
   }
 }

@@ -10,6 +10,7 @@ export type User = {
   name: string
   role: Role
   supplierId: number | null
+  deactivatedAt: string | null // ISO timestamp; null = active
 }
 
 export type Supplier = {

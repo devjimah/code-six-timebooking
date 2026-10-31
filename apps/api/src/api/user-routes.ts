@@ -1,11 +1,12 @@
 // Accounts – admin only (ADR 0004, ticket #5). There is no self-registration on purpose.
 import { Router } from "express"
 import { createUser } from "../application/create-user.js"
+import { deactivateUser, reactivateUser, updateUser } from "../application/manage-users.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
 import { userRepository } from "../persistence/repositories.js"
-import { createUserRequest, toUserResponse } from "./dto.js"
+import { createUserRequest, toUserResponse, updateUserRequest, userIdParams } from "./dto.js"
 
 export function userRoutes(db: Db) {
   const router = Router()
@@ -22,6 +23,31 @@ export function userRoutes(db: Db) {
     const user = await createUser(db, { ...account, initialPassword: password })
     setAuditContext(res, { targetType: "user", targetId: user.id })
     res.status(201).json(toUserResponse(user))
+  })
+
+  // PUT /api/users/:id – change name, email, role or company (step 4). No password here.
+  router.put("/:id", requireRole("admin"), async (req, res) => {
+    const { id } = userIdParams.parse(req.params)
+    const changes = updateUserRequest.parse(req.body)
+    setAuditContext(res, {
+      targetType: "user",
+      targetId: id,
+      details: { email: changes.email, role: changes.role, supplierId: changes.supplierId },
+    })
+    res.json(toUserResponse(await updateUser(db, req.user!, id, changes)))
+  })
+
+  // Accounts are deactivated, never deleted: bookings and audit events keep pointing to the person.
+  router.post("/:id/deactivate", requireRole("admin"), async (req, res) => {
+    const { id } = userIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "user", targetId: id })
+    res.json(toUserResponse(await deactivateUser(db, req.user!, id)))
+  })
+
+  router.post("/:id/reactivate", requireRole("admin"), async (req, res) => {
+    const { id } = userIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "user", targetId: id })
+    res.json(toUserResponse(await reactivateUser(db, id)))
   })
 
   return router

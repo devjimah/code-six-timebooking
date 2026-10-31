@@ -13,6 +13,7 @@ const toUser = (r: typeof users.$inferSelect): User => ({
   name: r.name,
   role: r.role,
   supplierId: r.supplierId,
+  deactivatedAt: r.deactivatedAt,
 })
 const toSupplier = (r: typeof suppliers.$inferSelect): Supplier => ({ id: r.id, name: r.name })
 const toOrder = (r: typeof orders.$inferSelect): Order => ({
@@ -58,7 +59,8 @@ export function supplierRepository(db: Db) {
 
 export function userRepository(db: Db) {
   return {
-    async create(data: NewOf<User> & { passwordHash: string }) {
+    /** New accounts are always active. */
+    async create(data: Omit<NewOf<User>, "deactivatedAt"> & { passwordHash: string }) {
       const [row] = await db.insert(users).values(data).returning()
       return toUser(row!)
     },
@@ -77,6 +79,10 @@ export function userRepository(db: Db) {
     },
     async findAll() {
       return (await db.select().from(users)).map(toUser)
+    },
+    async update(id: number, data: Partial<Omit<NewOf<User>, "id">>) {
+      const [row] = await db.update(users).set(data).where(eq(users.id, id)).returning()
+      return toUser(row!)
     },
   }
 }
@@ -133,6 +139,11 @@ export function timeEntryRepository(db: Db) {
         .where(eq(timeEntries.userId, userId))
         .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
       return rows.map(toTimeEntry)
+    },
+    /** For the role-change rule: does this person have any bookings? */
+    async countByUser(userId: number) {
+      const [row] = await db.select({ n: sql<number>`count(*)` }).from(timeEntries).where(eq(timeEntries.userId, userId))
+      return Number(row?.n ?? 0)
     },
     /** For the 10-hour rule: everything this person booked on this date, on any order. */
     async sumMinutesForUserOnDate(userId: number, workDate: string) {

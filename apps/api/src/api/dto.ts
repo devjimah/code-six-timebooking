@@ -26,6 +26,7 @@ export const userResponse = z.object({
   name: z.string(),
   role: z.enum(ROLES),
   supplierId: z.number().int().nullable(),
+  deactivatedAt: z.string().nullable().meta({ description: "ISO timestamp; null = active" }),
 })
 export type UserResponse = z.infer<typeof userResponse>
 
@@ -35,6 +36,7 @@ export const toUserResponse = (user: User): UserResponse => ({
   name: user.name,
   role: user.role,
   supplierId: user.supplierId,
+  deactivatedAt: user.deactivatedAt,
 })
 
 // POST /api/users – admin only (ADR 0004).
@@ -47,6 +49,10 @@ export const createUserRequest = z.object({
   // bcrypt only uses the first 72 bytes, so longer passwords would give a false sense of security.
   password: z.string().min(10).max(72).meta({ description: "Initial password; the admin hands it to the person" }),
 })
+
+// PUT /api/users/:id – admin only. Same fields as creating an account, without the password.
+export const updateUserRequest = createUserRequest.omit({ password: true })
+export const userIdParams = z.object({ id: z.coerce.number().int().positive() })
 
 export const supplierResponse = z.object({ id: z.number().int(), name: z.string() })
 

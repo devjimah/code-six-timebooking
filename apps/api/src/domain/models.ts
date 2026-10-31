@@ -15,6 +15,8 @@ export interface User {
   name: string
   role: Role
   supplierId: number | null
+  /** ISO timestamp when an admin deactivated the account; null = active. Accounts are never deleted. */
+  deactivatedAt: string | null
 }
 
 export interface Order {

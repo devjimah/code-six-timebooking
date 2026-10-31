@@ -59,7 +59,22 @@
     "cancel": "Abbrechen",
     "created": "Konto für {{name}} angelegt.",
     "client": "Auftraggeber",
-    "loadFailed": "Benutzer konnten nicht geladen werden"
+    "loadFailed": "Benutzer konnten nicht geladen werden",
+    "edit": "{{name}} bearbeiten",
+    "editButton": "Bearbeiten",
+    "editDescription": "Name, E-Mail, Rolle und Unternehmen ändern. Das Passwort bleibt, wie es ist.",
+    "saved": "Konto von {{name}} gespeichert.",
+    "ownRoleHint": "Ihre eigene Rolle können Sie nicht ändern – fragen Sie einen anderen Admin.",
+    "roleChangeHint": "Die Rolle ändert sich nur, solange nichts an ihr hängt: keine Buchungen eines Beraters, keine Bestellungen einer Projektleitung.",
+    "deactivate": "Deaktivieren",
+    "deactivateTitle": "{{name}} deaktivieren?",
+    "deactivateDescription": "Die Person wird sofort abgemeldet und kann sich nicht mehr anmelden. Ihre Buchungen und Protokolleinträge bleiben erhalten. Sie können das Konto später wieder aktivieren.",
+    "deactivatedToast": "{{name}} ist deaktiviert.",
+    "reactivate": "Wieder aktivieren",
+    "reactivated": "{{name}} ist wieder aktiv.",
+    "deactivated": "Deaktiviert",
+    "status": "Status",
+    "deactivatedSince": "Deaktiviert seit {{date}}"
   },
   "audit": {
     "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
@@ -121,7 +136,10 @@
     "user": {
       "list": "Benutzer angesehen",
       "create": "Benutzer angelegt",
-      "list_project_managers": "Projektleitungen angesehen"
+      "list_project_managers": "Projektleitungen angesehen",
+      "update": "Benutzer geändert",
+      "deactivate": "Benutzer deaktiviert",
+      "reactivate": "Benutzer wieder aktiviert"
     },
     "supplier": {
       "list": "Dienstleister angesehen",
@@ -240,6 +258,13 @@
     "BUDGET_BELOW_BOOKED": "Auf diese Bestellung ist schon mehr Zeit gebucht – das Budget darf nicht kleiner sein.",
     "SUPPLIER_FIXED_AFTER_BOOKINGS": "Auf diese Bestellung wurde schon Zeit gebucht; sie bleibt beim Dienstleister. Legen Sie stattdessen eine neue Bestellung an.",
     "PERIOD_EXCLUDES_BOOKINGS": "Es gibt Buchungen außerhalb dieser Laufzeit. Die Laufzeit muss alle gebuchten Tage enthalten.",
-    "OUTSIDE_ORDER_PERIOD": "Buchung abgelehnt: Das Datum liegt außerhalb der Laufzeit dieser Bestellung."
+    "OUTSIDE_ORDER_PERIOD": "Buchung abgelehnt: Das Datum liegt außerhalb der Laufzeit dieser Bestellung.",
+    "ROLE_IN_USE": "Die Rolle kann nicht geändert werden: An ihr hängen Buchungen oder Bestellungen. Legen Sie stattdessen ein neues Konto an – oder lassen Sie den Einkauf die Bestellungen zuerst neu zuweisen.",
+    "CANNOT_CHANGE_OWN_ROLE": "Sie können Ihre eigene Rolle nicht ändern. Fragen Sie einen anderen Admin.",
+    "CANNOT_DEACTIVATE_YOURSELF": "Sie können Ihr eigenes Konto nicht deaktivieren. Fragen Sie einen anderen Admin.",
+    "MANAGES_ORDERS": "Diese Projektleitung ist noch für Bestellungen verantwortlich. Der Einkauf muss sie zuerst jemand anderem zuweisen.",
+    "USER_NOT_FOUND": "Dieses Konto gibt es nicht.",
+    "ACCOUNT_DEACTIVATED": "Dieses Konto wurde deaktiviert. Wenden Sie sich an Ihren Admin.",
+    "PROJECT_MANAGER_DEACTIVATED": "Diese Projektleitung ist deaktiviert und kann keine Bestellung verantworten."
   }
 }

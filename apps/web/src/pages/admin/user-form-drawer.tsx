@@ -1,8 +1,9 @@
-// Admin creates an account (POST /api/users). The server enforces the rules (consultant needs a supplier,
-// unique email, password length); the form only helps to get them right first time.
+// Admin creates an account (POST /api/users) or changes one (PUT /api/users/:id). One form for both: editing has
+// no password field. The server enforces the rules (company only for consultants, unique email, role changes only
+// while nothing depends on the old role, not your own role); the form only helps to get them right first time.
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { CircleAlert, UserPlus } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
@@ -15,7 +16,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@workspace/ui/components/drawer"
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
@@ -23,44 +23,61 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import { ROLES, type CreateUserRequest, type Role, type Supplier, type User } from "@/lib/api-types.ts"
+import { ROLES, type Role, type Supplier, type User } from "@/lib/api-types.ts"
+
+type Props = {
+  /** null = closed, "new" = create an account, a user = change that account */
+  editing: User | "new" | null
+  /** The signed-in admin – their own role cannot be changed */
+  currentUserId: number
+  suppliers: Supplier[]
+  onClose: () => void
+  onSaved: () => void
+}
 
 const EMPTY_FORM = { name: "", email: "", role: "consultant" as Role, supplierId: "", password: "" }
 
-export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier[]; onCreated: () => void }) {
+export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onSaved }: Props) {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
-  const [open, setOpen] = React.useState(false)
+  const existing = editing && editing !== "new" ? editing : null
+  const isOwnAccount = existing?.id === currentUserId
   const [form, setForm] = React.useState(EMPTY_FORM)
   const [error, setError] = React.useState<string | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
 
-  const update = (changes: Partial<typeof EMPTY_FORM>) => setForm((current) => ({ ...current, ...changes }))
-
-  function handleOpenChange(next: boolean) {
-    setOpen(next)
-    if (!next) {
-      setForm(EMPTY_FORM)
-      setError(null)
-    }
+  // Fill the form each time the drawer opens for another account.
+  const [openedFor, setOpenedFor] = React.useState<typeof editing>(null)
+  if (editing !== openedFor) {
+    setOpenedFor(editing)
+    setForm(
+      existing
+        ? { name: existing.name, email: existing.email, role: existing.role, supplierId: String(existing.supplierId ?? ""), password: "" }
+        : EMPTY_FORM,
+    )
+    setError(null)
   }
+
+  const update = (changes: Partial<typeof EMPTY_FORM>) => setForm((current) => ({ ...current, ...changes }))
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!editing) return
     setError(null)
     setSubmitting(true)
-    const body: CreateUserRequest = {
+    const account = {
       name: form.name,
       email: form.email,
       role: form.role,
       supplierId: form.role === "consultant" && form.supplierId ? Number(form.supplierId) : null,
-      password: form.password,
     }
     try {
-      const created = await api<User>("/users", { method: "POST", body: JSON.stringify(body) })
-      toast.success(t("users.created", { name: created.name }))
-      handleOpenChange(false)
-      onCreated()
+      const saved = existing
+        ? await api<User>(`/users/${existing.id}`, { method: "PUT", body: JSON.stringify(account) })
+        : await api<User>("/users", { method: "POST", body: JSON.stringify({ ...account, password: form.password }) })
+      toast.success(t(existing ? "users.saved" : "users.created", { name: saved.name }))
+      onSaved()
+      onClose()
     } catch (caught) {
       setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
     } finally {
@@ -69,20 +86,14 @@ export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier
   }
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"} open={open} onOpenChange={handleOpenChange}>
-      <DrawerTrigger asChild>
-        <Button>
-          <UserPlus aria-hidden />
-          {t("users.new")}
-        </Button>
-      </DrawerTrigger>
+    <Drawer direction={isMobile ? "bottom" : "right"} open={editing !== null} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{t("users.new")}</DrawerTitle>
-          <DrawerDescription>{t("users.newDescription")}</DrawerDescription>
+          <DrawerTitle>{existing ? t("users.edit", { name: existing.name }) : t("users.new")}</DrawerTitle>
+          <DrawerDescription>{existing ? t("users.editDescription") : t("users.newDescription")}</DrawerDescription>
         </DrawerHeader>
         {/* The form scrolls on small phones; the footer buttons stay visible below it. */}
-        <form id="create-user" onSubmit={handleSubmit} className="overflow-y-auto px-4">
+        <form id="user-form" onSubmit={handleSubmit} className="overflow-y-auto px-4">
           <FieldGroup>
             {error && (
               <Alert variant="destructive">
@@ -91,9 +102,9 @@ export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier
               </Alert>
             )}
             <Field>
-              <FieldLabel htmlFor="new-name">{t("users.name")}</FieldLabel>
+              <FieldLabel htmlFor="user-name">{t("users.name")}</FieldLabel>
               <Input
-                id="new-name"
+                id="user-name"
                 required
                 minLength={2}
                 maxLength={100}
@@ -103,9 +114,9 @@ export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="new-email">{t("login.email")}</FieldLabel>
+              <FieldLabel htmlFor="user-email">{t("login.email")}</FieldLabel>
               <Input
-                id="new-email"
+                id="user-email"
                 type="email"
                 required
                 autoComplete="off"
@@ -114,13 +125,14 @@ export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="new-role">{t("profile.role")}</FieldLabel>
+              <FieldLabel htmlFor="user-role">{t("profile.role")}</FieldLabel>
               <Select
                 value={form.role}
+                disabled={isOwnAccount}
                 // Only consultants belong to a supplier, so forget the supplier when the role changes.
                 onValueChange={(role) => update({ role: role as Role, supplierId: "" })}
               >
-                <SelectTrigger id="new-role" className="w-full">
+                <SelectTrigger id="user-role" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,12 +143,17 @@ export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier
                   ))}
                 </SelectContent>
               </Select>
+              {isOwnAccount ? (
+                <FieldDescription>{t("users.ownRoleHint")}</FieldDescription>
+              ) : (
+                existing && <FieldDescription>{t("users.roleChangeHint")}</FieldDescription>
+              )}
             </Field>
             {form.role === "consultant" && (
               <Field>
-                <FieldLabel htmlFor="new-supplier">{t("profile.company")}</FieldLabel>
+                <FieldLabel htmlFor="user-supplier">{t("profile.company")}</FieldLabel>
                 <Select value={form.supplierId} onValueChange={(supplierId) => update({ supplierId })}>
-                  <SelectTrigger id="new-supplier" className="w-full">
+                  <SelectTrigger id="user-supplier" className="w-full">
                     <SelectValue placeholder={t("users.chooseSupplier")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -150,25 +167,27 @@ export function CreateUserDrawer({ suppliers, onCreated }: { suppliers: Supplier
                 <FieldDescription>{t("users.supplierHint")}</FieldDescription>
               </Field>
             )}
-            <Field>
-              <FieldLabel htmlFor="new-password">{t("users.initialPassword")}</FieldLabel>
-              <Input
-                id="new-password"
-                type="text"
-                required
-                minLength={10}
-                maxLength={72}
-                autoComplete="new-password"
-                value={form.password}
-                onChange={(e) => update({ password: e.target.value })}
-              />
-              <FieldDescription>{t("users.passwordHint")}</FieldDescription>
-            </Field>
+            {!existing && (
+              <Field>
+                <FieldLabel htmlFor="user-password">{t("users.initialPassword")}</FieldLabel>
+                <Input
+                  id="user-password"
+                  type="text"
+                  required
+                  minLength={10}
+                  maxLength={72}
+                  autoComplete="new-password"
+                  value={form.password}
+                  onChange={(e) => update({ password: e.target.value })}
+                />
+                <FieldDescription>{t("users.passwordHint")}</FieldDescription>
+              </Field>
+            )}
           </FieldGroup>
         </form>
         <DrawerFooter>
-          <Button type="submit" form="create-user" disabled={submitting}>
-            {submitting ? t("users.creating") : t("users.create")}
+          <Button type="submit" form="user-form" disabled={submitting}>
+            {submitting ? t("suppliers.saving") : existing ? t("suppliers.save") : t("users.create")}
           </Button>
           <DrawerClose asChild>
             <Button variant="outline">{t("users.cancel")}</Button>

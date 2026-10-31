@@ -29,6 +29,8 @@ export const users = sqliteTable("users", {
   role: text("role", { enum: ROLES }).notNull(),
   // Only consultants belong to a supplier; null for client-side roles.
   supplierId: integer("supplier_id").references(() => suppliers.id),
+  // Set when an admin deactivates the account (step 4). The person can no longer sign in; their bookings stay.
+  deactivatedAt: text("deactivated_at"),
   ...timestamps,
 })
 

@@ -40,3 +40,8 @@ so this endpoint becomes a fallback.
   creating a budget from spending it. Purchasing places orders and manages suppliers; the project manager spends
   the budget and checks the work. Like admins and project managers, purchasing works for the client and has no
   supplier. Adding a role needed no migration (roles are text) – only `ROLES`, the seed and the route checks.
+- **Update 2026-10-31 – changing and deactivating accounts:** the admin can change name, email, role and company
+  (`PUT /api/users/:id`). A role only changes while no data depends on it (a consultant's bookings, a project
+  manager's orders); otherwise a new account is the clean way. Accounts are deactivated (`deactivated_at`),
+  never deleted, so bookings and audit events keep their person. No admin can change their own role or deactivate
+  themselves – so there is always at least one active admin.

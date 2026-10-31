@@ -34,6 +34,12 @@ export function authRoutes(db: Db, options: { sessionSecret: string; secureCooki
       return
     }
 
+    if (found.user.deactivatedAt !== null) {
+      setAuditContext(res, { targetType: "user", targetId: found.user.id })
+      res.status(403).json({ code: "ACCOUNT_DEACTIVATED", message: "This account has been deactivated. Contact your admin." })
+      return
+    }
+
     setAuditActor(res, found.user) // the audit log should show who signed in
     setAuditContext(res, { targetType: "user", targetId: found.user.id })
     const token = createSessionToken(found.user.id, options.sessionSecret)

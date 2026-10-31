@@ -117,13 +117,19 @@ describe("supplier fixed after the first booking", () => {
 })
 
 describe("responsible project manager", () => {
-  it("accepts a project manager", () => {
-    expect(() => assertIsProjectManager({ role: "project_manager" }, 2)).not.toThrow()
+  it("accepts an active project manager", () => {
+    expect(() => assertIsProjectManager({ role: "project_manager", deactivatedAt: null }, 2)).not.toThrow()
   })
 
   it("rejects other roles and unknown users", () => {
-    expect(() => assertIsProjectManager({ role: "consultant" }, 4)).toThrow(code("NOT_A_PROJECT_MANAGER"))
-    expect(() => assertIsProjectManager({ role: "purchasing" }, 3)).toThrow(code("NOT_A_PROJECT_MANAGER"))
+    expect(() => assertIsProjectManager({ role: "consultant", deactivatedAt: null }, 4)).toThrow(code("NOT_A_PROJECT_MANAGER"))
+    expect(() => assertIsProjectManager({ role: "purchasing", deactivatedAt: null }, 3)).toThrow(code("NOT_A_PROJECT_MANAGER"))
     expect(() => assertIsProjectManager(null, 999)).toThrow(code("NOT_A_PROJECT_MANAGER"))
+  })
+
+  it("rejects a deactivated project manager", () => {
+    expect(() => assertIsProjectManager({ role: "project_manager", deactivatedAt: "2026-10-31T10:00:00.000Z" }, 2)).toThrow(
+      code("PROJECT_MANAGER_DEACTIVATED"),
+    )
   })
 })

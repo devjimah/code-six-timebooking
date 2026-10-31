@@ -70,6 +70,6 @@ export async function updateOrder(db: Db, id: number, input: OrderInput): Promis
 /** Who can be made responsible for an order: names only, no emails – purchasing needs no more to choose. */
 export async function listProjectManagers(db: Db): Promise<Pick<User, "id" | "name">[]> {
   return (await userRepository(db).findAll())
-    .filter((u) => u.role === "project_manager")
+    .filter((u) => u.role === "project_manager" && u.deactivatedAt === null)
     .map(({ id, name }) => ({ id, name }))
 }

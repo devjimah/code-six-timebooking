@@ -19,6 +19,8 @@ import {
   orderResponse,
   projectManagerResponse,
   supplierIdParams,
+  updateUserRequest,
+  userIdParams,
   supplierRequest,
   supplierResponse,
   timeEntryResponse,
@@ -50,7 +52,11 @@ export const routes: RouteDoc[] = [
     summary: "Sign in with email and password; sets the session cookie",
     body: loginRequest,
     success: { status: 200, description: "Signed in", schema: userResponse },
-    errors: { 400: "Invalid request body", 401: "Email or password is wrong (INVALID_CREDENTIALS)" },
+    errors: {
+      400: "Invalid request body",
+      401: "Email or password is wrong (INVALID_CREDENTIALS)",
+      403: "Right password, but the account is deactivated (ACCOUNT_DEACTIVATED)",
+    },
   },
   {
     method: "post", path: "/api/auth/logout", tag: "Sign-in", summary: "Sign out; clears the session cookie",
@@ -73,6 +79,34 @@ export const routes: RouteDoc[] = [
       400: "Invalid request body",
       422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_CONSULTANTS, SUPPLIER_NOT_FOUND, EMAIL_TAKEN",
     },
+  },
+  {
+    method: "put", path: "/api/users/{id}", tag: "Users", roles: ["admin"],
+    summary: "Change name, email, role or company. A role only changes while no bookings or orders depend on it; " +
+      "not your own role",
+    params: userIdParams,
+    body: updateUserRequest,
+    success: { status: 200, description: "Account changed", schema: userResponse },
+    errors: {
+      400: "Invalid id or body",
+      404: "USER_NOT_FOUND",
+      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_CONSULTANTS, SUPPLIER_NOT_FOUND, EMAIL_TAKEN, ROLE_IN_USE, " +
+        "CANNOT_CHANGE_OWN_ROLE",
+    },
+  },
+  {
+    method: "post", path: "/api/users/{id}/deactivate", tag: "Users", roles: ["admin"],
+    summary: "Deactivate an account: no more sign-in, open sessions end. Not yourself; not a project manager with orders",
+    params: userIdParams,
+    success: { status: 200, description: "Account deactivated (or already was)", schema: userResponse },
+    errors: { 400: "Invalid id", 404: "USER_NOT_FOUND", 422: "CANNOT_DEACTIVATE_YOURSELF, MANAGES_ORDERS" },
+  },
+  {
+    method: "post", path: "/api/users/{id}/reactivate", tag: "Users", roles: ["admin"],
+    summary: "Reactivate an account",
+    params: userIdParams,
+    success: { status: 200, description: "Account active again", schema: userResponse },
+    errors: { 400: "Invalid id", 404: "USER_NOT_FOUND" },
   },
   {
     method: "get", path: "/api/suppliers", tag: "Suppliers",
@@ -124,7 +158,7 @@ export const routes: RouteDoc[] = [
     success: { status: 201, description: "Order created", schema: orderResponse },
     errors: {
       400: "Invalid request body",
-      422: "ORDER_CODE_TAKEN, ORDER_PERIOD_INVALID, SUPPLIER_NOT_FOUND, NOT_A_PROJECT_MANAGER",
+      422: "ORDER_CODE_TAKEN, ORDER_PERIOD_INVALID, SUPPLIER_NOT_FOUND, NOT_A_PROJECT_MANAGER, PROJECT_MANAGER_DEACTIVATED",
     },
   },
   {

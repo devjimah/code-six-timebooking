@@ -33,7 +33,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See names of project managers (to assign an order) | – | – | ✔ names only | ✔ (user list) | built |
 | Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
 | Create user accounts | – | – | – | ✔ | built |
-| Edit and deactivate user accounts | – | – | – | ✔ | planned |
+| Edit and deactivate user accounts (never delete) | – | – | – | ✔ not own role, not self | built |
 | Reset a user's password | – | – | – | ✔ | planned |
 | Read the audit log | – | – | – | ✔ | built |
 
@@ -43,7 +43,7 @@ Everything not listed is not allowed. Every signed-in user may read their own ac
 
 | Data | Why we store it | Who needs it | How long we keep it |
 |---|---|---|---|
-| Name, business email, role, supplier company | Sign-in, permissions, showing who booked | the person, admin; project manager sees the name on bookings of own orders | as long as the account exists; after deactivation as long as bookings refer to it |
+| Name, business email, role, supplier company | Sign-in, permissions, showing who booked | the person, admin; project manager sees the name on bookings of own orders | as long as the account exists. Accounts are deactivated, never deleted, while bookings refer to them; deactivated people cannot sign in and their open sessions end at once |
 | Password hash (bcrypt) | Sign-in | nobody reads it, the server only compares | as long as the account exists |
 | Bookings: date, duration, description, consultant | Proof of work for the order, budget, invoice check | the consultant; project manager of the order (per booking); purchasing only as Σ per order | proposal: 10 years for bookings that back an invoice (German tax law, §147 AO); the client's data protection officer confirms before production |
 | Audit events: user, time, action, target, key facts, IP address, browser, email tried at sign-in | Security and traceability of bookings and account changes ([ADR 0012](adr/0012-audit-log.md)) | admin only | read events 90 days, all other events 365 days; deleted automatically by a daily job |
@@ -106,14 +106,15 @@ that is convenience, not security.
 | `GET /api/orders/:id/budget` | project manager | only own orders |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person |
 | `GET /api/users`, `POST /api/users` | admin | – |
+| `PUT /api/users/:id` | admin | role changes only without dependent bookings/orders; not own role |
+| `POST /api/users/:id/deactivate`, `.../reactivate` | admin | not yourself; not a project manager with orders |
 | `GET /api/suppliers` | admin, purchasing | – |
 | `POST /api/suppliers`, `PATCH /api/suppliers/:id` | purchasing | unique name (`SUPPLIER_NAME_TAKEN`) |
 | `GET /api/audit-events` | admin | – |
 
 Tests: wrong role and no session in [auth.test.ts](../apps/api/test/auth.test.ts),
 [users.test.ts](../apps/api/test/users.test.ts), [order-list.test.ts](../apps/api/test/order-list.test.ts),
-[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [orders.test.ts](../apps/api/test/orders.test.ts), [order-bookings.test.ts](../apps/api/test/order-bookings.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
+[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [orders.test.ts](../apps/api/test/orders.test.ts), [order-bookings.test.ts](../apps/api/test/order-bookings.test.ts), [manage-users.test.ts](../apps/api/test/manage-users.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
 
-**Planned rows** get the same two layers when they are built:
-editing, deactivating and resetting
-accounts (admin only). One demo user per role is seeded and listed in the README.
+**Planned rows** (password reset, admin only) get the same two layers when they are built. One demo user per role is
+seeded and listed in the README.

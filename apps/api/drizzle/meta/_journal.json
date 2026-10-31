@@ -29,6 +29,13 @@
       "when": 1793470627906,
       "tag": "0003_order_period",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1793474014924,
+      "tag": "0004_user_deactivation",
+      "breakpoints": true
     }
   ]
 }

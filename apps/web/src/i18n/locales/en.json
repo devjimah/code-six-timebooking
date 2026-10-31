@@ -59,7 +59,22 @@
     "cancel": "Cancel",
     "created": "Account for {{name}} created.",
     "client": "Client",
-    "loadFailed": "Users could not be loaded"
+    "loadFailed": "Users could not be loaded",
+    "edit": "Edit {{name}}",
+    "editButton": "Edit",
+    "editDescription": "Change name, email, role and company. The password stays as it is.",
+    "saved": "Account of {{name}} saved.",
+    "ownRoleHint": "You cannot change your own role – ask another admin.",
+    "roleChangeHint": "The role only changes while nothing depends on it: no bookings of a consultant, no orders of a project manager.",
+    "deactivate": "Deactivate",
+    "deactivateTitle": "Deactivate {{name}}?",
+    "deactivateDescription": "The person is signed out at once and can no longer sign in. Their bookings and audit entries stay. You can reactivate the account later.",
+    "deactivatedToast": "{{name}} is deactivated.",
+    "reactivate": "Reactivate",
+    "reactivated": "{{name}} is active again.",
+    "deactivated": "Deactivated",
+    "status": "Status",
+    "deactivatedSince": "Deactivated since {{date}}"
   },
   "audit": {
     "description": "Every action in the API: who, what, on what, with which result and why – newest first. Tap a row for all details.",
@@ -121,7 +136,10 @@
     "user": {
       "list": "Viewed users",
       "create": "Created user",
-      "list_project_managers": "Viewed project managers"
+      "list_project_managers": "Viewed project managers",
+      "update": "Changed user",
+      "deactivate": "Deactivated user",
+      "reactivate": "Reactivated user"
     },
     "supplier": {
       "list": "Viewed suppliers",
@@ -240,6 +258,13 @@
     "BUDGET_BELOW_BOOKED": "More time is already booked on this order – the budget cannot be smaller.",
     "SUPPLIER_FIXED_AFTER_BOOKINGS": "Time has already been booked on this order, so it stays with its supplier. Create a new order instead.",
     "PERIOD_EXCLUDES_BOOKINGS": "There are bookings outside this period. The period must include every booked day.",
-    "OUTSIDE_ORDER_PERIOD": "Booking rejected: the date is outside the period of this order."
+    "OUTSIDE_ORDER_PERIOD": "Booking rejected: the date is outside the period of this order.",
+    "ROLE_IN_USE": "The role cannot change: bookings or orders depend on it. Create a new account instead – or let purchasing reassign the orders first.",
+    "CANNOT_CHANGE_OWN_ROLE": "You cannot change your own role. Ask another admin.",
+    "CANNOT_DEACTIVATE_YOURSELF": "You cannot deactivate your own account. Ask another admin.",
+    "MANAGES_ORDERS": "This project manager is still responsible for orders. Purchasing must assign them to someone else first.",
+    "USER_NOT_FOUND": "This account does not exist.",
+    "ACCOUNT_DEACTIVATED": "This account has been deactivated. Contact your admin.",
+    "PROJECT_MANAGER_DEACTIVATED": "This project manager is deactivated and cannot be responsible for an order."
   }
 }
