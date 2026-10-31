@@ -2,6 +2,7 @@
 // and the use case narrows the data to the caller's own orders.
 import { Router } from "express"
 import { getOrderBudget } from "../application/get-order-budget.js"
+import { listOrderBookings } from "../application/list-order-bookings.js"
 import { createOrder, listAllOrders, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
 import { setAuditContext } from "../audit/audit-log.js"
@@ -60,6 +61,13 @@ export function orderRoutes(db: Db) {
     setAuditContext(res, { targetType: "order", targetId: id })
     const { order, budget } = await getOrderBudget(db, req.user!, id)
     res.json(toOrderBudgetResponse(order, budget))
+  })
+
+  // GET /api/orders/:id/time-entries – single bookings of the project manager's own order (same ownership check).
+  router.get("/:id/time-entries", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
+    res.json(await listOrderBookings(db, req.user!, id))
   })
 
   return router

@@ -62,6 +62,22 @@ export type OrderOverview = {
   overBudget: boolean
 }
 
+// GET /api/orders/managed and /api/orders/:id/budget (orderBudgetResponse): the project manager's view
+export type OrderBudget = Pick<
+  OrderOverview,
+  | "orderId" | "code" | "title" | "budgetHours" | "bookedHours" | "remainingHours"
+  | "budgetCents" | "bookedCents" | "remainingCents" | "usedPercent" | "overBudget"
+>
+
+// GET /api/orders/:id/time-entries: one booking, with the consultant's name only
+export type OrderBooking = {
+  id: number
+  workDate: string // "YYYY-MM-DD"
+  durationMinutes: number
+  description: string
+  consultantName: string
+}
+
 // Body of POST /api/orders and PUT /api/orders/:id (orderRequest)
 export type OrderRequest = {
   code: string

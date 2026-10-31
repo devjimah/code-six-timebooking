@@ -42,7 +42,8 @@
     "users": "Users",
     "audit": "Audit log",
     "suppliers": "Suppliers",
-    "orders": "Orders"
+    "orders": "Orders",
+    "myOrders": "My orders"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -137,7 +138,8 @@
       "view_budget": "Viewed budget",
       "list_all": "Viewed all orders",
       "create": "Placed order",
-      "update": "Changed order"
+      "update": "Changed order",
+      "view_bookings": "Viewed bookings of an order"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -195,6 +197,22 @@
     "empty": "No orders yet.",
     "loadFailed": "Orders could not be loaded"
   },
+  "myOrders": {
+    "description": "The orders you are responsible for. Tap an order to check the work booked on it.",
+    "open": "Open",
+    "openNamed": "Open order {{code}}",
+    "empty": "You are not responsible for any order.",
+    "back": "My orders",
+    "budget": "Budget",
+    "bookings": "Booked work",
+    "privacyNote": "Each booking on its own, to check the work. On purpose without daily or weekly totals per person: you check the work, not the consultants' working hours.",
+    "date": "Date",
+    "consultant": "Consultant",
+    "work": "Work done",
+    "hours": "Hours",
+    "noBookings": "No time has been booked on this order yet.",
+    "loadFailed": "The order could not be loaded"
+  },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
     "BUDGET_EXCEEDED": "Booking rejected: the free budget of this order is not enough.",
@@ -202,7 +220,7 @@
     "ORDER_NOT_FOUND": "Booking rejected: this order does not exist.",
     "ORDER_NOT_ASSIGNED": "Booking rejected: you can only book on orders of your own company.",
     "DATE_IN_FUTURE": "Booking rejected: the date is in the future. Book time once the work is done.",
-    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget.",
+    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget and bookings.",
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again.",
     "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",

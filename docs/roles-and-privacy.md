@@ -26,7 +26,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Book own working time | ✔ own orders of own company | – | – | – | built |
 | See own bookings | ✔ | – | – | – | built |
 | See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
-| See single bookings of an order (date, hours, description) | own only | ✔ own orders, no daily totals per person | – | – | planned |
+| See single bookings of an order (date, hours, description, consultant's name) | own only | ✔ own orders, no daily totals per person | – | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
@@ -86,8 +86,8 @@ that is convenience, not security.
 2. **Ownership in the use case:** the role alone is not enough where data belongs to someone:
    - [list-orders.ts](../apps/api/src/application/list-orders.ts): consultants only get orders of their own supplier,
      project managers only their own orders.
-   - [get-order-budget.ts](../apps/api/src/application/get-order-budget.ts): a project manager asking for another
-     manager's order gets 403 `NOT_YOUR_ORDER`.
+   - [own-order.ts](../apps/api/src/application/own-order.ts), used for the budget and the bookings of an order:
+     a project manager asking for another manager's order gets 403 `NOT_YOUR_ORDER`.
    - [book-time.ts](../apps/api/src/application/book-time.ts) with
      [order-assignment.ts](../apps/api/src/domain/rules/order-assignment.ts): a consultant cannot book on another
      company's order (`ORDER_NOT_ASSIGNED`).
@@ -104,6 +104,7 @@ that is convenience, not security.
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
 | `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
+| `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `GET /api/suppliers` | admin, purchasing | – |
 | `POST /api/suppliers`, `PATCH /api/suppliers/:id` | purchasing | unique name (`SUPPLIER_NAME_TAKEN`) |
@@ -111,8 +112,8 @@ that is convenience, not security.
 
 Tests: wrong role and no session in [auth.test.ts](../apps/api/test/auth.test.ts),
 [users.test.ts](../apps/api/test/users.test.ts), [order-list.test.ts](../apps/api/test/order-list.test.ts),
-[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [orders.test.ts](../apps/api/test/orders.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
+[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [orders.test.ts](../apps/api/test/orders.test.ts), [order-bookings.test.ts](../apps/api/test/order-bookings.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
 
 **Planned rows** get the same two layers when they are built:
-the project manager's booking list (per booking, no per-person totals), and editing, deactivating and resetting
+editing, deactivating and resetting
 accounts (admin only). One demo user per role is seeded and listed in the README.

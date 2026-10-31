@@ -23,6 +23,7 @@ export const ACTION_LABELS = {
   "order.list_bookable": "auditActions.order.list_bookable",
   "order.list_managed": "auditActions.order.list_managed",
   "order.view_budget": "auditActions.order.view_budget",
+  "order.view_bookings": "auditActions.order.view_bookings",
   "audit.view": "auditActions.audit.view",
   "request.unknown_route": "auditActions.request.unknown_route",
 } as const

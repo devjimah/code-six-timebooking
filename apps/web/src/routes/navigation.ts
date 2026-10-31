@@ -5,7 +5,7 @@ import type { Role } from "@/lib/api-types.ts"
 
 export type NavItem = {
   path: string
-  labelKey: "nav.home" | "nav.users" | "nav.audit" | "nav.suppliers" | "nav.orders"
+  labelKey: "nav.home" | "nav.users" | "nav.audit" | "nav.suppliers" | "nav.orders" | "nav.myOrders"
   icon: LucideIcon
 }
 
@@ -14,7 +14,7 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
     { path: "/admin/users", labelKey: "nav.users", icon: Users },
     { path: "/admin/audit", labelKey: "nav.audit", icon: ScrollText },
   ],
-  project_manager: [{ path: "/", labelKey: "nav.home", icon: House }],
+  project_manager: [{ path: "/orders", labelKey: "nav.myOrders", icon: FileText }],
   purchasing: [
     { path: "/purchasing/orders", labelKey: "nav.orders", icon: FileText },
     { path: "/purchasing/suppliers", labelKey: "nav.suppliers", icon: Building2 },
@@ -24,3 +24,7 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
 
 /** The first screen of a role, shown after sign-in. */
 export const homePathFor = (role: Role) => NAVIGATION[role][0]!.path
+
+/** True for the screen itself and its sub-pages, e.g. "/orders" is active on "/orders/3". */
+export const isActivePath = (itemPath: string, pathname: string) =>
+  pathname === itemPath || (itemPath !== "/" && pathname.startsWith(`${itemPath}/`))

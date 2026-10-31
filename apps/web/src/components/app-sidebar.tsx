@@ -17,7 +17,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import type { CurrentUser } from "@/auth/auth-context.tsx"
 import { ProfileDrawer } from "@/components/profile-drawer.tsx"
-import { NAVIGATION } from "@/routes/navigation.ts"
+import { NAVIGATION, isActivePath } from "@/routes/navigation.ts"
 
 export function AppSidebar({ user }: { user: CurrentUser }) {
   const { t } = useTranslation()
@@ -47,7 +47,7 @@ export function AppSidebar({ user }: { user: CurrentUser }) {
           <SidebarMenu>
             {NAVIGATION[user.role].map((item) => (
               <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton asChild isActive={pathname === item.path} tooltip={t(item.labelKey)}>
+                <SidebarMenuButton asChild isActive={isActivePath(item.path, pathname)} tooltip={t(item.labelKey)}>
                   {/* On phones, close the menu after choosing a screen */}
                   <NavLink to={item.path} onClick={() => setOpenMobile(false)}>
                     <item.icon aria-hidden />

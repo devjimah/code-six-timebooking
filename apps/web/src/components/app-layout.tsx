@@ -7,7 +7,7 @@ import { Toaster } from "@workspace/ui/components/sonner"
 import { useAuth } from "@/auth/auth-context.tsx"
 import { AppSidebar } from "@/components/app-sidebar.tsx"
 import { LanguageSwitcher } from "@/components/language-switcher.tsx"
-import { NAVIGATION } from "@/routes/navigation.ts"
+import { NAVIGATION, isActivePath } from "@/routes/navigation.ts"
 
 export function AppLayout() {
   const { t } = useTranslation()
@@ -15,7 +15,7 @@ export function AppLayout() {
   const { pathname } = useLocation()
 
   if (!user) return null // RequireAuth makes sure this does not happen
-  const current = NAVIGATION[user.role].find((item) => item.path === pathname)
+  const current = NAVIGATION[user.role].find((item) => isActivePath(item.path, pathname))
 
   return (
     <SidebarProvider>

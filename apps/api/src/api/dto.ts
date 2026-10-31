@@ -164,6 +164,16 @@ export const orderResponse = z.object({
 })
 export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
 
+// GET /api/orders/:id/time-entries – the project manager checks the work on their order.
+// The consultant's name, but not their email or user id; no totals per person (docs/roles-and-privacy.md).
+export const orderBookingResponse = z.object({
+  id: z.number().int(),
+  workDate: z.string().meta({ example: "2026-10-27" }),
+  durationMinutes: z.number().int(),
+  description: z.string(),
+  consultantName: z.string(),
+})
+
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
 export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
 

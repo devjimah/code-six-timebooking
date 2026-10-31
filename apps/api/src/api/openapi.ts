@@ -12,6 +12,7 @@ import {
   errorResponse,
   loginRequest,
   orderBudgetResponse,
+  orderBookingResponse,
   orderIdParams,
   orderOverviewResponse,
   orderRequest,
@@ -162,6 +163,17 @@ export const routes: RouteDoc[] = [
     roles: ["project_manager"],
     params: orderIdParams,
     success: { status: 200, description: "Budget of the order", schema: orderBudgetResponse },
+    errors: {
+      400: "The id is not a number",
+      403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
+      404: "The order does not exist (ORDER_NOT_FOUND)",
+    },
+  },
+  {
+    method: "get", path: "/api/orders/{id}/time-entries", tag: "Orders", roles: ["project_manager"],
+    summary: "Single bookings of your own order, newest first – to check the work (no totals per person)",
+    params: orderIdParams,
+    success: { status: 200, description: "Bookings of the order", schema: z.array(orderBookingResponse) },
     errors: {
       400: "The id is not a number",
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",

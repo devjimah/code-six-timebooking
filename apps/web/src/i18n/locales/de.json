@@ -42,7 +42,8 @@
     "users": "Benutzer",
     "audit": "Protokoll",
     "suppliers": "Dienstleister",
-    "orders": "Bestellungen"
+    "orders": "Bestellungen",
+    "myOrders": "Meine Bestellungen"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -137,7 +138,8 @@
       "view_budget": "Budget angesehen",
       "list_all": "Alle Bestellungen angesehen",
       "create": "Bestellung angelegt",
-      "update": "Bestellung geändert"
+      "update": "Bestellung geändert",
+      "view_bookings": "Buchungen einer Bestellung angesehen"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -195,6 +197,22 @@
     "empty": "Noch keine Bestellungen.",
     "loadFailed": "Bestellungen konnten nicht geladen werden"
   },
+  "myOrders": {
+    "description": "Die Bestellungen, für die Sie verantwortlich sind. Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen.",
+    "open": "Öffnen",
+    "openNamed": "Bestellung {{code}} öffnen",
+    "empty": "Sie sind für keine Bestellung verantwortlich.",
+    "back": "Meine Bestellungen",
+    "budget": "Budget",
+    "bookings": "Gebuchte Arbeit",
+    "privacyNote": "Jede Buchung einzeln, zum Prüfen der Arbeit. Bewusst ohne Tages- oder Wochensummen pro Person: Sie prüfen die Arbeit, nicht die Arbeitszeit der Berater.",
+    "date": "Datum",
+    "consultant": "Berater",
+    "work": "Tätigkeit",
+    "hours": "Stunden",
+    "noBookings": "Auf diese Bestellung wurde noch keine Zeit gebucht.",
+    "loadFailed": "Bestellung konnte nicht geladen werden"
+  },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
     "BUDGET_EXCEEDED": "Buchung abgelehnt: Das freie Budget dieser Bestellung reicht nicht aus.",
@@ -202,7 +220,7 @@
     "ORDER_NOT_FOUND": "Buchung abgelehnt: Diese Bestellung gibt es nicht.",
     "ORDER_NOT_ASSIGNED": "Buchung abgelehnt: Sie können nur auf Bestellungen Ihres eigenen Unternehmens buchen.",
     "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
-    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget sehen.",
+    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget und ihre Buchungen sehen.",
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",

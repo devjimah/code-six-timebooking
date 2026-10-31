@@ -6,6 +6,8 @@ import { AppLayout } from "@/components/app-layout.tsx"
 import { AuditPage } from "@/pages/admin/audit-page.tsx"
 import { UsersPage } from "@/pages/admin/users-page.tsx"
 import { HomePage } from "@/pages/home-page.tsx"
+import { MyOrdersPage } from "@/pages/project-manager/my-orders-page.tsx"
+import { OrderDetailPage } from "@/pages/project-manager/order-detail-page.tsx"
 import { OrdersPage } from "@/pages/purchasing/orders-page.tsx"
 import { SuppliersPage } from "@/pages/purchasing/suppliers-page.tsx"
 import { LoginPage } from "@/pages/login-page.tsx"
@@ -28,17 +30,17 @@ export function App() {
 
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
-            {/* Admins and purchasing have no general start screen; they land on their first screen. */}
+            {/* Every role lands on its first screen; the placeholder home is left for roles without screens yet. */}
             <Route
               index
               element={
-                user && (user.role === "admin" || user.role === "purchasing") ? (
-                  <Navigate to={homePathFor(user.role)} replace />
-                ) : (
-                  <HomePage />
-                )
+                user && homePathFor(user.role) !== "/" ? <Navigate to={homePathFor(user.role)} replace /> : <HomePage />
               }
             />
+            <Route element={<RequireRole role="project_manager" />}>
+              <Route path="/orders" element={<MyOrdersPage />} />
+              <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+            </Route>
             <Route element={<RequireRole role="admin" />}>
               <Route path="/admin/users" element={<UsersPage />} />
               <Route path="/admin/audit" element={<AuditPage />} />

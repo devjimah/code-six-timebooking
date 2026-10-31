@@ -32,6 +32,7 @@ export const ACTIONS: Record<string, string> = {
   "GET /api/orders/bookable": "order.list_bookable",
   "GET /api/orders/managed": "order.list_managed",
   "GET /api/orders/:id/budget": "order.view_budget",
+  "GET /api/orders/:id/time-entries": "order.view_bookings",
   "GET /api/audit-events": "audit.view",
 }
 const UNKNOWN_ROUTE_ACTION = "request.unknown_route" // e.g. someone probing URLs that do not exist

@@ -168,8 +168,21 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
-    async findByOrder(orderId: number) {
-      return (await db.select().from(timeEntries).where(eq(timeEntries.orderId, orderId))).map(toTimeEntry)
+    /** Bookings of one order with the consultant's name, newest work date first. No email, no user id. */
+    async findByOrderWithConsultantName(orderId: number) {
+      const rows = await db
+        .select({
+          id: timeEntries.id,
+          workDate: timeEntries.workDate,
+          durationMinutes: timeEntries.durationMinutes,
+          description: timeEntries.description,
+          consultantName: users.name,
+        })
+        .from(timeEntries)
+        .innerJoin(users, eq(timeEntries.userId, users.id))
+        .where(eq(timeEntries.orderId, orderId))
+        .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
+      return rows
     },
   }
 }
