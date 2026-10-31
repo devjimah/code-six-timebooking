@@ -1,7 +1,8 @@
 // API DTOs: what goes over the wire. Requests are validated with zod (ADR 0007);
 // responses are built from domain objects, so internal fields never leak by accident.
 import { z } from "zod"
-import type { AuditEvent, TimeEntry, User } from "../domain/models.js"
+import type { OrderBudget } from "../domain/budget.js"
+import type { AuditEvent, Order, TimeEntry, User } from "../domain/models.js"
 
 export const loginRequest = z.object({
   email: z.email(),
@@ -60,4 +61,46 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
   workDate: entry.workDate,
   durationMinutes: entry.durationMinutes,
   description: entry.description,
+})
+
+// GET /api/orders/:id/budget – the id arrives as text in the URL.
+export const orderIdParams = z.object({ id: z.coerce.number().int().positive() })
+
+// Hours and person-days (1 PD = 8 h) for people, cents for money (ADR 0008). The UI formats cents as "1.234,56 €".
+export type OrderBudgetResponse = {
+  orderId: number
+  code: string
+  title: string
+  budgetHours: number
+  bookedHours: number
+  remainingHours: number
+  budgetPersonDays: number
+  bookedPersonDays: number
+  remainingPersonDays: number
+  budgetCents: number
+  bookedCents: number
+  remainingCents: number
+  usedPercent: number
+  overBudget: boolean
+}
+
+const round2 = (n: number) => Math.round(n * 100) / 100
+const hours = (minutes: number) => round2(minutes / 60)
+const personDays = (minutes: number) => round2(minutes / 60 / 8)
+
+export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderBudgetResponse => ({
+  orderId: order.id,
+  code: order.code,
+  title: order.title,
+  budgetHours: hours(budget.budgetMinutes),
+  bookedHours: hours(budget.bookedMinutes),
+  remainingHours: hours(budget.remainingMinutes),
+  budgetPersonDays: personDays(budget.budgetMinutes),
+  bookedPersonDays: personDays(budget.bookedMinutes),
+  remainingPersonDays: personDays(budget.remainingMinutes),
+  budgetCents: budget.budgetCents,
+  bookedCents: budget.bookedCents,
+  remainingCents: budget.remainingCents,
+  usedPercent: budget.usedPercent,
+  overBudget: budget.overBudget,
 })

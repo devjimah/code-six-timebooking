@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler } from "express"
 import { ZodError } from "zod"
+import { AccessDeniedError, NotFoundError } from "../application/errors.js"
 import { DomainError } from "../domain/errors.js"
 
 // The one place that turns thrown errors into HTTP responses.
@@ -9,6 +10,15 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof DomainError) {
     // 422 Unprocessable Content: the request was well-formed, but a business rule rejected it.
     res.status(422).json({ code: err.code, message: err.message })
+    return
+  }
+  if (err instanceof NotFoundError) {
+    res.status(404).json({ code: err.code, message: err.message })
+    return
+  }
+  // The user is signed in and has the right role, but this particular resource is not theirs.
+  if (err instanceof AccessDeniedError) {
+    res.status(403).json({ code: err.code, message: err.message })
     return
   }
   // A request DTO did not match its zod schema: name the fields, so the client can fix them.

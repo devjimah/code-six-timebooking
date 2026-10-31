@@ -17,6 +17,7 @@
     "ORDER_NOT_FOUND": "Buchung abgelehnt: Diese Bestellung gibt es nicht.",
     "ORDER_NOT_ASSIGNED": "Buchung abgelehnt: Sie können nur auf Bestellungen Ihres eigenen Unternehmens buchen.",
     "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
+    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget sehen.",
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
   }

@@ -5,6 +5,7 @@ import { auditRoutes } from "./api/audit-routes.js"
 import { authRoutes } from "./api/auth-routes.js"
 import { auditLog } from "./audit/audit-log.js"
 import { errorHandler } from "./api/error-handler.js"
+import { orderRoutes } from "./api/order-routes.js"
 import { timeEntryRoutes } from "./api/time-entry-routes.js"
 import { userRoutes } from "./api/user-routes.js"
 import type { Db } from "./persistence/db.js"
@@ -28,6 +29,7 @@ export function createApp({ db, sessionSecret, secureCookies }: AppOptions) {
   app.use("/api/auth", authRoutes(db, { sessionSecret, secureCookies }))
   app.use("/api/users", userRoutes(db))
   app.use("/api/time-entries", timeEntryRoutes(db))
+  app.use("/api/orders", orderRoutes(db))
   app.use("/api/audit-events", auditRoutes(db))
 
   // Must stay last: turns DomainError into 422 and hides internal errors.
