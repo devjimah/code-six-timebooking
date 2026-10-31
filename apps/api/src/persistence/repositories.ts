@@ -1,6 +1,7 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm"
+import { and, asc, desc, eq, inArray, lt, notInArray, or, sql } from "drizzle-orm"
+import { READ_METHODS } from "../domain/audit-retention.js"
 import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
 import { auditEvents, orders, suppliers, timeEntries, users } from "./schema.js"
@@ -235,7 +236,7 @@ const toAuditEvent = (r: typeof auditEvents.$inferSelect): AuditEvent => ({
   userAgent: r.userAgent,
 })
 
-// Append-only on purpose (ADR 0012): there is no update or delete here.
+// Append-only on purpose (ADR 0012): no update, and the only delete is the retention clean-up (audit/retention.ts).
 export function auditEventRepository(db: Db) {
   return {
     async record({ details, ...data }: NewOf<AuditEvent>) {
@@ -255,6 +256,18 @@ export function auditEventRepository(db: Db) {
         .orderBy(desc(auditEvents.id))
         .limit(limit)
       return rows.map(toAuditEvent)
+    },
+    /** Retention: read events (GET, HEAD) before readBefore, all others before changeBefore. Returns the number deleted. */
+    async deleteExpired({ readBefore, changeBefore }: { readBefore: string; changeBefore: string }) {
+      const result = await db
+        .delete(auditEvents)
+        .where(
+          or(
+            and(inArray(auditEvents.method, READ_METHODS), lt(auditEvents.occurredAt, readBefore)),
+            and(notInArray(auditEvents.method, READ_METHODS), lt(auditEvents.occurredAt, changeBefore)),
+          ),
+        )
+      return result.rowsAffected
     },
   }
 }
