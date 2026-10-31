@@ -1,7 +1,7 @@
 // POST /api/auth/login, POST /api/auth/logout, GET /api/auth/me (ticket #6, ADR 0002)
 import bcrypt from "bcryptjs"
 import { Router } from "express"
-import { setAuditActor } from "../audit/audit-log.js"
+import { setAuditActor, setAuditContext } from "../audit/audit-log.js"
 import { requireAuth } from "../auth/middleware.js"
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, createSessionToken } from "../auth/session.js"
 import type { Db } from "../persistence/db.js"
@@ -23,6 +23,8 @@ export function authRoutes(db: Db, options: { sessionSecret: string; secureCooki
 
   router.post("/login", async (req, res) => {
     const { email, password } = loginRequest.parse(req.body) // invalid body → 400 via error handler
+    // The email that was tried, also when it fails: many failures for one account = someone guessing passwords.
+    setAuditContext(res, { details: { email } })
     const found = await userRepository(db).findCredentialsByEmail(email)
     const passwordOk = await bcrypt.compare(password, found?.passwordHash ?? DUMMY_HASH)
 
@@ -33,6 +35,7 @@ export function authRoutes(db: Db, options: { sessionSecret: string; secureCooki
     }
 
     setAuditActor(res, found.user) // the audit log should show who signed in
+    setAuditContext(res, { targetType: "user", targetId: found.user.id })
     const token = createSessionToken(found.user.id, options.sessionSecret)
     res.cookie(SESSION_COOKIE, token, { ...cookieOptions, maxAge: SESSION_MAX_AGE_SECONDS * 1000 })
     res.json(toUserResponse(found.user))

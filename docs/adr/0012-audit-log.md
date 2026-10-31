@@ -24,15 +24,33 @@ works council's consent in Germany (BetrVG §87 (1) no. 6), and GDPR requires a 
 
 ## Decision
 
-We choose **option 3**. Stored per event: time (UTC), user id and role (or none), method, route pattern,
-path, status code, outcome (`success` · `rejected` · `denied` · `error`) and duration.
-**Never stored:** request bodies, query strings, cookies, passwords. The health check is not recorded.
+We choose **option 3**. Stored per event:
+
+- **Request:** time (UTC), user id and role (or none), method, route pattern, path, status code,
+  outcome (`success` · `rejected` · `denied` · `error`) and duration.
+- **Meaning** (revision 2, 2026-10-31, migration `0002_audit_details`): a readable **action** name for every route
+  (`ACTIONS` in `audit/audit-log.ts`, e.g. `time_entry.create`; a test fails if a documented route has none),
+  the **target** (`order` #1, `user` #7), the **error code** that explains a refusal (`DAILY_LIMIT_EXCEEDED`,
+  `FORBIDDEN` …), and **key facts** chosen per route from an allow-list (booking: work date and duration;
+  new account: email, role, supplier; sign-in: the email that was tried).
+- **Source:** client IP address and browser (user agent, first 300 characters). Behind a reverse proxy,
+  `TRUST_PROXY_HOPS` must be set so the IP is the client's, not the proxy's.
+
+**Never stored:** request bodies as a whole, query strings, cookies, passwords and free text written by a person
+(e.g. booking descriptions). The health check is not recorded.
 The application can only insert and read events (no update or delete); there is no foreign key to `users`,
-so the trail outlives a deleted account. Only admins can read it (`GET /api/audit-events`).
+so the trail outlives a deleted account. Only admins can read it (`GET /api/audit-events`, filter by user,
+outcome and action).
+
+We chose "key facts" over a full old → new copy of each record: it answers *who did what to what* without
+duplicating personal data into a log that is hard to clean up later.
 
 ## Consequences
 
-- Failed sign-ins are visible (outcome `denied`, no user), which makes guessing passwords detectable.
+- Failed sign-ins are visible with the email that was tried and the source IP, which makes guessing passwords
+  detectable per account and per source.
+- IP addresses, emails and user agents are personal data (GDPR). They fall under the retention below and must be
+  listed in `docs/roles-and-privacy.md`.
 - Purpose is limited to security and traceability of bookings and approvals. It must not be used to measure
   how much or when a person works; `docs/roles-and-privacy.md` has to say so.
 - Retention (proposal): 90 days for read events, the legal retention period for events that change bookings
@@ -40,3 +58,7 @@ so the trail outlives a deleted account. Only admins can read it (`GET /api/audi
 - Tables grow by one row per request. For production: indexes on `occurred_at` and `actor_user_id`, a
   transaction or outbox so business change and audit event are written together, and export to the
   customer's SIEM. Changes to field values (old → new) need explicit domain events later.
+- A new route needs an entry in `ACTIONS` (enforced by `audit.test.ts`) and, if it acts on something,
+  a `setAuditContext(res, { targetType, targetId, details })` call with allow-listed facts only.
+- When a route throws, Express resets `req.baseUrl`; `rememberMountPath` in front of each router keeps the route
+  pattern correct for rejected requests (before revision 2 they were recorded as route `/`).

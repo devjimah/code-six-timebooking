@@ -14,7 +14,7 @@ const src = join(import.meta.dirname, "..", "src")
 
 /**
  * Every route the code registers, as "get /api/orders/{id}/budget". Read from the source files:
- * app.ts mounts each router (app.use("/api/orders", orderRoutes(db))), the router file adds its routes.
+ * app.ts mounts each router (app.use("/api/orders", rememberMountPath, orderRoutes(db))), the router file adds its routes.
  */
 function routesInCode(): string[] {
   const app = readFileSync(join(src, "app.ts"), "utf8")
@@ -22,7 +22,7 @@ function routesInCode(): string[] {
     .map(([, method, path]) => `${method} ${path}`)
     .filter((route) => !route.endsWith("/api/openapi.json")) // the spec does not describe itself
 
-  for (const [, prefix, routerName] of app.matchAll(/app\.use\("(\/api\/[^"]+)", (\w+)Routes\(/g)) {
+  for (const [, prefix, routerName] of app.matchAll(/app\.use\("(\/api\/[^"]+)", (?:rememberMountPath, )?(\w+)Routes\(/g)) {
     const file = `${routerName!.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}-routes.ts`
     const router = readFileSync(join(src, "api", file), "utf8")
     for (const [, method, path] of router.matchAll(/router\.(get|post|put|patch|delete)\("([^"]+)"/g)) {
@@ -64,7 +64,7 @@ describe("OpenAPI document", () => {
     const audit = (document.paths["/api/audit-events"]!.get as any).parameters
 
     expect(budget).toEqual([expect.objectContaining({ name: "id", in: "path", required: true })])
-    expect(audit.map((p: { name: string }) => p.name)).toEqual(["limit", "userId"])
+    expect(audit.map((p: { name: string }) => p.name)).toEqual(["limit", "userId", "outcome", "action"])
   })
 })
 

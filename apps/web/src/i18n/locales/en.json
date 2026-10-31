@@ -58,7 +58,7 @@
     "loadFailed": "Users could not be loaded"
   },
   "audit": {
-    "description": "Who did what and when – the latest 100 entries, newest first.",
+    "description": "Every action in the API: who, what, on what, with which result and why – newest first. Tap a row for all details.",
     "filterByUser": "Filter by user",
     "allUsers": "All users",
     "anonymous": "Not signed in",
@@ -75,6 +75,58 @@
       "rejected": "Rejected",
       "denied": "Denied",
       "error": "Error"
+    },
+    "filterByResult": "Filter by result",
+    "allResults": "All results",
+    "filterByAction": "Filter by action",
+    "allActions": "All actions",
+    "targetLabel": "Concerns",
+    "reason": "Reason",
+    "request": "Request",
+    "ipAddress": "IP address",
+    "userAgent": "Browser",
+    "eventId": "Entry",
+    "showDetails": "Show details",
+    "target": {
+      "user": "User #{{id}}",
+      "order": "Order #{{id}}"
+    },
+    "details": {
+      "email": "Email",
+      "role": "Role",
+      "supplierId": "Supplier no.",
+      "workDate": "Work date",
+      "durationMinutes": "Duration",
+      "timeEntryId": "Booking no."
+    }
+  },
+  "auditActions": {
+    "auth": {
+      "login": "Sign-in",
+      "logout": "Sign-out",
+      "session": "Session checked"
+    },
+    "user": {
+      "list": "Viewed users",
+      "create": "Created user"
+    },
+    "supplier": {
+      "list": "Viewed suppliers"
+    },
+    "time_entry": {
+      "create": "Booked time",
+      "list_own": "Viewed own bookings"
+    },
+    "order": {
+      "list_bookable": "Viewed bookable orders",
+      "list_managed": "Viewed own orders",
+      "view_budget": "Viewed budget"
+    },
+    "audit": {
+      "view": "Viewed audit log"
+    },
+    "request": {
+      "unknown_route": "Called unknown address"
     }
   },
   "errors": {
@@ -94,6 +146,8 @@
     "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9).",
     "INVALID_CREDENTIALS": "Email or password is wrong.",
     "VALIDATION_FAILED": "Please enter a valid email address and a password.",
-    "NETWORK_ERROR": "The server cannot be reached. Is the API running?"
+    "NETWORK_ERROR": "The server cannot be reached. Is the API running?",
+    "UNAUTHENTICATED": "Please sign in.",
+    "FORBIDDEN": "Your role is not allowed to do this."
   }
 }

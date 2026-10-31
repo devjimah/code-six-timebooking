@@ -17,7 +17,8 @@ export type Supplier = {
   name: string
 }
 
-export type AuditOutcome = "success" | "rejected" | "denied" | "error"
+export const AUDIT_OUTCOMES = ["success", "rejected", "denied", "error"] as const
+export type AuditOutcome = (typeof AUDIT_OUTCOMES)[number]
 
 export type AuditEvent = {
   id: number
@@ -30,6 +31,13 @@ export type AuditEvent = {
   statusCode: number
   outcome: AuditOutcome
   durationMs: number
+  action: string | null // e.g. "time_entry.create"; null on events recorded before actions existed
+  targetType: string | null // e.g. "order"
+  targetId: number | null
+  errorCode: string | null // e.g. "DAILY_LIMIT_EXCEEDED"
+  details: Record<string, string | number | boolean | null> | null
+  ipAddress: string | null
+  userAgent: string | null
 }
 
 // Body of POST /api/users (createUserRequest)

@@ -58,7 +58,7 @@
     "loadFailed": "Benutzer konnten nicht geladen werden"
   },
   "audit": {
-    "description": "Wer hat wann was getan – die letzten 100 Einträge, neueste zuerst.",
+    "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
     "filterByUser": "Nach Benutzer filtern",
     "allUsers": "Alle Benutzer",
     "anonymous": "Nicht angemeldet",
@@ -75,6 +75,58 @@
       "rejected": "Abgelehnt",
       "denied": "Verweigert",
       "error": "Fehler"
+    },
+    "filterByResult": "Nach Ergebnis filtern",
+    "allResults": "Alle Ergebnisse",
+    "filterByAction": "Nach Aktion filtern",
+    "allActions": "Alle Aktionen",
+    "targetLabel": "Betrifft",
+    "reason": "Grund",
+    "request": "Anfrage",
+    "ipAddress": "IP-Adresse",
+    "userAgent": "Browser",
+    "eventId": "Eintrag",
+    "showDetails": "Details anzeigen",
+    "target": {
+      "user": "Benutzer #{{id}}",
+      "order": "Bestellung #{{id}}"
+    },
+    "details": {
+      "email": "E-Mail",
+      "role": "Rolle",
+      "supplierId": "Dienstleister-Nr.",
+      "workDate": "Arbeitstag",
+      "durationMinutes": "Dauer",
+      "timeEntryId": "Buchungs-Nr."
+    }
+  },
+  "auditActions": {
+    "auth": {
+      "login": "Anmeldung",
+      "logout": "Abmeldung",
+      "session": "Sitzung geprüft"
+    },
+    "user": {
+      "list": "Benutzer angesehen",
+      "create": "Benutzer angelegt"
+    },
+    "supplier": {
+      "list": "Dienstleister angesehen"
+    },
+    "time_entry": {
+      "create": "Zeit gebucht",
+      "list_own": "Eigene Buchungen angesehen"
+    },
+    "order": {
+      "list_bookable": "Buchbare Bestellungen angesehen",
+      "list_managed": "Eigene Bestellungen angesehen",
+      "view_budget": "Budget angesehen"
+    },
+    "audit": {
+      "view": "Protokoll angesehen"
+    },
+    "request": {
+      "unknown_route": "Unbekannte Adresse aufgerufen"
     }
   },
   "errors": {
@@ -94,6 +146,8 @@
     "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9).",
     "INVALID_CREDENTIALS": "E-Mail oder Passwort ist falsch.",
     "VALIDATION_FAILED": "Bitte geben Sie eine gültige E-Mail-Adresse und ein Passwort ein.",
-    "NETWORK_ERROR": "Der Server ist nicht erreichbar. Läuft die API?"
+    "NETWORK_ERROR": "Der Server ist nicht erreichbar. Läuft die API?",
+    "UNAUTHENTICATED": "Bitte melden Sie sich an.",
+    "FORBIDDEN": "Ihre Rolle darf das nicht."
   }
 }
