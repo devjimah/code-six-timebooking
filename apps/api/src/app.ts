@@ -1,10 +1,12 @@
 // Builds the Express app without starting it, so tests can run it against a temporary database.
 import express from "express"
+import swaggerUi from "swagger-ui-express"
 import { loadUser } from "./auth/middleware.js"
 import { auditRoutes } from "./api/audit-routes.js"
 import { authRoutes } from "./api/auth-routes.js"
 import { auditLog } from "./audit/audit-log.js"
 import { errorHandler } from "./api/error-handler.js"
+import { buildOpenApiDocument } from "./api/openapi.js"
 import { orderRoutes } from "./api/order-routes.js"
 import { timeEntryRoutes } from "./api/time-entry-routes.js"
 import { userRoutes } from "./api/user-routes.js"
@@ -18,6 +20,14 @@ export type AppOptions = {
 
 export function createApp({ db, sessionSecret, secureCookies }: AppOptions) {
   const app = express()
+  // API documentation (ADR 0009): the spec as JSON, and Swagger UI to try the routes in the browser.
+  // Mounted before the audit log on purpose: reading the docs (and their CSS/JS files) is not a user action.
+  const openApiDocument = buildOpenApiDocument()
+  app.get("/api/openapi.json", (_req, res) => {
+    res.json(openApiDocument)
+  })
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument))
+
   app.use(express.json())
   app.use(loadUser(db, sessionSecret))
   // Before all routes, so every request is recorded – including rejected and failed ones.

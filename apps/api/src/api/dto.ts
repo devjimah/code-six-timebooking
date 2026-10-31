@@ -1,8 +1,17 @@
 // API DTOs: what goes over the wire. Requests are validated with zod (ADR 0007);
 // responses are built from domain objects, so internal fields never leak by accident.
+// Response shapes are zod schemas too: the TypeScript types and the OpenAPI docs (openapi.ts, ADR 0009) come from them.
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { AuditEvent, Order, TimeEntry, User } from "../domain/models.js"
+
+const ROLES = ["consultant", "project_manager", "admin"] as const
+
+// Every error response (401, 403, 404, 422 …) has this shape (ADR 0005). The UI translates `code`.
+export const errorResponse = z.object({
+  code: z.string().meta({ example: "DAILY_LIMIT_EXCEEDED" }),
+  message: z.string(),
+})
 
 export const loginRequest = z.object({
   email: z.email(),
@@ -10,13 +19,14 @@ export const loginRequest = z.object({
 })
 export type LoginRequest = z.infer<typeof loginRequest>
 
-export type UserResponse = {
-  id: number
-  email: string
-  name: string
-  role: User["role"]
-  supplierId: number | null
-}
+export const userResponse = z.object({
+  id: z.number().int(),
+  email: z.string(),
+  name: z.string(),
+  role: z.enum(ROLES),
+  supplierId: z.number().int().nullable(),
+})
+export type UserResponse = z.infer<typeof userResponse>
 
 export const toUserResponse = (user: User): UserResponse => ({
   id: user.id,
@@ -32,7 +42,19 @@ export const auditEventsQuery = z.object({
   userId: z.coerce.number().int().positive().optional(),
 })
 
-export type AuditEventResponse = AuditEvent
+export const auditEventResponse = z.object({
+  id: z.number().int(),
+  occurredAt: z.string().meta({ description: "ISO timestamp, UTC" }),
+  actorUserId: z.number().int().nullable(),
+  actorRole: z.enum(ROLES).nullable(),
+  method: z.string(),
+  route: z.string().meta({ example: "/api/orders/:id/budget" }),
+  path: z.string(),
+  statusCode: z.number().int(),
+  outcome: z.enum(["success", "rejected", "denied", "error"]),
+  durationMs: z.number(),
+})
+export type AuditEventResponse = z.infer<typeof auditEventResponse>
 
 export const toAuditEventResponse = (event: AuditEvent): AuditEventResponse => ({ ...event })
 
@@ -46,13 +68,14 @@ export const createTimeEntryRequest = z.object({
 })
 export type CreateTimeEntryRequest = z.infer<typeof createTimeEntryRequest>
 
-export type TimeEntryResponse = {
-  id: number
-  orderId: number
-  workDate: string
-  durationMinutes: number
-  description: string
-}
+export const timeEntryResponse = z.object({
+  id: z.number().int(),
+  orderId: z.number().int(),
+  workDate: z.string().meta({ example: "2026-10-27" }),
+  durationMinutes: z.number().int(),
+  description: z.string(),
+})
+export type TimeEntryResponse = z.infer<typeof timeEntryResponse>
 
 // userId is left out: the consultant only ever sees their own entries.
 export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
@@ -65,12 +88,13 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
 
 // GET /api/orders/bookable – what a consultant needs to pick an order. No rate and no money:
 // prices are agreed between the client and the supplier's management, not shown to every consultant.
-export type BookableOrderResponse = {
-  id: number
-  code: string
-  title: string
-  supplierName: string
-}
+export const bookableOrderResponse = z.object({
+  id: z.number().int(),
+  code: z.string().meta({ example: "PO-2026-001" }),
+  title: z.string(),
+  supplierName: z.string(),
+})
+export type BookableOrderResponse = z.infer<typeof bookableOrderResponse>
 
 export const toBookableOrderResponse = (order: Order, supplierName: string): BookableOrderResponse => ({
   id: order.id,
@@ -83,22 +107,23 @@ export const toBookableOrderResponse = (order: Order, supplierName: string): Boo
 export const orderIdParams = z.object({ id: z.coerce.number().int().positive() })
 
 // Hours and person-days (1 PD = 8 h) for people, cents for money (ADR 0008). The UI formats cents as "1.234,56 €".
-export type OrderBudgetResponse = {
-  orderId: number
-  code: string
-  title: string
-  budgetHours: number
-  bookedHours: number
-  remainingHours: number
-  budgetPersonDays: number
-  bookedPersonDays: number
-  remainingPersonDays: number
-  budgetCents: number
-  bookedCents: number
-  remainingCents: number
-  usedPercent: number
-  overBudget: boolean
-}
+export const orderBudgetResponse = z.object({
+  orderId: z.number().int(),
+  code: z.string(),
+  title: z.string(),
+  budgetHours: z.number(),
+  bookedHours: z.number(),
+  remainingHours: z.number().meta({ description: "Negative when the order is over budget" }),
+  budgetPersonDays: z.number(),
+  bookedPersonDays: z.number(),
+  remainingPersonDays: z.number(),
+  budgetCents: z.number().int().meta({ description: "Euro cents: 1140000 = 11.400,00 €" }),
+  bookedCents: z.number().int(),
+  remainingCents: z.number().int(),
+  usedPercent: z.number(),
+  overBudget: z.boolean(),
+})
+export type OrderBudgetResponse = z.infer<typeof orderBudgetResponse>
 
 const round2 = (n: number) => Math.round(n * 100) / 100
 const hours = (minutes: number) => round2(minutes / 60)
