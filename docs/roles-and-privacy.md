@@ -101,6 +101,7 @@ that is convenience, not security.
 |---|---|---|
 | `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules |
 | `GET /api/time-entries/mine` | consultant | only own entries |
+| `GET /api/public-holidays?year=` | consultant | – (the holidays the booking rule uses, for the calendar) |
 | `GET /api/orders/bookable` | consultant | only own supplier's orders, no money; the period, so the form offers only valid dates |
 | `GET /api/orders/managed` | project manager | only own orders |
 | `GET /api/orders` | purchasing | sums per order, no single bookings |

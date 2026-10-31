@@ -25,6 +25,7 @@ export const ACTION_LABELS = {
   "order.create": "auditActions.order.create",
   "order.update": "auditActions.order.update",
   "user.list_project_managers": "auditActions.user.list_project_managers",
+  "calendar.list_holidays": "auditActions.calendar.list_holidays",
   "order.list_bookable": "auditActions.order.list_bookable",
   "order.list_managed": "auditActions.order.list_managed",
   "order.view_budget": "auditActions.order.view_budget",

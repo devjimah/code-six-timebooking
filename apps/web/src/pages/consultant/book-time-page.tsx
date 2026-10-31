@@ -11,16 +11,16 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldLegend } from "@workspace/ui/components/field"
-import { Input } from "@workspace/ui/components/input"
 import { Progress } from "@workspace/ui/components/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { formatDate, formatHours, translateApiError } from "@/i18n/format.ts"
+import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
 import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
 import { todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
+import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
 import { BookingList, DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
 
 const HOURS = Array.from({ length: 11 }, (_, h) => String(h)) // 0 … 10
@@ -48,8 +48,6 @@ export function BookTimePage() {
     .filter((e) => e.workDate === form.workDate)
     .reduce((sum, e) => sum + e.durationMinutes, 0)
   const overDailyLimit = bookedThatDay + durationMinutes > DAILY_LIMIT_MINUTES
-  // The date field offers only days the server can accept: inside the order's period and not in the future.
-  const maxDate = order && order.endDate < today ? order.endDate : today
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -126,18 +124,7 @@ export function BookTimePage() {
                     </FieldDescription>
                   )}
                 </Field>
-                <Field>
-                  <FieldLabel htmlFor="booking-date">{t("booking.date")}</FieldLabel>
-                  <Input
-                    id="booking-date"
-                    type="date"
-                    required
-                    min={order?.startDate}
-                    max={maxDate}
-                    value={form.workDate}
-                    onChange={(e) => update({ workDate: e.target.value })}
-                  />
-                </Field>
+                {/* Duration before the date: the calendar then shows the days where this duration would clash. */}
                 <FieldSet>
                   <FieldLegend variant="label">{t("booking.duration")}</FieldLegend>
                   <div className="grid grid-cols-2 gap-3">
@@ -166,8 +153,31 @@ export function BookTimePage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  {/* The own day at a glance, so the 10-hour limit is no surprise. */}
+                </FieldSet>
+                <FieldSet>
+                  <FieldLegend variant="label">{t("booking.date")}</FieldLegend>
+                  <BookingCalendar
+                    value={form.workDate}
+                    onChange={(workDate) => update({ workDate })}
+                    order={order}
+                    today={today}
+                    entries={entries.data ?? []}
+                    durationMinutes={durationMinutes}
+                  />
+                  <ul className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <li className="flex items-center gap-1.5">
+                      <span className="bg-destructive/15 size-3 rounded-sm" aria-hidden />
+                      {t("calendar.legendConflict")}
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <span className="bg-muted-foreground/25 size-3 rounded-sm" aria-hidden />
+                      {t("calendar.legendBlocked")}
+                    </li>
+                    <li>{t("calendar.legendHours")}</li>
+                  </ul>
+                  {/* The selected day at a glance, so the 10-hour limit is no surprise. */}
                   <div className="grid gap-1.5">
+                    <p className="text-sm font-medium">{formatWeekday(form.workDate)}</p>
                     <Progress
                       value={Math.min(((bookedThatDay + durationMinutes) / DAILY_LIMIT_MINUTES) * 100, 100)}
                       aria-label={t("booking.dayProgress")}

@@ -232,6 +232,9 @@
     },
     "request": {
       "unknown_route": "Called unknown address"
+    },
+    "calendar": {
+      "list_holidays": "Viewed public holidays"
     }
   },
   "suppliers": {
@@ -345,6 +348,17 @@
     "mineDescription": "Newest first, with the total per day.",
     "dayTotal": "{{booked}} / {{limit}}",
     "none": "No bookings yet."
+  },
+  "calendar": {
+    "future": "In the future – time is booked once it has been worked",
+    "outsidePeriod": "Outside the order's period",
+    "sunday": "Sunday – no work on Sundays and public holidays (ArbZG §9)",
+    "holiday": "Public holiday ({{name}}) – no work on Sundays and public holidays (ArbZG §9)",
+    "booked": "Already booked: {{booked}}",
+    "conflict": "Conflict: {{booked}} already booked, {{total}} with this booking – more than 10 hours",
+    "legendConflict": "Over 10 hours with this duration",
+    "legendBlocked": "Not bookable",
+    "legendHours": "Number under the day = already booked"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",

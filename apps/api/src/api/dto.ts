@@ -165,6 +165,13 @@ export const toBookableOrderResponse = (order: Order, supplierName: string): Boo
   endDate: order.endDate,
 })
 
+// GET /api/public-holidays?year=2026 – for the booking calendar
+export const publicHolidaysQuery = z.object({ year: z.coerce.number().int().min(2000).max(2100) })
+export const publicHolidayResponse = z.object({
+  date: z.string().meta({ example: "2026-10-03" }),
+  name: z.string().meta({ example: "Day of German Unity" }),
+})
+
 // POST /api/orders and PUT /api/orders/:id – purchasing only. Format checks here; business rules in the domain.
 export const orderRequest = z.object({
   code: z.string().trim().min(3).max(40).meta({ example: "PO-2026-004" }),

@@ -232,6 +232,9 @@
     },
     "request": {
       "unknown_route": "Unbekannte Adresse aufgerufen"
+    },
+    "calendar": {
+      "list_holidays": "Feiertage abgerufen"
     }
   },
   "suppliers": {
@@ -345,6 +348,17 @@
     "mineDescription": "Neueste zuerst, mit der Summe je Tag.",
     "dayTotal": "{{booked}} / {{limit}}",
     "none": "Noch keine Buchungen."
+  },
+  "calendar": {
+    "future": "In der Zukunft – Zeit wird erst gebucht, wenn sie gearbeitet ist",
+    "outsidePeriod": "Außerhalb des Zeitraums der Bestellung",
+    "sunday": "Sonntag – keine Arbeit an Sonn- und Feiertagen (ArbZG §9)",
+    "holiday": "Feiertag ({{name}}) – keine Arbeit an Sonn- und Feiertagen (ArbZG §9)",
+    "booked": "Schon gebucht: {{booked}}",
+    "conflict": "Konflikt: schon {{booked}} gebucht, mit dieser Buchung {{total}} – mehr als 10 Stunden",
+    "legendConflict": "Mit dieser Dauer über 10 Stunden",
+    "legendBlocked": "Nicht buchbar",
+    "legendHours": "Zahl unter dem Tag = schon gebucht"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",

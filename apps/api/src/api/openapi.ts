@@ -19,6 +19,8 @@ import {
   orderRequest,
   orderResponse,
   projectManagerResponse,
+  publicHolidayResponse,
+  publicHolidaysQuery,
   resetPasswordRequest,
   supplierIdParams,
   updateUserRequest,
@@ -196,6 +198,13 @@ export const routes: RouteDoc[] = [
     method: "get", path: "/api/project-managers", tag: "Orders", roles: ["purchasing"],
     summary: "Project managers who can be responsible for an order (names only)",
     success: { status: 200, description: "Project managers", schema: z.array(projectManagerResponse) },
+  },
+  {
+    method: "get", path: "/api/public-holidays", tag: "Time entries", roles: ["consultant"],
+    summary: "Nationwide public holidays of a year – no bookings on them (ArbZG §9); for the booking calendar",
+    query: publicHolidaysQuery,
+    success: { status: 200, description: "Holidays in calendar order", schema: z.array(publicHolidayResponse) },
+    errors: { 400: "Missing or invalid year" },
   },
   {
     method: "get", path: "/api/orders/bookable", tag: "Orders", summary: "Orders of your own company you can book on",
