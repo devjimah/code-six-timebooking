@@ -14,6 +14,9 @@
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
     "BUDGET_EXCEEDED": "Booking rejected: the free budget of this order is not enough.",
     "INVALID_DURATION": "Booking rejected: the duration must be a positive number of whole minutes.",
+    "ORDER_NOT_FOUND": "Booking rejected: this order does not exist.",
+    "ORDER_NOT_ASSIGNED": "Booking rejected: you can only book on orders of your own company.",
+    "DATE_IN_FUTURE": "Booking rejected: the date is in the future. Book time once the work is done.",
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again."
   }

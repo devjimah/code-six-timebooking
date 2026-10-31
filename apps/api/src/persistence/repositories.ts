@@ -1,6 +1,6 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
-import { desc, eq } from "drizzle-orm"
+import { and, desc, eq, sql } from "drizzle-orm"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
 import { auditEvents, orders, suppliers, timeEntries, users } from "./schema.js"
@@ -92,8 +92,30 @@ export function timeEntryRepository(db: Db) {
       const [row] = await db.insert(timeEntries).values(data).returning()
       return toTimeEntry(row!)
     },
+    /** Newest work date first. */
     async findByUser(userId: number) {
-      return (await db.select().from(timeEntries).where(eq(timeEntries.userId, userId))).map(toTimeEntry)
+      const rows = await db
+        .select()
+        .from(timeEntries)
+        .where(eq(timeEntries.userId, userId))
+        .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
+      return rows.map(toTimeEntry)
+    },
+    /** For the 10-hour rule: everything this person booked on this date, on any order. */
+    async sumMinutesForUserOnDate(userId: number, workDate: string) {
+      const [row] = await db
+        .select({ total: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)` })
+        .from(timeEntries)
+        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
+      return Number(row?.total ?? 0)
+    },
+    /** For the budget rule: everything booked on this order, by anyone (ADR 0008: computed, not stored). */
+    async sumMinutesForOrder(orderId: number) {
+      const [row] = await db
+        .select({ total: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)` })
+        .from(timeEntries)
+        .where(eq(timeEntries.orderId, orderId))
+      return Number(row?.total ?? 0)
     },
     async findByOrder(orderId: number) {
       return (await db.select().from(timeEntries).where(eq(timeEntries.orderId, orderId))).map(toTimeEntry)
