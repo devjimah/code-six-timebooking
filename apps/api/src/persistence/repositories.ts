@@ -43,8 +43,13 @@ export function supplierRepository(db: Db) {
       const [row] = await db.select().from(suppliers).where(eq(suppliers.id, id))
       return row ? toSupplier(row) : null
     },
+    /** Alphabetical, so pickers in the UI are easy to scan. */
     async findAll() {
-      return (await db.select().from(suppliers)).map(toSupplier)
+      return (await db.select().from(suppliers).orderBy(asc(suppliers.name))).map(toSupplier)
+    },
+    async update(id: number, data: Partial<NewOf<Supplier>>) {
+      const [row] = await db.update(suppliers).set(data).where(eq(suppliers.id, id)).returning()
+      return toSupplier(row!)
     },
   }
 }

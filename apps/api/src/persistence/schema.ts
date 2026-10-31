@@ -5,8 +5,8 @@ import { sql } from "drizzle-orm"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 // Roles are a fixed list, so we store them as text with a CHECK-like enum
-// instead of a separate table. Working names – rename once product-vision.md is done.
-export const ROLES = ["consultant", "project_manager", "admin"] as const
+// instead of a separate table. Who may do what: docs/roles-and-privacy.md.
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
 
 const timestamps = {
   createdAt: text("created_at")

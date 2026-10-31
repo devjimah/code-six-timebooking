@@ -6,6 +6,7 @@ import { AppLayout } from "@/components/app-layout.tsx"
 import { AuditPage } from "@/pages/admin/audit-page.tsx"
 import { UsersPage } from "@/pages/admin/users-page.tsx"
 import { HomePage } from "@/pages/home-page.tsx"
+import { SuppliersPage } from "@/pages/purchasing/suppliers-page.tsx"
 import { LoginPage } from "@/pages/login-page.tsx"
 import { RedirectIfSignedIn, RequireAuth, RequireRole } from "@/routes/guards.tsx"
 import { homePathFor } from "@/routes/navigation.ts"
@@ -26,11 +27,23 @@ export function App() {
 
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
-            {/* Admins have no general start screen; they land on the user list. */}
-            <Route index element={user?.role === "admin" ? <Navigate to={homePathFor("admin")} replace /> : <HomePage />} />
+            {/* Admins and purchasing have no general start screen; they land on their first screen. */}
+            <Route
+              index
+              element={
+                user && (user.role === "admin" || user.role === "purchasing") ? (
+                  <Navigate to={homePathFor(user.role)} replace />
+                ) : (
+                  <HomePage />
+                )
+              }
+            />
             <Route element={<RequireRole role="admin" />}>
               <Route path="/admin/users" element={<UsersPage />} />
               <Route path="/admin/audit" element={<AuditPage />} />
+            </Route>
+            <Route element={<RequireRole role="purchasing" />}>
+              <Route path="/purchasing/suppliers" element={<SuppliersPage />} />
             </Route>
           </Route>
         </Route>

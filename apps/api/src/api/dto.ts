@@ -5,7 +5,7 @@ import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
-const ROLES = ["consultant", "project_manager", "admin"] as const
+const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
 
 // Every error response (401, 403, 404, 422 …) has this shape (ADR 0005). The UI translates `code`.
 export const errorResponse = z.object({
@@ -49,6 +49,12 @@ export const createUserRequest = z.object({
 })
 
 export const supplierResponse = z.object({ id: z.number().int(), name: z.string() })
+
+// POST /api/suppliers and PATCH /api/suppliers/:id – purchasing only. Uniqueness is a domain rule (supplier-name.ts).
+export const supplierRequest = z.object({
+  name: z.string().trim().min(2).max(100).meta({ example: "Acme Consulting GmbH" }),
+})
+export const supplierIdParams = z.object({ id: z.coerce.number().int().positive() })
 export type SupplierResponse = z.infer<typeof supplierResponse>
 
 export const toSupplierResponse = (supplier: Supplier): SupplierResponse => ({ id: supplier.id, name: supplier.name })

@@ -1,7 +1,7 @@
 // The shapes the API sends back. They mirror the response DTOs in apps/api/src/api/dto.ts –
 // when a DTO changes there, change it here too.
 
-export const ROLES = ["consultant", "project_manager", "admin"] as const
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
 export type Role = (typeof ROLES)[number]
 
 export type User = {

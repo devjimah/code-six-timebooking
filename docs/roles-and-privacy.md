@@ -9,7 +9,7 @@
 |---|---|---|
 | Consultant | supplier | External consultant of a service provider. Books own working time on the orders of their own company. Employed by the supplier, not by the client. |
 | Project manager | client | Runs a project and is responsible for its orders. Checks the work booked on own orders and watches their budget. |
-| Purchasing | client | Places purchase orders with suppliers and follows up when a budget runs out. Manages the supplier companies. *(planned)* |
+| Purchasing | client | Places purchase orders with suppliers and follows up when a budget runs out. Manages the supplier companies. |
 | Admin | client IT | Runs the system: creates accounts and reads the audit log. Sees no bookings, budgets or prices. |
 | Supplier manager | supplier | *Later stage, not built.* Would see all bookings of their own company's consultants, because the supplier is the employer and responsible for working-time law. |
 
@@ -30,7 +30,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | PM built · purchasing planned |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | PM built · purchasing planned |
 | Create and edit purchase orders | – | – | ✔ | – | planned |
-| Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | admin read built · rest planned |
+| Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
 | Create user accounts | – | – | – | ✔ | built |
 | Edit and deactivate user accounts | – | – | – | ✔ | planned |
 | Reset a user's password | – | – | – | ✔ | planned |
@@ -101,14 +101,14 @@ that is convenience, not security.
 | `GET /api/orders/managed` | project manager | only own orders |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
 | `GET /api/users`, `POST /api/users` | admin | – |
-| `GET /api/suppliers` | admin | – |
+| `GET /api/suppliers` | admin, purchasing | – |
+| `POST /api/suppliers`, `PATCH /api/suppliers/:id` | purchasing | unique name (`SUPPLIER_NAME_TAKEN`) |
 | `GET /api/audit-events` | admin | – |
 
 Tests: wrong role and no session in [auth.test.ts](../apps/api/test/auth.test.ts),
 [users.test.ts](../apps/api/test/users.test.ts), [order-list.test.ts](../apps/api/test/order-list.test.ts),
-[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
+[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [suppliers.test.ts](../apps/api/test/suppliers.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
 
-**Planned rows** get the same two layers when they are built: the purchasing role and its order and supplier routes,
+**Planned rows** get the same two layers when they are built: purchasing's order routes,
 the project manager's booking list (per booking, no per-person totals), and editing, deactivating and resetting
-accounts (admin only). Demo users per role are seeded and listed in the README; a purchasing demo user is added
-with the role.
+accounts (admin only). One demo user per role is seeded and listed in the README.

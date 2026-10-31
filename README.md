@@ -88,12 +88,13 @@ npm test          # all tests of all workspaces (Turbo runs Vitest in apps/api)
 
 ## Demo users
 
-All demo users have the password `demo1234` (demo data only).
+All demo users have the password `demo1234` (demo data only). Demo data is only created in an empty database: if a demo user is missing after an update, run `npm run db:reset -w api`.
 
 | Role | Sign in with | What to try |
 |---|---|---|
 | Admin | `admin@demo.local` | Web app: **Users** (list, tap a name for the profile drawer, *New user*; try a consultant without a company) and **Audit log** (filter by user). API: `GET /api/users` lists all users; `POST /api/users` creates an account (try it in [Swagger UI](http://localhost:3001/api/docs)); `GET /api/audit-events` shows the audit log (admin only) |
 | Project manager | `pm@demo.local` | `GET /api/orders/managed` lists your orders with their budget; `GET /api/orders/1/budget` shows booked and remaining budget of your order; `GET /api/users` is refused with 403 |
+| Purchasing | `purchasing@demo.local` | Web app: **Suppliers** – create one, try a name that already exists in other spelling (`acme consulting gmbh` → rejected), tap a supplier to rename it. API: `POST /api/suppliers`, `PATCH /api/suppliers/{id}`; the admin may only read suppliers |
 | Consultant (Acme Consulting) | `consultant@demo.local` | `GET /api/orders/bookable` lists the orders you may book on; `POST /api/time-entries` books time; try more than 10 h on Tue 27 Oct 2026, Sunday 25 Oct 2026, or an order of another company; `GET /api/time-entries/mine` |
 
 ## Evidence map

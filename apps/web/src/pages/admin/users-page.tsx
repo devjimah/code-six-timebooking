@@ -20,6 +20,7 @@ import { CreateUserDrawer } from "@/pages/admin/create-user-drawer.tsx"
 const ROLE_BADGE: Record<Role, "default" | "secondary" | "outline"> = {
   admin: "default",
   project_manager: "secondary",
+  purchasing: "secondary",
   consultant: "outline",
 }
 

@@ -1,11 +1,11 @@
 // Which screens each role sees in the sidebar. Add a role's screens here when they are built.
-import { House, ScrollText, Users, type LucideIcon } from "lucide-react"
+import { Building2, House, ScrollText, Users, type LucideIcon } from "lucide-react"
 
 import type { Role } from "@/lib/api-types.ts"
 
 export type NavItem = {
   path: string
-  labelKey: "nav.home" | "nav.users" | "nav.audit"
+  labelKey: "nav.home" | "nav.users" | "nav.audit" | "nav.suppliers"
   icon: LucideIcon
 }
 
@@ -15,6 +15,7 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
     { path: "/admin/audit", labelKey: "nav.audit", icon: ScrollText },
   ],
   project_manager: [{ path: "/", labelKey: "nav.home", icon: House }],
+  purchasing: [{ path: "/purchasing/suppliers", labelKey: "nav.suppliers", icon: Building2 }],
   consultant: [{ path: "/", labelKey: "nav.home", icon: House }],
 }
 

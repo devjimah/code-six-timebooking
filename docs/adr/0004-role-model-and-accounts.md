@@ -7,7 +7,7 @@
 
 ## Context
 
-Consultants (supplier side), project managers and admins (client side) need clearly different rights
+Consultants (supplier side), project managers, purchasing and admins (client side) need clearly different rights
 (see `docs/roles-and-privacy.md`). The first version of ticket #5 let new users register themselves and choose
 their account type. Anyone could then make themselves a project manager and read other people's hours.
 
@@ -36,3 +36,7 @@ so this endpoint becomes a fallback.
   `apps/api/src/domain/rules/account.ts`. Emails are stored in lower case. The admin sets an initial password
   (10–72 characters; bcrypt ignores everything after 72 bytes) and hands it over; a "change your password on
   first sign-in" step is not built yet.
+- **Update 2026-10-31 – fourth role `purchasing`:** the role matrix (`docs/roles-and-privacy.md`) separates
+  creating a budget from spending it. Purchasing places orders and manages suppliers; the project manager spends
+  the budget and checks the work. Like admins and project managers, purchasing works for the client and has no
+  supplier. Adding a role needed no migration (roles are text) – only `ROLES`, the seed and the route checks.

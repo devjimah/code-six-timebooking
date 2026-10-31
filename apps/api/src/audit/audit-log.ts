@@ -21,6 +21,8 @@ export const ACTIONS: Record<string, string> = {
   "GET /api/users": "user.list",
   "POST /api/users": "user.create",
   "GET /api/suppliers": "supplier.list",
+  "POST /api/suppliers": "supplier.create",
+  "PATCH /api/suppliers/:id": "supplier.update",
   "POST /api/time-entries": "time_entry.create",
   "GET /api/time-entries/mine": "time_entry.list_own",
   "GET /api/orders/bookable": "order.list_bookable",

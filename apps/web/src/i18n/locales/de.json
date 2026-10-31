@@ -26,6 +26,7 @@
   "roles": {
     "consultant": "Berater",
     "project_manager": "Projektleitung",
+    "purchasing": "Einkauf",
     "admin": "Admin"
   },
   "logout": "Abmelden",
@@ -39,7 +40,8 @@
   "nav": {
     "home": "Start",
     "users": "Benutzer",
-    "audit": "Protokoll"
+    "audit": "Protokoll",
+    "suppliers": "Dienstleister"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -89,7 +91,8 @@
     "showDetails": "Details anzeigen",
     "target": {
       "user": "Benutzer #{{id}}",
-      "order": "Bestellung #{{id}}"
+      "order": "Bestellung #{{id}}",
+      "supplier": "Dienstleister #{{id}}"
     },
     "details": {
       "email": "E-Mail",
@@ -97,7 +100,8 @@
       "supplierId": "Dienstleister-Nr.",
       "workDate": "Arbeitstag",
       "durationMinutes": "Dauer",
-      "timeEntryId": "Buchungs-Nr."
+      "timeEntryId": "Buchungs-Nr.",
+      "name": "Name"
     }
   },
   "auditActions": {
@@ -111,7 +115,9 @@
       "create": "Benutzer angelegt"
     },
     "supplier": {
-      "list": "Dienstleister angesehen"
+      "list": "Dienstleister angesehen",
+      "create": "Dienstleister angelegt",
+      "update": "Dienstleister umbenannt"
     },
     "time_entry": {
       "create": "Zeit gebucht",
@@ -140,7 +146,7 @@
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleiter und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
+    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleitung, Einkauf und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
     "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
     "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
     "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9).",
@@ -148,6 +154,23 @@
     "VALIDATION_FAILED": "Bitte geben Sie eine gültige E-Mail-Adresse und ein Passwort ein.",
     "NETWORK_ERROR": "Der Server ist nicht erreichbar. Läuft die API?",
     "UNAUTHENTICATED": "Bitte melden Sie sich an.",
-    "FORBIDDEN": "Ihre Rolle darf das nicht."
+    "FORBIDDEN": "Ihre Rolle darf das nicht.",
+    "SUPPLIER_NAME_TAKEN": "Es gibt bereits einen Dienstleister mit diesem Namen."
+  },
+  "suppliers": {
+    "description": "Die Unternehmen, bei denen bestellt wird. Tippen Sie auf einen Namen, um ihn zu ändern.",
+    "new": "Neuer Dienstleister",
+    "newDescription": "Legen Sie ein Unternehmen an, bei dem Sie Leistungen bestellen.",
+    "rename": "Dienstleister umbenennen",
+    "renameNamed": "{{name}} umbenennen",
+    "renameDescription": "Der neue Name gilt sofort für alle Bestellungen und Berater dieses Unternehmens.",
+    "name": "Name",
+    "create": "Anlegen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "created": "{{name}} angelegt.",
+    "renamed": "Umbenannt in {{name}}.",
+    "empty": "Noch keine Dienstleister.",
+    "loadFailed": "Dienstleister konnten nicht geladen werden"
   }
 }

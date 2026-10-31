@@ -26,6 +26,7 @@
   "roles": {
     "consultant": "Consultant",
     "project_manager": "Project manager",
+    "purchasing": "Purchasing",
     "admin": "Admin"
   },
   "logout": "Sign out",
@@ -39,7 +40,8 @@
   "nav": {
     "home": "Home",
     "users": "Users",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "suppliers": "Suppliers"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -89,7 +91,8 @@
     "showDetails": "Show details",
     "target": {
       "user": "User #{{id}}",
-      "order": "Order #{{id}}"
+      "order": "Order #{{id}}",
+      "supplier": "Supplier #{{id}}"
     },
     "details": {
       "email": "Email",
@@ -97,7 +100,8 @@
       "supplierId": "Supplier no.",
       "workDate": "Work date",
       "durationMinutes": "Duration",
-      "timeEntryId": "Booking no."
+      "timeEntryId": "Booking no.",
+      "name": "Name"
     }
   },
   "auditActions": {
@@ -111,7 +115,9 @@
       "create": "Created user"
     },
     "supplier": {
-      "list": "Viewed suppliers"
+      "list": "Viewed suppliers",
+      "create": "Created supplier",
+      "update": "Renamed supplier"
     },
     "time_entry": {
       "create": "Booked time",
@@ -140,7 +146,7 @@
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again.",
     "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers and admins work for the client; leave the supplier empty.",
+    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers, purchasing and admins work for the client; leave the supplier empty.",
     "SUPPLIER_NOT_FOUND": "This supplier does not exist.",
     "EMAIL_TAKEN": "An account with this email address already exists.",
     "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9).",
@@ -148,6 +154,23 @@
     "VALIDATION_FAILED": "Please enter a valid email address and a password.",
     "NETWORK_ERROR": "The server cannot be reached. Is the API running?",
     "UNAUTHENTICATED": "Please sign in.",
-    "FORBIDDEN": "Your role is not allowed to do this."
+    "FORBIDDEN": "Your role is not allowed to do this.",
+    "SUPPLIER_NAME_TAKEN": "A supplier with this name already exists."
+  },
+  "suppliers": {
+    "description": "The companies orders are placed with. Tap a name to change it.",
+    "new": "New supplier",
+    "newDescription": "Add a company you order services from.",
+    "rename": "Rename supplier",
+    "renameNamed": "Rename {{name}}",
+    "renameDescription": "The new name applies at once to all orders and consultants of this company.",
+    "name": "Name",
+    "create": "Create",
+    "save": "Save",
+    "saving": "Saving …",
+    "created": "{{name}} created.",
+    "renamed": "Renamed to {{name}}.",
+    "empty": "No suppliers yet.",
+    "loadFailed": "Suppliers could not be loaded"
   }
 }

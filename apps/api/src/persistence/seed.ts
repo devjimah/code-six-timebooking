@@ -22,6 +22,9 @@ export async function seed(db: Db): Promise<boolean> {
   const pm = await userRepo.create({
     email: "pm@demo.local", name: "Paula Projectmanager", role: "project_manager", supplierId: null, passwordHash,
   })
+  await userRepo.create({
+    email: "purchasing@demo.local", name: "Pia Purchasing", role: "purchasing", supplierId: null, passwordHash,
+  })
   const consultant = await userRepo.create({
     email: "consultant@demo.local", name: "Carl Consultant", role: "consultant", supplierId: acme.id, passwordHash,
   })

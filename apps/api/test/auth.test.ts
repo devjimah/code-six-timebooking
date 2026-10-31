@@ -128,7 +128,7 @@ describe("permissions", () => {
     const users = await res.json()
 
     expect(res.status).toBe(200)
-    expect(users).toHaveLength(3)
+    expect(users).toHaveLength(4) // one demo user per role
     expect(JSON.stringify(users)).not.toContain("passwordHash")
   })
 

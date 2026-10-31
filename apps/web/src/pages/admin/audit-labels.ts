@@ -12,6 +12,8 @@ export const ACTION_LABELS = {
   "user.list": "auditActions.user.list",
   "user.create": "auditActions.user.create",
   "supplier.list": "auditActions.supplier.list",
+  "supplier.create": "auditActions.supplier.create",
+  "supplier.update": "auditActions.supplier.update",
   "time_entry.create": "auditActions.time_entry.create",
   "time_entry.list_own": "auditActions.time_entry.list_own",
   "order.list_bookable": "auditActions.order.list_bookable",
@@ -37,6 +39,7 @@ export function targetLabel(t: TFunction, event: AuditEvent, users: User[] | und
     return name ?? t("audit.target.user", { id: event.targetId })
   }
   if (event.targetType === "order") return t("audit.target.order", { id: event.targetId })
+  if (event.targetType === "supplier") return t("audit.target.supplier", { id: event.targetId })
   return `${event.targetType} #${event.targetId}`
 }
 
@@ -44,6 +47,7 @@ export function targetLabel(t: TFunction, event: AuditEvent, users: User[] | und
 export const errorText = (errorCode: string) => translateApiError({ code: errorCode, message: errorCode })
 
 const DETAIL_LABELS = {
+  name: "audit.details.name",
   email: "audit.details.email",
   role: "audit.details.role",
   supplierId: "audit.details.supplierId",

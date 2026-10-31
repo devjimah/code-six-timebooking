@@ -13,13 +13,15 @@ import {
   loginRequest,
   orderBudgetResponse,
   orderIdParams,
+  supplierIdParams,
+  supplierRequest,
   supplierResponse,
   timeEntryResponse,
   userResponse,
 } from "./dto.js"
 
 type RouteDoc = {
-  method: "get" | "post"
+  method: "get" | "post" | "patch"
   path: string // OpenAPI style: /api/orders/{id}/budget
   summary: string
   tag: string
@@ -68,9 +70,25 @@ export const routes: RouteDoc[] = [
     },
   },
   {
-    method: "get", path: "/api/suppliers", tag: "Users", summary: "All suppliers, to choose a consultant's company",
-    roles: ["admin"],
+    method: "get", path: "/api/suppliers", tag: "Suppliers",
+    summary: "All suppliers, alphabetical (admin: to choose a consultant's company; purchasing: to manage them)",
+    roles: ["admin", "purchasing"],
     success: { status: 200, description: "All suppliers", schema: z.array(supplierResponse) },
+  },
+  {
+    method: "post", path: "/api/suppliers", tag: "Suppliers", summary: "Create a supplier company",
+    roles: ["purchasing"],
+    body: supplierRequest,
+    success: { status: 201, description: "Supplier created", schema: supplierResponse },
+    errors: { 400: "Invalid request body", 422: "SUPPLIER_NAME_TAKEN" },
+  },
+  {
+    method: "patch", path: "/api/suppliers/{id}", tag: "Suppliers", summary: "Rename a supplier company",
+    roles: ["purchasing"],
+    params: supplierIdParams,
+    body: supplierRequest,
+    success: { status: 200, description: "Supplier renamed", schema: supplierResponse },
+    errors: { 400: "Invalid id or body", 404: "SUPPLIER_NOT_FOUND", 422: "SUPPLIER_NAME_TAKEN" },
   },
   {
     method: "post", path: "/api/time-entries", tag: "Time entries", roles: ["consultant"],

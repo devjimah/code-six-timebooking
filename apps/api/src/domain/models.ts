@@ -2,7 +2,7 @@
 // No Drizzle imports here – if we swapped SQLite for Postgres, this file would not change.
 // Note: User has no passwordHash; credentials stay inside the persistence/auth layer.
 
-export type Role = "consultant" | "project_manager" | "admin"
+export type Role = "consultant" | "project_manager" | "purchasing" | "admin"
 
 export interface Supplier {
   id: number
