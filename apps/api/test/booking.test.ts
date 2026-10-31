@@ -146,6 +146,16 @@ describe("rules enforced by the API", () => {
     expect((await res.json()).code).toBe("DATE_IN_FUTURE")
   })
 
+  it("rejects a booking on a Sunday (ArbZG §9)", async () => {
+    const res = await book(booking({ workDate: "2026-10-25" }))
+
+    expect(res.status).toBe(422)
+    expect(await res.json()).toEqual({
+      code: "SUNDAY_OR_HOLIDAY",
+      message: "Booking rejected: Sun 25 Oct 2026 is a Sunday. No work on Sundays and public holidays (German Working Time Act §9).",
+    })
+  })
+
   it("rejects a negative duration", async () => {
     const res = await book(booking({ durationMinutes: -60 }))
 

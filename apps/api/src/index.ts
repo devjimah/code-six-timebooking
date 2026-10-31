@@ -8,6 +8,11 @@ import { setupDatabase } from "./persistence/setup.js"
 // Migrate + seed on start so data and demo users exist after a fresh clone.
 await setupDatabase(db)
 scheduleAuditRetention(db, config.auditRetention)
-createApp({ db, sessionSecret: config.sessionSecret, secureCookies: config.secureCookies }).listen(config.port, () => {
+createApp({
+  db,
+  sessionSecret: config.sessionSecret,
+  secureCookies: config.secureCookies,
+  trustProxyHops: config.trustProxyHops,
+}).listen(config.port, () => {
   console.log(`API listening on http://localhost:${config.port}`)
 })

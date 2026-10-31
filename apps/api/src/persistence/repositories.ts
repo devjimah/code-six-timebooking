@@ -2,7 +2,7 @@
 // Each one maps a database row (persistence entity) to a domain object.
 import { and, asc, desc, eq, inArray, lt, notInArray, or, sql } from "drizzle-orm"
 import { READ_METHODS } from "../domain/audit-retention.js"
-import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
+import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
 import { auditEvents, orders, suppliers, timeEntries, users } from "./schema.js"
 
@@ -167,20 +167,32 @@ const toAuditEvent = (r: typeof auditEvents.$inferSelect): AuditEvent => ({
   statusCode: r.statusCode,
   outcome: r.outcome,
   durationMs: r.durationMs,
+  action: r.action,
+  targetType: r.targetType,
+  targetId: r.targetId,
+  errorCode: r.errorCode,
+  details: r.details === null ? null : (JSON.parse(r.details) as AuditDetails),
+  ipAddress: r.ipAddress,
+  userAgent: r.userAgent,
 })
 
 // Append-only on purpose (ADR 0012): no update, and the only delete is the retention clean-up (audit/retention.ts).
 export function auditEventRepository(db: Db) {
   return {
-    async record(data: NewOf<AuditEvent>) {
-      await db.insert(auditEvents).values(data)
+    async record({ details, ...data }: NewOf<AuditEvent>) {
+      await db.insert(auditEvents).values({ ...data, details: details === null ? null : JSON.stringify(details) })
     },
-    /** Newest first. */
-    async findLatest({ limit, actorUserId }: { limit: number; actorUserId?: number }) {
+    /** Newest first. Every filter is optional. */
+    async findLatest({ limit, actorUserId, outcome, action }: AuditEventFilter) {
+      const conditions = [
+        actorUserId === undefined ? undefined : eq(auditEvents.actorUserId, actorUserId),
+        outcome === undefined ? undefined : eq(auditEvents.outcome, outcome),
+        action === undefined ? undefined : eq(auditEvents.action, action),
+      ]
       const rows = await db
         .select()
         .from(auditEvents)
-        .where(actorUserId === undefined ? undefined : eq(auditEvents.actorUserId, actorUserId))
+        .where(and(...conditions))
         .orderBy(desc(auditEvents.id))
         .limit(limit)
       return rows.map(toAuditEvent)
@@ -199,3 +211,5 @@ export function auditEventRepository(db: Db) {
     },
   }
 }
+
+export type AuditEventFilter = { limit: number; actorUserId?: number; outcome?: AuditOutcome; action?: string }

@@ -14,6 +14,11 @@ export function formatDate(isoDate: string): string {
   )
 }
 
+/** "2026-10-27T14:05:00Z" → "27.10.2026, 15:05" (de, in the browser's time zone) */
+export function formatDateTime(isoTimestamp: string): string {
+  return new Intl.DateTimeFormat(locale(), { dateStyle: "short", timeStyle: "short" }).format(new Date(isoTimestamp))
+}
+
 /** 210 minutes → "3,5 h" (de) or "3.5 h" (en) */
 export function formatHours(minutes: number): string {
   const hours = new Intl.NumberFormat(locale(), { maximumFractionDigits: 2 }).format(minutes / 60)

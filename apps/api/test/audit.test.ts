@@ -1,5 +1,5 @@
-// Ticket #23: every API request leaves an audit event; only admins can read the log;
-// passwords and query strings never end up in it.
+// Ticket #23: every API request leaves an audit event that says who did what, on what, with which result and why;
+// only admins can read the log; passwords, query strings and free text never end up in it.
 import { mkdtempSync, rmSync } from "node:fs"
 import type { Server } from "node:http"
 import type { AddressInfo } from "node:net"
@@ -9,6 +9,8 @@ import { createClient } from "@libsql/client"
 import { drizzle } from "drizzle-orm/libsql"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { createApp } from "../src/app.js"
+import { routes as documentedRoutes } from "../src/api/openapi.js"
+import { ACTIONS } from "../src/audit/audit-log.js"
 import { type AuditEvent, auditOutcome } from "../src/domain/models.js"
 import { auditEventRepository } from "../src/persistence/repositories.js"
 import * as schema from "../src/persistence/schema.js"
@@ -52,6 +54,13 @@ async function sessionCookieFor(email: string): Promise<string> {
 
 const get = (path: string, cookie?: string) =>
   fetch(`${baseUrl}${path}`, { headers: cookie ? { Cookie: cookie } : {} })
+
+const post = (path: string, body: unknown, cookie: string) =>
+  fetch(`${baseUrl}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify(body),
+  })
 
 /** Events are written right after the response is sent, so wait until the expected one is there. */
 async function waitForEvent(match: (e: AuditEvent) => boolean): Promise<AuditEvent> {
@@ -124,6 +133,98 @@ describe("audit log", () => {
   })
 })
 
+describe("what an audit event says", () => {
+  it("names the email of a failed sign-in and why it failed, but never the password", async () => {
+    await login("pm@demo.local", "Wr0ng-guess-123")
+
+    const event = await waitForEvent((e) => e.action === "auth.login" && e.errorCode === "INVALID_CREDENTIALS")
+
+    expect(event.details).toEqual({ email: "pm@demo.local" })
+    expect(JSON.stringify(event)).not.toContain("Wr0ng-guess-123")
+  })
+
+  it("names the signed-in user as the target of a successful sign-in", async () => {
+    await login("admin@demo.local", DEMO_PASSWORD)
+
+    const event = await waitForEvent((e) => e.action === "auth.login" && e.outcome === "success" && e.actorRole === "admin")
+
+    expect(event).toMatchObject({ targetType: "user", targetId: event.actorUserId, errorCode: null })
+  })
+
+  it("records a rejected booking with its order, key facts and the rule that rejected it", async () => {
+    const description = "Secret project detail that must not be logged"
+    await post(
+      "/api/time-entries",
+      { orderId: 1, workDate: "2026-10-27", durationMinutes: -30, description },
+      await sessionCookieFor("consultant@demo.local"),
+    )
+
+    const event = await waitForEvent((e) => e.action === "time_entry.create" && e.errorCode === "INVALID_DURATION")
+
+    expect(event).toMatchObject({
+      outcome: "rejected",
+      statusCode: 422,
+      targetType: "order",
+      targetId: 1,
+      details: { workDate: "2026-10-27", durationMinutes: -30 },
+    })
+    expect(JSON.stringify(event)).not.toContain(description)
+  })
+
+  it("records a new account with its key facts and id, but not its password", async () => {
+    const email = `audit.${Date.now()}@demo.local`
+    const res = await post(
+      "/api/users",
+      { email, name: "Audit Person", role: "project_manager", password: "initial-pass-123" },
+      await sessionCookieFor("admin@demo.local"),
+    )
+    const created = await res.json()
+
+    const event = await waitForEvent((e) => e.action === "user.create" && e.details?.email === email)
+
+    expect(event).toMatchObject({
+      outcome: "success",
+      targetType: "user",
+      targetId: created.id,
+      details: { email, role: "project_manager", supplierId: null },
+    })
+    expect(JSON.stringify(event)).not.toContain("initial-pass-123")
+  })
+
+  it("records why a request was denied", async () => {
+    await get("/api/suppliers", await sessionCookieFor("consultant@demo.local"))
+
+    const event = await waitForEvent((e) => e.action === "supplier.list" && e.outcome === "denied")
+
+    expect(event.errorCode).toBe("FORBIDDEN")
+  })
+
+  it("records the IP address and the browser", async () => {
+    await fetch(`${baseUrl}/api/auth/me`, { headers: { "User-Agent": "audit-test-browser/1.0" } })
+
+    const event = await waitForEvent((e) => e.userAgent === "audit-test-browser/1.0")
+
+    expect(event.ipAddress).toMatch(/127\.0\.0\.1|::1/)
+  })
+
+  it("records requests to routes that do not exist", async () => {
+    await get("/api/does-not-exist")
+
+    const event = await waitForEvent((e) => e.path === "/api/does-not-exist")
+
+    expect(event).toMatchObject({ action: "request.unknown_route", statusCode: 404 })
+  })
+
+  it("has an action name for every documented route", () => {
+    const missing = documentedRoutes
+      .filter((route) => route.path !== "/api/health")
+      .map((route) => `${route.method.toUpperCase()} ${route.path.replace(/\{(\w+)\}/g, ":$1")}`)
+      .filter((key) => !(key in ACTIONS))
+
+    expect(missing).toEqual([])
+  })
+})
+
 describe("reading the audit log", () => {
   it("lets an admin read events, newest first", async () => {
     const res = await get("/api/audit-events?limit=3", await sessionCookieFor("admin@demo.local"))
@@ -143,6 +244,18 @@ describe("reading the audit log", () => {
 
     expect(events.length).toBeGreaterThan(0)
     expect(events.every((e) => e.actorUserId === me.id)).toBe(true)
+  })
+
+  it("filters events by outcome and action", async () => {
+    const admin = await sessionCookieFor("admin@demo.local")
+    await login("consultant@demo.local", "another-wrong-guess")
+    await waitForEvent((e) => e.action === "auth.login" && e.outcome === "denied")
+
+    const res = await get("/api/audit-events?outcome=denied&action=auth.login", admin)
+    const events: AuditEvent[] = await res.json()
+
+    expect(events.length).toBeGreaterThan(0)
+    expect(events.every((e) => e.outcome === "denied" && e.action === "auth.login")).toBe(true)
   })
 
   it("forbids a consultant to read the audit log with 403", async () => {

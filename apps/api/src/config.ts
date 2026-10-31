@@ -22,6 +22,9 @@ export const config = {
     readDays: days("AUDIT_RETENTION_READ_DAYS", 90),
     changeDays: days("AUDIT_RETENTION_CHANGE_DAYS", 365),
   },
+  // Number of reverse proxies in front of the API (0 = none). Needed so the audit log records the client's
+  // IP address instead of the proxy's. Only raise it when a proxy really sets X-Forwarded-For, or IPs can be faked.
+  trustProxyHops: Number(process.env.TRUST_PROXY_HOPS ?? 0),
 }
 
 // With the public default secret, anyone could forge a session cookie. Refuse to start in production.

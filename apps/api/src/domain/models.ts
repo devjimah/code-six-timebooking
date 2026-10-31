@@ -51,7 +51,17 @@ export interface AuditEvent {
   statusCode: number
   outcome: AuditOutcome
   durationMs: number
+  action: string | null
+  targetType: string | null
+  targetId: number | null
+  errorCode: string | null
+  details: AuditDetails | null
+  ipAddress: string | null
+  userAgent: string | null
 }
+
+/** Key facts about an action. Only plain values – never passwords or free text written by a person. */
+export type AuditDetails = Record<string, string | number | boolean | null>
 
 export function auditOutcome(statusCode: number): AuditOutcome {
   if (statusCode === 401 || statusCode === 403) return "denied"

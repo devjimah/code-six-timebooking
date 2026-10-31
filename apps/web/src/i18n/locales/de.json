@@ -1,14 +1,133 @@
 {
   "app": {
     "title": "Zeiterfassung",
-    "tagline": "Jede eingekaufte Stunde im Blick: Zeiten buchen, Budgets prüfen, rechtzeitig nachbestellen.",
-    "darkModeHint": "Taste <kbd>d</kbd> wechselt den Dunkelmodus",
-    "exampleBooking": "Beispielbuchung"
+    "tagline": "Jede eingekaufte Stunde im Blick: Zeiten buchen, Budgets prüfen, rechtzeitig nachbestellen."
   },
   "language": {
     "label": "Sprache",
     "de": "Deutsch",
     "en": "English"
+  },
+  "login": {
+    "title": "Anmelden",
+    "description": "Melden Sie sich mit Ihrer geschäftlichen E-Mail-Adresse an.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "submitting": "Anmeldung läuft …",
+    "failed": "Anmeldung fehlgeschlagen",
+    "noAccount": "Noch kein Konto? Ihr Admin legt es für Sie an.",
+    "demoHint": "Demo-Zugänge (nur Entwicklung, Passwort demo1234):"
+  },
+  "home": {
+    "welcome": "Willkommen, {{name}}",
+    "signedInAs": "Angemeldet als {{email}} · {{role}}"
+  },
+  "roles": {
+    "consultant": "Berater",
+    "project_manager": "Projektleitung",
+    "admin": "Admin"
+  },
+  "logout": "Abmelden",
+  "profile": {
+    "open": "Profil öffnen",
+    "role": "Rolle",
+    "email": "E-Mail",
+    "close": "Schließen",
+    "company": "Unternehmen"
+  },
+  "nav": {
+    "home": "Start",
+    "users": "Benutzer",
+    "audit": "Protokoll"
+  },
+  "users": {
+    "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
+    "new": "Neuer Benutzer",
+    "newDescription": "Legen Sie ein Konto an und geben Sie das Startpasswort persönlich weiter.",
+    "name": "Name",
+    "chooseSupplier": "Dienstleister wählen",
+    "supplierHint": "Berater gehören immer zu einem Dienstleister.",
+    "initialPassword": "Startpasswort",
+    "passwordHint": "10 bis 72 Zeichen.",
+    "create": "Konto anlegen",
+    "creating": "Wird angelegt …",
+    "cancel": "Abbrechen",
+    "created": "Konto für {{name}} angelegt.",
+    "client": "Auftraggeber",
+    "loadFailed": "Benutzer konnten nicht geladen werden"
+  },
+  "audit": {
+    "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
+    "filterByUser": "Nach Benutzer filtern",
+    "allUsers": "Alle Benutzer",
+    "anonymous": "Nicht angemeldet",
+    "when": "Zeitpunkt",
+    "who": "Wer",
+    "action": "Aktion",
+    "result": "Ergebnis",
+    "status": "Status",
+    "duration": "Dauer",
+    "empty": "Keine Einträge.",
+    "loadFailed": "Protokoll konnte nicht geladen werden",
+    "outcome": {
+      "success": "Erfolgreich",
+      "rejected": "Abgelehnt",
+      "denied": "Verweigert",
+      "error": "Fehler"
+    },
+    "filterByResult": "Nach Ergebnis filtern",
+    "allResults": "Alle Ergebnisse",
+    "filterByAction": "Nach Aktion filtern",
+    "allActions": "Alle Aktionen",
+    "targetLabel": "Betrifft",
+    "reason": "Grund",
+    "request": "Anfrage",
+    "ipAddress": "IP-Adresse",
+    "userAgent": "Browser",
+    "eventId": "Eintrag",
+    "showDetails": "Details anzeigen",
+    "target": {
+      "user": "Benutzer #{{id}}",
+      "order": "Bestellung #{{id}}"
+    },
+    "details": {
+      "email": "E-Mail",
+      "role": "Rolle",
+      "supplierId": "Dienstleister-Nr.",
+      "workDate": "Arbeitstag",
+      "durationMinutes": "Dauer",
+      "timeEntryId": "Buchungs-Nr."
+    }
+  },
+  "auditActions": {
+    "auth": {
+      "login": "Anmeldung",
+      "logout": "Abmeldung",
+      "session": "Sitzung geprüft"
+    },
+    "user": {
+      "list": "Benutzer angesehen",
+      "create": "Benutzer angelegt"
+    },
+    "supplier": {
+      "list": "Dienstleister angesehen"
+    },
+    "time_entry": {
+      "create": "Zeit gebucht",
+      "list_own": "Eigene Buchungen angesehen"
+    },
+    "order": {
+      "list_bookable": "Buchbare Bestellungen angesehen",
+      "list_managed": "Eigene Bestellungen angesehen",
+      "view_budget": "Budget angesehen"
+    },
+    "audit": {
+      "view": "Protokoll angesehen"
+    },
+    "request": {
+      "unknown_route": "Unbekannte Adresse aufgerufen"
+    }
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
@@ -23,6 +142,12 @@
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
     "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleiter und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
     "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
-    "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse."
+    "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
+    "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9).",
+    "INVALID_CREDENTIALS": "E-Mail oder Passwort ist falsch.",
+    "VALIDATION_FAILED": "Bitte geben Sie eine gültige E-Mail-Adresse und ein Passwort ein.",
+    "NETWORK_ERROR": "Der Server ist nicht erreichbar. Läuft die API?",
+    "UNAUTHENTICATED": "Bitte melden Sie sich an.",
+    "FORBIDDEN": "Ihre Rolle darf das nicht."
   }
 }

@@ -1,6 +1,7 @@
 // POST /api/time-entries and GET /api/time-entries/mine – consultants only (ticket #12).
 import { Router } from "express"
 import { bookTime } from "../application/book-time.js"
+import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
 import { timeEntryRepository } from "../persistence/repositories.js"
@@ -12,7 +13,14 @@ export function timeEntryRoutes(db: Db) {
   // Malformed body → 400 (zod). Broken business rule → 422 (DomainError). Both via the error handler.
   router.post("/", requireRole("consultant"), async (req, res) => {
     const input = createTimeEntryRequest.parse(req.body)
+    // The target is the order whose budget the booking uses. The description is free text and stays out of the log.
+    setAuditContext(res, {
+      targetType: "order",
+      targetId: input.orderId,
+      details: { workDate: input.workDate, durationMinutes: input.durationMinutes },
+    })
     const entry = await bookTime(db, req.user!, input)
+    setAuditContext(res, { details: { timeEntryId: entry.id } })
     res.status(201).json(toTimeEntryResponse(entry))
   })
 

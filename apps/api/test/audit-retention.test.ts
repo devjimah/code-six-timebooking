@@ -26,6 +26,13 @@ const event = (method: string, occurredAt: string) => ({
   statusCode: 200,
   outcome: "success" as const,
   durationMs: 3,
+  action: method === "GET" ? "time_entry.list_own" : "time_entry.create",
+  targetType: null,
+  targetId: null,
+  errorCode: null,
+  details: null,
+  ipAddress: null,
+  userAgent: null,
 })
 
 beforeAll(async () => {

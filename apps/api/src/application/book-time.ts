@@ -8,6 +8,7 @@ import { assertValidDuration } from "../domain/rules/duration.js"
 import { assertAssignedToOrder } from "../domain/rules/order-assignment.js"
 import { assertWithinOrderBudget } from "../domain/rules/order-budget.js"
 import { assertNotInFuture } from "../domain/rules/work-date.js"
+import { assertWorkingDay } from "../domain/rules/working-day.js"
 import type { Db } from "../persistence/db.js"
 import { orderRepository, timeEntryRepository } from "../persistence/repositories.js"
 import { todayInCompanyTimeZone } from "./clock.js"
@@ -28,6 +29,7 @@ export async function bookTime(
   // Cheap checks first: they need no database.
   assertValidDuration(input.durationMinutes)
   assertNotInFuture({ workDate: input.workDate, today })
+  assertWorkingDay(input.workDate)
 
   const order = await orderRepository(db).findById(input.orderId)
   if (!order) {

@@ -11,4 +11,10 @@ export default defineConfig({
       "@": resolve(import.meta.dirname, "./src"),
     },
   },
+  server: {
+    // The browser talks to the API on the same origin, so the httpOnly session cookie just works (ADR 0002).
+    proxy: {
+      "/api": process.env.API_URL ?? "http://localhost:3001",
+    },
+  },
 })

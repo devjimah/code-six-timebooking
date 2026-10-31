@@ -74,13 +74,14 @@ export const routes: RouteDoc[] = [
   },
   {
     method: "post", path: "/api/time-entries", tag: "Time entries", roles: ["consultant"],
-    summary: "Book time on an order of your own company (max. 10 h per day, within the order budget, not in the future)",
+    summary: "Book time on an order of your own company (max. 10 h per day, within the order budget, not in the future, " +
+      "not on Sundays or public holidays)",
     body: createTimeEntryRequest,
     success: { status: 201, description: "Booked", schema: timeEntryResponse },
     errors: {
       400: "Invalid request body",
       422: "A business rule was broken: DAILY_LIMIT_EXCEEDED, BUDGET_EXCEEDED, INVALID_DURATION, " +
-        "ORDER_NOT_FOUND, ORDER_NOT_ASSIGNED, DATE_IN_FUTURE",
+        "ORDER_NOT_FOUND, ORDER_NOT_ASSIGNED, DATE_IN_FUTURE, SUNDAY_OR_HOLIDAY",
     },
   },
   {
