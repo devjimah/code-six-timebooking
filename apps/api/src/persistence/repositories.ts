@@ -59,6 +59,11 @@ export function userRepository(db: Db) {
       const [row] = await db.select().from(users).where(eq(users.email, email))
       return row ? toUser(row) : null
     },
+    // Only for sign-in: the hash stays next to the user, never inside the domain object.
+    async findCredentialsByEmail(email: string) {
+      const [row] = await db.select().from(users).where(eq(users.email, email))
+      return row ? { user: toUser(row), passwordHash: row.passwordHash } : null
+    },
     async findAll() {
       return (await db.select().from(users)).map(toUser)
     },
