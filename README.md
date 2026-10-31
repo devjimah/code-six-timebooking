@@ -62,6 +62,8 @@ See the effect on the order's budget as its project manager:
 
 ```bash
 curl -c pm.txt -H "Content-Type: application/json" -d '{"email":"pm@demo.local","password":"demo1234"}' http://localhost:3001/api/auth/login
+curl -b pm.txt http://localhost:3001/api/orders/managed
+# → all orders you manage, each with its budget
 curl -b pm.txt http://localhost:3001/api/orders/1/budget
 # → budget, booked and remaining in hours, person-days and euro cents
 ```
@@ -88,8 +90,8 @@ All demo users have the password `demo1234` (demo data only).
 | Role | Sign in with | What to try |
 |---|---|---|
 | Admin | `admin@demo.local` | `GET /api/users` lists all users; `GET /api/audit-events` shows the audit log (admin only) |
-| Project manager | `pm@demo.local` | `GET /api/orders/1/budget` shows booked and remaining budget of your order; `GET /api/users` is refused with 403 |
-| Consultant (Acme Consulting) | `consultant@demo.local` | `POST /api/time-entries` books time; try more than 10 h on Tue 27 Oct 2026 or an order of another company; `GET /api/time-entries/mine` |
+| Project manager | `pm@demo.local` | `GET /api/orders/managed` lists your orders with their budget; `GET /api/orders/1/budget` shows booked and remaining budget of your order; `GET /api/users` is refused with 403 |
+| Consultant (Acme Consulting) | `consultant@demo.local` | `GET /api/orders/bookable` lists the orders you may book on; `POST /api/time-entries` books time; try more than 10 h on Tue 27 Oct 2026 or an order of another company; `GET /api/time-entries/mine` |
 
 ## Evidence map
 
@@ -99,7 +101,7 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 |---|---|
 | 1 · Persistence and data model | [schema.ts](apps/api/src/persistence/schema.ts), [migrations](apps/api/drizzle/), [seed.ts](apps/api/src/persistence/seed.ts), [ER diagram](docs/domain.md) |
 | 2 · Business rules and unit tests | Rules in [domain/rules/](apps/api/src/domain/rules/) (10 h per day · order budget · valid duration · own company's orders · no future dates), used by [book-time.ts](apps/api/src/application/book-time.ts), unit tests in [test/domain/](apps/api/test/domain/), API tests in [booking.test.ts](apps/api/test/booking.test.ts), errors as 422 via [error-handler.ts](apps/api/src/api/error-handler.ts) ([ADR 0005](docs/adr/0005-error-handling.md), [ADR 0006](docs/adr/0006-business-rules-in-the-domain.md)); run with `npm test` |
-| 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), enforcement in [auth/middleware.ts](apps/api/src/auth/middleware.ts) (roles) and [get-order-budget.ts](apps/api/src/application/get-order-budget.ts) (only your own orders), tests in [auth.test.ts](apps/api/test/auth.test.ts), audit log [ADR 0012](docs/adr/0012-audit-log.md) / [audit-log.ts](apps/api/src/audit/audit-log.ts), TODO – mockup views |
+| 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), enforcement in [auth/middleware.ts](apps/api/src/auth/middleware.ts) (roles) and [get-order-budget.ts](apps/api/src/application/get-order-budget.ts) and [list-orders.ts](apps/api/src/application/list-orders.ts) (only your own orders), tests in [auth.test.ts](apps/api/test/auth.test.ts) and [order-list.test.ts](apps/api/test/order-list.test.ts), audit log [ADR 0012](docs/adr/0012-audit-log.md) / [audit-log.ts](apps/api/src/audit/audit-log.ts), TODO – mockup views |
 | 4 · Architecture and engineering | A structure: [api/](apps/api/src/api/) · [domain/](apps/api/src/domain/) · [persistence/](apps/api/src/persistence/) · B [ADRs](docs/adr/), incl. [identity](docs/adr/0002-identity-and-sign-in.md) and [operation](docs/adr/0003-operation-and-scaling.md) · C Git history · D TODO API docs · E TODO compose file · F [mockup](docs/mockup/) |
 
 ## Team

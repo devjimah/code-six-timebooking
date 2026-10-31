@@ -63,6 +63,22 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
   description: entry.description,
 })
 
+// GET /api/orders/bookable – what a consultant needs to pick an order. No rate and no money:
+// prices are agreed between the client and the supplier's management, not shown to every consultant.
+export type BookableOrderResponse = {
+  id: number
+  code: string
+  title: string
+  supplierName: string
+}
+
+export const toBookableOrderResponse = (order: Order, supplierName: string): BookableOrderResponse => ({
+  id: order.id,
+  code: order.code,
+  title: order.title,
+  supplierName,
+})
+
 // GET /api/orders/:id/budget – the id arrives as text in the URL.
 export const orderIdParams = z.object({ id: z.coerce.number().int().positive() })
 

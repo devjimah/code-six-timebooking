@@ -1,6 +1,6 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
-import { and, desc, eq, sql } from "drizzle-orm"
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
 import { auditEvents, orders, suppliers, timeEntries, users } from "./schema.js"
@@ -83,6 +83,24 @@ export function orderRepository(db: Db) {
     async findAll() {
       return (await db.select().from(orders)).map(toOrder)
     },
+    /** Orders a consultant of this supplier may book on, with the supplier's name for display. */
+    async findBySupplierWithName(supplierId: number) {
+      const rows = await db
+        .select({ order: orders, supplierName: suppliers.name })
+        .from(orders)
+        .innerJoin(suppliers, eq(orders.supplierId, suppliers.id))
+        .where(eq(orders.supplierId, supplierId))
+        .orderBy(asc(orders.code))
+      return rows.map((r) => ({ order: toOrder(r.order), supplierName: r.supplierName }))
+    },
+    async findByProjectManager(projectManagerId: number) {
+      const rows = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.projectManagerId, projectManagerId))
+        .orderBy(asc(orders.code))
+      return rows.map(toOrder)
+    },
   }
 }
 
@@ -116,6 +134,16 @@ export function timeEntryRepository(db: Db) {
         .from(timeEntries)
         .where(eq(timeEntries.orderId, orderId))
       return Number(row?.total ?? 0)
+    },
+    /** Booked minutes per order in one query, instead of one query per order. Orders without bookings are missing. */
+    async sumMinutesPerOrder(orderIds: number[]) {
+      if (orderIds.length === 0) return new Map<number, number>()
+      const rows = await db
+        .select({ orderId: timeEntries.orderId, total: sql<number>`sum(${timeEntries.durationMinutes})` })
+        .from(timeEntries)
+        .where(inArray(timeEntries.orderId, orderIds))
+        .groupBy(timeEntries.orderId)
+      return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
     async findByOrder(orderId: number) {
       return (await db.select().from(timeEntries).where(eq(timeEntries.orderId, orderId))).map(toTimeEntry)
