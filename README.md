@@ -55,7 +55,7 @@ Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
 ## Test
 
 ```bash
-npm test -w api   # Vitest: unit + integration tests of the API
+npm test          # all tests of all workspaces (Turbo runs Vitest in apps/api)
 ```
 
 ## Demo users
@@ -77,7 +77,7 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 | 1 · Persistence and data model | [schema.ts](apps/api/src/persistence/schema.ts), [migrations](apps/api/drizzle/), [seed.ts](apps/api/src/persistence/seed.ts), [ER diagram](docs/domain.md) |
 | 2 · Business rules and unit tests | TODO – domain rule files, test folder |
 | 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), TODO – mockup views / enforcement code |
-| 4 · Architecture and engineering | TODO – A structure · B [ADRs](docs/adr/) · C Git history · D API docs · E compose file · F [mockup](docs/mockup/) |
+| 4 · Architecture and engineering | A structure: [api/](apps/api/src/api/) · [domain/](apps/api/src/domain/) · [persistence/](apps/api/src/persistence/) · B [ADRs](docs/adr/), incl. [identity](docs/adr/0002-identity-and-sign-in.md) and [operation](docs/adr/0003-operation-and-scaling.md) · C Git history · D TODO API docs · E TODO compose file · F [mockup](docs/mockup/) |
 
 ## Team
 

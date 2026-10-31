@@ -1,5 +1,6 @@
 import "dotenv/config"
 import express from "express"
+import { errorHandler } from "./api/error-handler.js"
 import { db } from "./persistence/db.js"
 import { setupDatabase } from "./persistence/setup.js"
 
@@ -11,6 +12,9 @@ app.use(express.json())
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" })
 })
+
+// Must stay last: turns DomainError into 422 and hides internal errors.
+app.use(errorHandler)
 
 const port = Number(process.env.PORT ?? 3001)
 // Migrate + seed on start so data and demo users exist after a fresh clone.
