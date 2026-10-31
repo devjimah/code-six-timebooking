@@ -13,6 +13,7 @@
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
     "BUDGET_EXCEEDED": "Booking rejected: the free budget of this order is not enough.",
+    "INVALID_DURATION": "Booking rejected: the duration must be a positive number of whole minutes.",
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again."
   }

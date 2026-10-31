@@ -82,7 +82,7 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 | Criterion | Evidence |
 |---|---|
 | 1 · Persistence and data model | [schema.ts](apps/api/src/persistence/schema.ts), [migrations](apps/api/drizzle/), [seed.ts](apps/api/src/persistence/seed.ts), [ER diagram](docs/domain.md) |
-| 2 · Business rules and unit tests | TODO – domain rule files, test folder |
+| 2 · Business rules and unit tests | Rules in [domain/rules/](apps/api/src/domain/rules/) (10 h per day · order budget · valid duration), unit tests in [test/domain/](apps/api/test/domain/), errors as 422 via [error-handler.ts](apps/api/src/api/error-handler.ts) ([ADR 0005](docs/adr/0005-error-handling.md), [ADR 0006](docs/adr/0006-business-rules-in-the-domain.md)); run with `npm test` |
 | 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), enforcement in [auth/middleware.ts](apps/api/src/auth/middleware.ts), tests in [auth.test.ts](apps/api/test/auth.test.ts), audit log [ADR 0012](docs/adr/0012-audit-log.md) / [audit-log.ts](apps/api/src/audit/audit-log.ts), TODO – mockup views |
 | 4 · Architecture and engineering | A structure: [api/](apps/api/src/api/) · [domain/](apps/api/src/domain/) · [persistence/](apps/api/src/persistence/) · B [ADRs](docs/adr/), incl. [identity](docs/adr/0002-identity-and-sign-in.md) and [operation](docs/adr/0003-operation-and-scaling.md) · C Git history · D TODO API docs · E TODO compose file · F [mockup](docs/mockup/) |
 
