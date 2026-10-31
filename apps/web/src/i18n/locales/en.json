@@ -1,0 +1,19 @@
+{
+  "app": {
+    "title": "Time booking",
+    "tagline": "Every hour you buy, in view: book time, check budgets, reorder in time.",
+    "darkModeHint": "Press <kbd>d</kbd> to toggle dark mode",
+    "exampleBooking": "Example booking"
+  },
+  "language": {
+    "label": "Language",
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "errors": {
+    "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
+    "BUDGET_EXCEEDED": "Booking rejected: the free budget of this order is not enough.",
+    "INVALID_JSON": "The request could not be read.",
+    "INTERNAL_ERROR": "Something went wrong on the server. Please try again."
+  }
+}

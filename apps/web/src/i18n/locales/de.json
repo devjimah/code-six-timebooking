@@ -1,0 +1,19 @@
+{
+  "app": {
+    "title": "Zeiterfassung",
+    "tagline": "Jede eingekaufte Stunde im Blick: Zeiten buchen, Budgets prüfen, rechtzeitig nachbestellen.",
+    "darkModeHint": "Taste <kbd>d</kbd> wechselt den Dunkelmodus",
+    "exampleBooking": "Beispielbuchung"
+  },
+  "language": {
+    "label": "Sprache",
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "errors": {
+    "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
+    "BUDGET_EXCEEDED": "Buchung abgelehnt: Das freie Budget dieser Bestellung reicht nicht aus.",
+    "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
+    "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+  }
+}
