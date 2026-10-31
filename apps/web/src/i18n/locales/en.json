@@ -33,7 +33,49 @@
     "open": "Open profile",
     "role": "Role",
     "email": "Email",
-    "close": "Close"
+    "close": "Close",
+    "company": "Company"
+  },
+  "nav": {
+    "home": "Home",
+    "users": "Users",
+    "audit": "Audit log"
+  },
+  "users": {
+    "description": "All accounts. Only admins create accounts – there is no self-registration.",
+    "new": "New user",
+    "newDescription": "Create an account and hand the initial password to the person yourself.",
+    "name": "Name",
+    "chooseSupplier": "Choose a supplier",
+    "supplierHint": "Consultants always belong to a supplier.",
+    "initialPassword": "Initial password",
+    "passwordHint": "10 to 72 characters.",
+    "create": "Create account",
+    "creating": "Creating …",
+    "cancel": "Cancel",
+    "created": "Account for {{name}} created.",
+    "client": "Client",
+    "loadFailed": "Users could not be loaded"
+  },
+  "audit": {
+    "description": "Who did what and when – the latest 100 entries, newest first.",
+    "filterByUser": "Filter by user",
+    "allUsers": "All users",
+    "anonymous": "Not signed in",
+    "when": "When",
+    "who": "Who",
+    "action": "Action",
+    "result": "Result",
+    "status": "Status",
+    "duration": "Duration",
+    "empty": "No entries.",
+    "loadFailed": "The audit log could not be loaded",
+    "outcome": {
+      "success": "Success",
+      "rejected": "Rejected",
+      "denied": "Denied",
+      "error": "Error"
+    }
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",

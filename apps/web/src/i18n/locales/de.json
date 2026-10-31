@@ -33,7 +33,49 @@
     "open": "Profil öffnen",
     "role": "Rolle",
     "email": "E-Mail",
-    "close": "Schließen"
+    "close": "Schließen",
+    "company": "Unternehmen"
+  },
+  "nav": {
+    "home": "Start",
+    "users": "Benutzer",
+    "audit": "Protokoll"
+  },
+  "users": {
+    "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
+    "new": "Neuer Benutzer",
+    "newDescription": "Legen Sie ein Konto an und geben Sie das Startpasswort persönlich weiter.",
+    "name": "Name",
+    "chooseSupplier": "Dienstleister wählen",
+    "supplierHint": "Berater gehören immer zu einem Dienstleister.",
+    "initialPassword": "Startpasswort",
+    "passwordHint": "10 bis 72 Zeichen.",
+    "create": "Konto anlegen",
+    "creating": "Wird angelegt …",
+    "cancel": "Abbrechen",
+    "created": "Konto für {{name}} angelegt.",
+    "client": "Auftraggeber",
+    "loadFailed": "Benutzer konnten nicht geladen werden"
+  },
+  "audit": {
+    "description": "Wer hat wann was getan – die letzten 100 Einträge, neueste zuerst.",
+    "filterByUser": "Nach Benutzer filtern",
+    "allUsers": "Alle Benutzer",
+    "anonymous": "Nicht angemeldet",
+    "when": "Zeitpunkt",
+    "who": "Wer",
+    "action": "Aktion",
+    "result": "Ergebnis",
+    "status": "Status",
+    "duration": "Dauer",
+    "empty": "Keine Einträge.",
+    "loadFailed": "Protokoll konnte nicht geladen werden",
+    "outcome": {
+      "success": "Erfolgreich",
+      "rejected": "Abgelehnt",
+      "denied": "Verweigert",
+      "error": "Fehler"
+    }
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",

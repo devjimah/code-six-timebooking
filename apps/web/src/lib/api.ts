@@ -13,11 +13,17 @@ export class ApiError extends Error {
 }
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`/api${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...init.headers },
-    credentials: "same-origin", // sends the session cookie
-  })
+  let response: Response
+  try {
+    response = await fetch(`/api${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...init.headers },
+      credentials: "same-origin", // sends the session cookie
+    })
+  } catch {
+    // fetch only throws when the server cannot be reached at all
+    throw new ApiError(0, "NETWORK_ERROR", "The server cannot be reached.")
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))

@@ -3,17 +3,9 @@
 import * as React from "react"
 
 import { ApiError, api } from "@/lib/api.ts"
+import type { User } from "@/lib/api-types.ts"
 
-export type Role = "consultant" | "project_manager" | "admin"
-
-// Same shape as userResponse in apps/api/src/api/dto.ts
-export type CurrentUser = {
-  id: number
-  email: string
-  name: string
-  role: Role
-  supplierId: number | null
-}
+export type CurrentUser = User
 
 type AuthState = {
   user: CurrentUser | null
