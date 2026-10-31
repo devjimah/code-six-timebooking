@@ -1,37 +1,114 @@
 # Roles, permissions and data privacy
 
-> See [guide 2.4](guide.md#24-roles-and-privacy). Replace every `TODO`.
-> Full points are possible with this concept alone. Implementation is optional.
+> See [guide 2.4](guide.md#24-roles-and-privacy).
+> Status per row: **built** = enforced by the API today · **planned** = decided, not built yet.
 
 ## Roles
 
 | Role | Side | Description |
 |---|---|---|
-| TODO (e.g. consultant) | supplier | TODO |
-| TODO (e.g. purchasing) | client | TODO |
+| Consultant | supplier | External consultant of a service provider. Books own working time on the orders of their own company. Employed by the supplier, not by the client. |
+| Project manager | client | Runs a project and is responsible for its orders. Checks the work booked on own orders and watches their budget. |
+| Purchasing | client | Places purchase orders with suppliers and follows up when a budget runs out. Manages the supplier companies. *(planned)* |
+| Admin | client IT | Runs the system: creates accounts and reads the audit log. Sees no bookings, budgets or prices. |
+| Supplier manager | supplier | *Later stage, not built.* Would see all bookings of their own company's consultants, because the supplier is the employer and responsible for working-time law. |
+
+The roles differ on purpose: the person who **spends** a budget (project manager) is not the person who **creates** it
+(purchasing), and the person who **runs the system** (admin) sees no business data. One fixed role per account,
+assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 
 ## Role matrix
 
-`✔` = allowed, `–` = not allowed, `Σ` = only aggregated values
+`✔` = allowed, `–` = not allowed, `Σ` = only aggregated values, `own` = only own records
 
-| Action or data | TODO role 1 | TODO role 2 | TODO role 3 |
-|---|---|---|---|
-| Book own working time | TODO | TODO | TODO |
-| See single bookings of a project | TODO | TODO | TODO |
-| See hours per order | TODO | TODO | TODO |
-| Approve proof of work | TODO | TODO | TODO |
-| TODO | TODO | TODO | TODO |
+| Action or data | Consultant | Project manager | Purchasing | Admin | Status |
+|---|---|---|---|---|---|
+| Book own working time | ✔ own orders of own company | – | – | – | built |
+| See own bookings | ✔ | – | – | – | built |
+| See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
+| See single bookings of an order (date, hours, description) | own only | ✔ own orders, no daily totals per person | – | – | planned |
+| See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | PM built · purchasing planned |
+| See hourly rates and money | – | ✔ own orders | ✔ | – | PM built · purchasing planned |
+| Create and edit purchase orders | – | – | ✔ | – | planned |
+| Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | admin read built · rest planned |
+| Create user accounts | – | – | – | ✔ | built |
+| Edit and deactivate user accounts | – | – | – | ✔ | planned |
+| Reset a user's password | – | – | – | ✔ | planned |
+| Read the audit log | – | – | – | ✔ | built |
+
+Everything not listed is not allowed. Every signed-in user may read their own account (`GET /api/auth/me`).
 
 ## Personal data
 
 | Data | Why we store it | Who needs it | How long we keep it |
 |---|---|---|---|
-| TODO (e.g. daily hours per person) | TODO | TODO | TODO |
+| Name, business email, role, supplier company | Sign-in, permissions, showing who booked | the person, admin; project manager sees the name on bookings of own orders | as long as the account exists; after deactivation as long as bookings refer to it |
+| Password hash (bcrypt) | Sign-in | nobody reads it, the server only compares | as long as the account exists |
+| Bookings: date, duration, description, consultant | Proof of work for the order, budget, invoice check | the consultant; project manager of the order (per booking); purchasing only as Σ per order | proposal: 10 years for bookings that back an invoice (German tax law, §147 AO); the client's data protection officer confirms before production |
+| Audit events: user, time, action, target, key facts, IP address, browser, email tried at sign-in | Security and traceability of bookings and account changes ([ADR 0012](adr/0012-audit-log.md)) | admin only | read events 90 days, all other events 365 days; deleted automatically by a daily job |
+
+Data minimisation: no private addresses, birth dates, photos or start/end times of the working day. Bookings store a
+duration, not when the day started or ended. The audit log never stores passwords, query strings or booking
+descriptions.
 
 ## Conflicts and how we resolve them
 
-TODO – for example transparency for the project lead vs. privacy of the consultant.
+**Checking the work vs. not becoming the consultant's employer.** If the client controls *when* and *how long*
+a consultant works each day, it starts to act like their employer, which German law reserves for the supplier.
+We resolve it like this:
+
+- The project manager sees each booking on own orders (date, hours, description), because they must check and
+  approve the work before an invoice is paid.
+- The product shows **no daily or weekly totals per person**, no working-time patterns and no comparison between
+  consultants. Purchasing only sees sums per order.
+- Working-time limits (10 h per day, no Sundays or public holidays) are checked by the server when the consultant
+  books, and the consultant gets the message directly. The client does not need to watch working hours to enforce
+  the law, and nobody from the client sees a list of "who worked too much".
+
+**Security traceability vs. monitoring staff.** The audit log records every action, which could be used to watch
+how people work. Only the admin can read it, its purpose is limited to security and tracing bookings and account
+changes ([ADR 0012](adr/0012-audit-log.md)), and events are deleted after 90 / 365 days. For the client's own
+employees, the works council must agree before production (BetrVG §87 (1) no. 6).
+
+**A powerful admin vs. separation of duties.** The admin creates accounts and could otherwise see everything.
+We keep business data away from the admin: no bookings, budgets or prices. The admin's own actions are in the
+audit log like everyone else's.
 
 ## How it is enforced
 
-TODO – where in the code permissions are checked (server side), or "concept only".
+Permissions are checked **on the server**, in two layers. The web app only hides what a role cannot use;
+that is convenience, not security.
+
+1. **Role per route:** `requireAuth` and `requireRole(...)` in
+   [auth/middleware.ts](../apps/api/src/auth/middleware.ts) answer 401 without a session and 403 for the wrong role.
+   The role is loaded from the database on every request, so a changed role takes effect immediately.
+2. **Ownership in the use case:** the role alone is not enough where data belongs to someone:
+   - [list-orders.ts](../apps/api/src/application/list-orders.ts): consultants only get orders of their own supplier,
+     project managers only their own orders.
+   - [get-order-budget.ts](../apps/api/src/application/get-order-budget.ts): a project manager asking for another
+     manager's order gets 403 `NOT_YOUR_ORDER`.
+   - [book-time.ts](../apps/api/src/application/book-time.ts) with
+     [order-assignment.ts](../apps/api/src/domain/rules/order-assignment.ts): a consultant cannot book on another
+     company's order (`ORDER_NOT_ASSIGNED`).
+   - The consultant's order list contains no rates or money ([dto.ts](../apps/api/src/api/dto.ts),
+     `bookableOrderResponse`).
+
+| Route | Allowed for | Extra check |
+|---|---|---|
+| `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules |
+| `GET /api/time-entries/mine` | consultant | only own entries |
+| `GET /api/orders/bookable` | consultant | only own supplier's orders, no money |
+| `GET /api/orders/managed` | project manager | only own orders |
+| `GET /api/orders/:id/budget` | project manager | only own orders |
+| `GET /api/users`, `POST /api/users` | admin | – |
+| `GET /api/suppliers` | admin | – |
+| `GET /api/audit-events` | admin | – |
+
+Tests: wrong role and no session in [auth.test.ts](../apps/api/test/auth.test.ts),
+[users.test.ts](../apps/api/test/users.test.ts), [order-list.test.ts](../apps/api/test/order-list.test.ts),
+[order-budget.test.ts](../apps/api/test/order-budget.test.ts), [audit.test.ts](../apps/api/test/audit.test.ts).
+
+**Planned rows** get the same two layers when they are built: the purchasing role and its order and supplier routes,
+the project manager's booking list (per booking, no per-person totals), and editing, deactivating and resetting
+accounts (admin only). Demo users per role are seeded and listed in the README; a purchasing demo user is added
+with the role.
