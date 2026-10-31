@@ -1,6 +1,6 @@
 # 0007 · Booking flow: application use cases and zod request DTOs
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 - **Deciders:** TODO (team names)
 - **Ticket:** [#12](https://github.com/devjimah/code-six-timebooking/issues/12)

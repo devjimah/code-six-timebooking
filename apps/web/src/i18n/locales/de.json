@@ -14,6 +14,9 @@
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
     "BUDGET_EXCEEDED": "Buchung abgelehnt: Das freie Budget dieser Bestellung reicht nicht aus.",
     "INVALID_DURATION": "Buchung abgelehnt: Die Dauer muss eine positive Anzahl ganzer Minuten sein.",
+    "ORDER_NOT_FOUND": "Buchung abgelehnt: Diese Bestellung gibt es nicht.",
+    "ORDER_NOT_ASSIGNED": "Buchung abgelehnt: Sie können nur auf Bestellungen Ihres eigenen Unternehmens buchen.",
+    "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
   }
