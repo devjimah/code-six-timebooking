@@ -53,8 +53,11 @@ duplicating personal data into a log that is hard to clean up later.
   listed in `docs/roles-and-privacy.md`.
 - Purpose is limited to security and traceability of bookings and approvals. It must not be used to measure
   how much or when a person works; `docs/roles-and-privacy.md` has to say so.
-- Retention (proposal): 90 days for read events, the legal retention period for events that change bookings
-  or approvals. Not automated yet; needs a scheduled clean-up job.
+- Retention: a clean-up job deletes read events (GET) after 90 days and all other events (bookings, sign-ins,
+  account changes) after 365 days. It runs when the API starts and then daily (`apps/api/src/audit/retention.ts`);
+  both periods are set in `.env.example` (`AUDIT_RETENTION_READ_DAYS`, `AUDIT_RETENTION_CHANGE_DAYS`). It is the
+  only code that deletes audit events. The 365 days are a placeholder: the client's data protection officer
+  confirms the real period before production. With several API instances, the job should run in only one.
 - Tables grow by one row per request. For production: indexes on `occurred_at` and `actor_user_id`, a
   transaction or outbox so business change and audit event are written together, and export to the
   customer's SIEM. Changes to field values (old → new) need explicit domain events later.
