@@ -1,20 +1,24 @@
-// Placeholder start screen for project managers and consultants until their screens exist.
-import { useTranslation } from "react-i18next"
+// The start screen after sign-in: one home per role, each showing only what that role may see
+// (docs/roles-and-privacy.md). The API checks every request again, whatever this screen shows.
+import type * as React from "react"
 
-import { Card, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { useAuth } from "@/auth/auth-context.tsx"
+import type { Role } from "@/lib/api-types.ts"
+import { AdminHome } from "@/pages/admin/admin-home.tsx"
+import { ConsultantHome } from "@/pages/consultant/consultant-home.tsx"
+import { ProjectManagerHome } from "@/pages/project-manager/project-manager-home.tsx"
+import { PurchasingHome } from "@/pages/purchasing/purchasing-home.tsx"
+
+const HOMES: Record<Role, () => React.JSX.Element> = {
+  admin: AdminHome,
+  project_manager: ProjectManagerHome,
+  purchasing: PurchasingHome,
+  consultant: ConsultantHome,
+}
 
 export function HomePage() {
-  const { t } = useTranslation()
   const { user } = useAuth()
   if (!user) return null
-
-  return (
-    <Card className="max-w-md">
-      <CardHeader>
-        <CardTitle>{t("home.welcome", { name: user.name })}</CardTitle>
-        <CardDescription>{t("home.signedInAs", { email: user.email, role: t(`roles.${user.role}`) })}</CardDescription>
-      </CardHeader>
-    </Card>
-  )
+  const Home = HOMES[user.role]
+  return <Home />
 }

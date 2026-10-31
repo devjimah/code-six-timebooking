@@ -19,6 +19,25 @@ export type Supplier = {
   name: string
 }
 
+// GET /api/orders/bookable (bookableOrderResponse): an order a consultant may book on – no money
+export type BookableOrder = {
+  id: number
+  code: string
+  title: string
+  supplierName: string
+  startDate: string // "YYYY-MM-DD"
+  endDate: string
+}
+
+// GET /api/time-entries/mine and POST /api/time-entries (timeEntryResponse): the consultant's own booking
+export type TimeEntry = {
+  id: number
+  orderId: number
+  workDate: string // "YYYY-MM-DD"
+  durationMinutes: number
+  description: string
+}
+
 export const AUDIT_OUTCOMES = ["success", "rejected", "denied", "error"] as const
 export type AuditOutcome = (typeof AUDIT_OUTCOMES)[number]
 

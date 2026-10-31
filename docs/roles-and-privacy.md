@@ -24,7 +24,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Action or data | Consultant | Project manager | Purchasing | Admin | Status |
 |---|---|---|---|---|---|
 | Book own working time | ✔ own orders of own company | – | – | – | built |
-| See own bookings | ✔ | – | – | – | built |
+| See own bookings, with own totals per day, week and month | ✔ | – | – | – | built |
 | See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
 | See single bookings of an order (date, hours, description, consultant's name) | own only | ✔ own orders, no daily totals per person | – | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
@@ -101,7 +101,7 @@ that is convenience, not security.
 |---|---|---|
 | `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules |
 | `GET /api/time-entries/mine` | consultant | only own entries |
-| `GET /api/orders/bookable` | consultant | only own supplier's orders, no money |
+| `GET /api/orders/bookable` | consultant | only own supplier's orders, no money; the period, so the form offers only valid dates |
 | `GET /api/orders/managed` | project manager | only own orders |
 | `GET /api/orders` | purchasing | sums per order, no single bookings |
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |

@@ -145,11 +145,14 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
 
 // GET /api/orders/bookable – what a consultant needs to pick an order. No rate and no money:
 // prices are agreed between the client and the supplier's management, not shown to every consultant.
+// The period is included so the booking form can offer only dates the server will accept.
 export const bookableOrderResponse = z.object({
   id: z.number().int(),
   code: z.string().meta({ example: "PO-2026-001" }),
   title: z.string(),
   supplierName: z.string(),
+  startDate: z.string().meta({ example: "2026-07-01" }),
+  endDate: z.string().meta({ example: "2027-01-31" }),
 })
 export type BookableOrderResponse = z.infer<typeof bookableOrderResponse>
 
@@ -158,6 +161,8 @@ export const toBookableOrderResponse = (order: Order, supplierName: string): Boo
   code: order.code,
   title: order.title,
   supplierName,
+  startDate: order.startDate,
+  endDate: order.endDate,
 })
 
 // POST /api/orders and PUT /api/orders/:id – purchasing only. Format checks here; business rules in the domain.

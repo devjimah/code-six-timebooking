@@ -69,7 +69,10 @@ describe("orders a consultant can book on", () => {
       code: "PO-2026-001",
       title: "Customer portal relaunch",
       supplierName: "Acme Consulting GmbH",
+      startDate: "2026-07-01",
+      endDate: "2027-01-31",
     })
+    expect(JSON.stringify(orders)).not.toMatch(/Cents|budget/) // no money for consultants
   })
 
   it("shows a consultant of another supplier only that supplier's orders", async () => {

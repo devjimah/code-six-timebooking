@@ -21,7 +21,64 @@
   },
   "home": {
     "welcome": "Willkommen, {{name}}",
-    "signedInAs": "Angemeldet als {{email}} · {{role}}"
+    "loadFailed": "Die Übersicht konnte nicht geladen werden",
+    "all": "Alle",
+    "attention": "Braucht Aufmerksamkeit",
+    "ended": "Beendet",
+    "startsOn": "Beginnt am {{date}}",
+    "endsIn_one": "Endet morgen",
+    "endsIn_other": "Endet in {{count}} Tagen",
+    "endsOn_one": "Endet am {{date}} (morgen)",
+    "endsOn_other": "Endet am {{date}} (in {{count}} Tagen)",
+    "consultant": {
+      "intro": "Ihre Arbeitszeit auf einen Blick. Nur Sie sehen Ihre Tages- und Wochensummen.",
+      "today": "Heute",
+      "week": "Diese Woche",
+      "month": "Dieser Monat",
+      "ofLimit": "von höchstens {{limit}} am Tag",
+      "latest": "Letzte Buchungen",
+      "orders": "Ihre Bestellungen",
+      "ordersDescription": "Auf diese Bestellungen Ihres Unternehmens können Sie buchen – jeweils nur in ihrem Zeitraum."
+    },
+    "pm": {
+      "intro": "Das Budget Ihrer Bestellungen und was Sie prüfen sollten.",
+      "orders": "Bestellungen",
+      "booked": "Gebucht",
+      "bookedOf": "{{booked}} von {{budget}}",
+      "remaining": "Noch frei",
+      "attentionDescription": "Bestellungen, deren Budget zu {{percent}} % oder mehr verbraucht ist – vielleicht braucht es bald eine Folgebestellung.",
+      "allFine": "Alle Bestellungen haben noch genug Budget.",
+      "ordersDescription": "Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen."
+    },
+    "purchasing": {
+      "intro": "Wo bald eine Folgebestellung nötig wird.",
+      "running": "Laufende Bestellungen",
+      "suppliers": "Lieferanten",
+      "used": "Verbraucht",
+      "usedOf": "{{booked}} von {{budget}}",
+      "lowBudget": "Budget wird knapp",
+      "lowBudgetDescription": "Zu {{percent}} % oder mehr verbraucht.",
+      "noLowBudget": "Keine Bestellung ist knapp.",
+      "endingSoon": "Endet bald",
+      "endingSoonDescription": "Laufende Bestellungen, deren Zeitraum in den nächsten {{days}} Tagen endet.",
+      "noneEnding": "Keine Bestellung endet bald.",
+      "allDescription": "Alle Bestellungen mit Budget und Zeitraum, die zuerst endenden oben."
+    },
+    "admin": {
+      "intro": "Konten und Sicherheit auf einen Blick. Geschäftsdaten wie Buchungen und Budgets sehen Admins nicht.",
+      "active": "Aktive Konten",
+      "waiting": "Warten auf eigenes Passwort",
+      "deactivated": "Deaktiviert",
+      "lastDay": "Letzte 24 Stunden",
+      "lastDayDescription": "Aus dem Audit-Log: Anmeldungen und was abgelehnt wurde.",
+      "signIns": "Anmeldungen",
+      "failedSignIns": "Fehlgeschlagene Anmeldungen",
+      "refused": "Verweigerte Zugriffe",
+      "errors": "Fehler",
+      "nothingNotable": "Nichts Auffälliges.",
+      "byRole": "Aktive Konten nach Rolle",
+      "byRoleDescription": "Deaktivierte Konten sind nicht mitgezählt."
+    }
   },
   "roles": {
     "consultant": "Berater",
@@ -45,7 +102,8 @@
     "audit": "Protokoll",
     "suppliers": "Dienstleister",
     "orders": "Bestellungen",
-    "myOrders": "Meine Bestellungen"
+    "myOrders": "Meine Bestellungen",
+    "bookTime": "Zeit buchen"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -256,6 +314,37 @@
     "saving": "Wird gespeichert …",
     "failed": "Passwort nicht geändert",
     "changed": "Ihr Passwort ist geändert."
+  },
+  "booking": {
+    "title": "Zeit buchen",
+    "description": "Buchen Sie Ihre Arbeitszeit auf eine Bestellung Ihres Unternehmens.",
+    "order": "Bestellung",
+    "chooseOrder": "Bestellung wählen",
+    "period": "Zeitraum: {{start}} – {{end}}",
+    "date": "Datum",
+    "duration": "Dauer",
+    "hours": "Stunden",
+    "minutes": "Minuten",
+    "hoursValue_one": "{{count}} Stunde",
+    "hoursValue_other": "{{count}} Stunden",
+    "minutesValue_one": "{{count}} Minute",
+    "minutesValue_other": "{{count}} Minuten",
+    "dayProgress": "Gebuchte Zeit an diesem Tag",
+    "alreadyBooked": "An diesem Tag schon gebucht: {{booked}} von höchstens {{limit}}.",
+    "overLimit": "Zu viel: An diesem Tag sind schon {{booked}} gebucht, erlaubt sind höchstens 10 Stunden.",
+    "work": "Was haben Sie gemacht?",
+    "workPlaceholder": "z. B. Anmeldeseite umgesetzt und getestet",
+    "workHint": "{{count}} / {{max}} Zeichen, mindestens 10.",
+    "submit": "Buchen",
+    "saving": "Wird gebucht …",
+    "saved": "{{hours}} auf {{code}} gebucht.",
+    "rejected": "Nicht gebucht",
+    "noOrders": "Für Ihr Unternehmen gibt es gerade keine Bestellung.",
+    "loadFailed": "Daten konnten nicht geladen werden",
+    "mine": "Meine Buchungen",
+    "mineDescription": "Neueste zuerst, mit der Summe je Tag.",
+    "dayTotal": "{{booked}} / {{limit}}",
+    "none": "Noch keine Buchungen."
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",

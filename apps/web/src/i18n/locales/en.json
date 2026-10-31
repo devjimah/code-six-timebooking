@@ -21,7 +21,64 @@
   },
   "home": {
     "welcome": "Welcome, {{name}}",
-    "signedInAs": "Signed in as {{email}} · {{role}}"
+    "loadFailed": "The overview could not be loaded",
+    "all": "All",
+    "attention": "Needs attention",
+    "ended": "Ended",
+    "startsOn": "Starts on {{date}}",
+    "endsIn_one": "Ends tomorrow",
+    "endsIn_other": "Ends in {{count}} days",
+    "endsOn_one": "Ends on {{date}} (tomorrow)",
+    "endsOn_other": "Ends on {{date}} (in {{count}} days)",
+    "consultant": {
+      "intro": "Your working time at a glance. Only you see your daily and weekly totals.",
+      "today": "Today",
+      "week": "This week",
+      "month": "This month",
+      "ofLimit": "of at most {{limit}} a day",
+      "latest": "Latest bookings",
+      "orders": "Your orders",
+      "ordersDescription": "Orders of your company you can book on – each only within its period."
+    },
+    "pm": {
+      "intro": "The budget of your orders and what to check.",
+      "orders": "Orders",
+      "booked": "Booked",
+      "bookedOf": "{{booked}} of {{budget}}",
+      "remaining": "Still free",
+      "attentionDescription": "Orders with {{percent}} % or more of the budget used – a follow-up order may be needed soon.",
+      "allFine": "All orders still have enough budget.",
+      "ordersDescription": "Tap an order to check the work booked on it."
+    },
+    "purchasing": {
+      "intro": "Where a follow-up order will be needed soon.",
+      "running": "Running orders",
+      "suppliers": "Suppliers",
+      "used": "Used",
+      "usedOf": "{{booked}} of {{budget}}",
+      "lowBudget": "Running low on budget",
+      "lowBudgetDescription": "{{percent}} % or more used.",
+      "noLowBudget": "No order is running low.",
+      "endingSoon": "Ending soon",
+      "endingSoonDescription": "Running orders whose period ends within the next {{days}} days.",
+      "noneEnding": "No order ends soon.",
+      "allDescription": "All orders with budget and period, the ones ending first on top."
+    },
+    "admin": {
+      "intro": "Accounts and security at a glance. Admins see no business data such as bookings or budgets.",
+      "active": "Active accounts",
+      "waiting": "Waiting for own password",
+      "deactivated": "Deactivated",
+      "lastDay": "Last 24 hours",
+      "lastDayDescription": "From the audit log: sign-ins and what was refused.",
+      "signIns": "Sign-ins",
+      "failedSignIns": "Failed sign-ins",
+      "refused": "Refused requests",
+      "errors": "Errors",
+      "nothingNotable": "Nothing notable.",
+      "byRole": "Active accounts by role",
+      "byRoleDescription": "Deactivated accounts are not counted."
+    }
   },
   "roles": {
     "consultant": "Consultant",
@@ -45,7 +102,8 @@
     "audit": "Audit log",
     "suppliers": "Suppliers",
     "orders": "Orders",
-    "myOrders": "My orders"
+    "myOrders": "My orders",
+    "bookTime": "Book time"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -256,6 +314,37 @@
     "saving": "Saving …",
     "failed": "Password not changed",
     "changed": "Your password has been changed."
+  },
+  "booking": {
+    "title": "Book time",
+    "description": "Book your working time on an order of your company.",
+    "order": "Order",
+    "chooseOrder": "Choose an order",
+    "period": "Period: {{start}} – {{end}}",
+    "date": "Date",
+    "duration": "Duration",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "hoursValue_one": "{{count}} hour",
+    "hoursValue_other": "{{count}} hours",
+    "minutesValue_one": "{{count}} minute",
+    "minutesValue_other": "{{count}} minutes",
+    "dayProgress": "Time booked on this day",
+    "alreadyBooked": "Already booked on this day: {{booked}} of at most {{limit}}.",
+    "overLimit": "Too much: {{booked}} are already booked on this day, at most 10 hours are allowed.",
+    "work": "What did you work on?",
+    "workPlaceholder": "e.g. built and tested the login page",
+    "workHint": "{{count}} / {{max}} characters, at least 10.",
+    "submit": "Book",
+    "saving": "Booking …",
+    "saved": "{{hours}} booked on {{code}}.",
+    "rejected": "Not booked",
+    "noOrders": "There is no order for your company right now.",
+    "loadFailed": "Data could not be loaded",
+    "mine": "My bookings",
+    "mineDescription": "Newest first, with the total per day.",
+    "dayTotal": "{{booked}} / {{limit}}",
+    "none": "No bookings yet."
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
