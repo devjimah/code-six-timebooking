@@ -8,10 +8,12 @@ import {
   auditEventsQuery,
   bookableOrderResponse,
   createTimeEntryRequest,
+  createUserRequest,
   errorResponse,
   loginRequest,
   orderBudgetResponse,
   orderIdParams,
+  supplierResponse,
   timeEntryResponse,
   userResponse,
 } from "./dto.js"
@@ -54,6 +56,21 @@ export const routes: RouteDoc[] = [
   {
     method: "get", path: "/api/users", tag: "Users", summary: "All users", roles: ["admin"],
     success: { status: 200, description: "All users", schema: z.array(userResponse) },
+  },
+  {
+    method: "post", path: "/api/users", tag: "Users", roles: ["admin"],
+    summary: "Create an account (there is no self-registration). Consultants need a supplier, other roles none",
+    body: createUserRequest,
+    success: { status: 201, description: "Account created", schema: userResponse },
+    errors: {
+      400: "Invalid request body",
+      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_CONSULTANTS, SUPPLIER_NOT_FOUND, EMAIL_TAKEN",
+    },
+  },
+  {
+    method: "get", path: "/api/suppliers", tag: "Users", summary: "All suppliers, to choose a consultant's company",
+    roles: ["admin"],
+    success: { status: 200, description: "All suppliers", schema: z.array(supplierResponse) },
   },
   {
     method: "post", path: "/api/time-entries", tag: "Time entries", roles: ["consultant"],

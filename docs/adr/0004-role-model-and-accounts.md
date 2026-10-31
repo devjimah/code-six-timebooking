@@ -1,6 +1,6 @@
 # 0004 · Role model and accounts: fixed roles, accounts created by an admin
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 - **Deciders:** TODO (team names)
 - **Ticket:** [#5](https://github.com/devjimah/code-six-timebooking/issues/5)
@@ -32,3 +32,7 @@ so this endpoint becomes a fallback.
 - Permission checks stay readable: `requireRole("project_manager")`.
 - A consultant must belong to a supplier; client-side roles must not. This is a domain rule with tests.
 - If customers need their own roles later, we move to option 3 and replace this ADR.
+- Implemented with ticket #5: `POST /api/users` and `GET /api/suppliers` (admin only), the rule in
+  `apps/api/src/domain/rules/account.ts`. Emails are stored in lower case. The admin sets an initial password
+  (10–72 characters; bcrypt ignores everything after 72 bytes) and hands it over; a "change your password on
+  first sign-in" step is not built yet.

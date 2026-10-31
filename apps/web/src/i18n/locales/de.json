@@ -19,6 +19,10 @@
     "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
     "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget sehen.",
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
-    "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
+    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleiter und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
+    "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
+    "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse."
   }
 }

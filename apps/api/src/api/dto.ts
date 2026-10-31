@@ -3,7 +3,7 @@
 // Response shapes are zod schemas too: the TypeScript types and the OpenAPI docs (openapi.ts, ADR 0009) come from them.
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
-import type { AuditEvent, Order, TimeEntry, User } from "../domain/models.js"
+import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
 const ROLES = ["consultant", "project_manager", "admin"] as const
 
@@ -13,8 +13,9 @@ export const errorResponse = z.object({
   message: z.string(),
 })
 
+// Emails are compared in lower case, so "Carl@Acme.de" and "carl@acme.de" are the same account.
 export const loginRequest = z.object({
-  email: z.email(),
+  email: z.email().toLowerCase(),
   password: z.string().min(1),
 })
 export type LoginRequest = z.infer<typeof loginRequest>
@@ -35,6 +36,22 @@ export const toUserResponse = (user: User): UserResponse => ({
   role: user.role,
   supplierId: user.supplierId,
 })
+
+// POST /api/users – admin only (ADR 0004).
+export const createUserRequest = z.object({
+  email: z.email().toLowerCase(),
+  name: z.string().trim().min(2).max(100),
+  role: z.enum(ROLES),
+  // Required for consultants, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
+  supplierId: z.number().int().positive().nullable().default(null),
+  // bcrypt only uses the first 72 bytes, so longer passwords would give a false sense of security.
+  password: z.string().min(10).max(72).meta({ description: "Initial password; the admin hands it to the person" }),
+})
+
+export const supplierResponse = z.object({ id: z.number().int(), name: z.string() })
+export type SupplierResponse = z.infer<typeof supplierResponse>
+
+export const toSupplierResponse = (supplier: Supplier): SupplierResponse => ({ id: supplier.id, name: supplier.name })
 
 // GET /api/audit-events?limit=100&userId=3 – query values arrive as strings, so coerce them.
 export const auditEventsQuery = z.object({

@@ -39,6 +39,10 @@ export function supplierRepository(db: Db) {
       const [row] = await db.insert(suppliers).values(data).returning()
       return toSupplier(row!)
     },
+    async findById(id: number) {
+      const [row] = await db.select().from(suppliers).where(eq(suppliers.id, id))
+      return row ? toSupplier(row) : null
+    },
     async findAll() {
       return (await db.select().from(suppliers)).map(toSupplier)
     },
