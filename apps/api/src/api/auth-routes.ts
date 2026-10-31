@@ -1,6 +1,7 @@
 // POST /api/auth/login, POST /api/auth/logout, GET /api/auth/me (ticket #6, ADR 0002)
 import bcrypt from "bcryptjs"
 import { Router } from "express"
+import { setAuditActor } from "../audit/audit-log.js"
 import { requireAuth } from "../auth/middleware.js"
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, createSessionToken } from "../auth/session.js"
 import type { Db } from "../persistence/db.js"
@@ -31,6 +32,7 @@ export function authRoutes(db: Db, options: { sessionSecret: string; secureCooki
       return
     }
 
+    setAuditActor(res, found.user) // the audit log should show who signed in
     const token = createSessionToken(found.user.id, options.sessionSecret)
     res.cookie(SESSION_COOKIE, token, { ...cookieOptions, maxAge: SESSION_MAX_AGE_SECONDS * 1000 })
     res.json(toUserResponse(found.user))

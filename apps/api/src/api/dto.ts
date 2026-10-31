@@ -1,7 +1,7 @@
 // API DTOs: what goes over the wire. Requests are validated with zod (ADR 0007);
 // responses are built from domain objects, so internal fields never leak by accident.
 import { z } from "zod"
-import type { User } from "../domain/models.js"
+import type { AuditEvent, User } from "../domain/models.js"
 
 export const loginRequest = z.object({
   email: z.email(),
@@ -24,3 +24,13 @@ export const toUserResponse = (user: User): UserResponse => ({
   role: user.role,
   supplierId: user.supplierId,
 })
+
+// GET /api/audit-events?limit=100&userId=3 – query values arrive as strings, so coerce them.
+export const auditEventsQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(500).default(100),
+  userId: z.coerce.number().int().positive().optional(),
+})
+
+export type AuditEventResponse = AuditEvent
+
+export const toAuditEventResponse = (event: AuditEvent): AuditEventResponse => ({ ...event })
