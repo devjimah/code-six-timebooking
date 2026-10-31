@@ -23,6 +23,7 @@
     "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",
     "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers and admins work for the client; leave the supplier empty.",
     "SUPPLIER_NOT_FOUND": "This supplier does not exist.",
-    "EMAIL_TAKEN": "An account with this email address already exists."
+    "EMAIL_TAKEN": "An account with this email address already exists.",
+    "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9)."
   }
 }

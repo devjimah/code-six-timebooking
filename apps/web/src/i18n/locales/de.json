@@ -23,6 +23,7 @@
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
     "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleiter und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
     "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
-    "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse."
+    "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
+    "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9)."
   }
 }
