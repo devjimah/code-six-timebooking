@@ -1,6 +1,6 @@
 # 0006 · Business rules as pure functions in the domain
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 - **Deciders:** TODO (team names)
 - **Ticket:** [#13](https://github.com/devjimah/code-six-timebooking/issues/13)
@@ -23,7 +23,8 @@ the accepting and the rejecting case.
 
 ## Decision
 
-We choose **option 3**, one file per rule, e.g. `daily-limit.ts` and `order-budget.ts`. The use case loads the
+We choose **option 3**, one file per rule: `daily-limit.ts`, `order-budget.ts` and `duration.ts`, with tests in
+`apps/api/test/domain/`. The use case loads the
 data and calls the rules before saving ([ADR 0007](0007-booking-use-case-and-validation.md)).
 
 ## Consequences
