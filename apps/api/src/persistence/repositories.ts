@@ -1,9 +1,9 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
-import { eq } from "drizzle-orm"
-import type { Order, Supplier, TimeEntry, User } from "../domain/models.js"
+import { desc, eq } from "drizzle-orm"
+import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
-import { orders, suppliers, timeEntries, users } from "./schema.js"
+import { auditEvents, orders, suppliers, timeEntries, users } from "./schema.js"
 
 type NewOf<T> = Omit<T, "id">
 
@@ -59,6 +59,11 @@ export function userRepository(db: Db) {
       const [row] = await db.select().from(users).where(eq(users.email, email))
       return row ? toUser(row) : null
     },
+    // Only for sign-in: the hash stays next to the user, never inside the domain object.
+    async findCredentialsByEmail(email: string) {
+      const [row] = await db.select().from(users).where(eq(users.email, email))
+      return row ? { user: toUser(row), passwordHash: row.passwordHash } : null
+    },
     async findAll() {
       return (await db.select().from(users)).map(toUser)
     },
@@ -96,3 +101,34 @@ export function timeEntryRepository(db: Db) {
   }
 }
 
+const toAuditEvent = (r: typeof auditEvents.$inferSelect): AuditEvent => ({
+  id: r.id,
+  occurredAt: r.occurredAt,
+  actorUserId: r.actorUserId,
+  actorRole: r.actorRole as AuditEvent["actorRole"],
+  method: r.method,
+  route: r.route,
+  path: r.path,
+  statusCode: r.statusCode,
+  outcome: r.outcome,
+  durationMs: r.durationMs,
+})
+
+// Append-only on purpose (ADR 0012): there is no update or delete here.
+export function auditEventRepository(db: Db) {
+  return {
+    async record(data: NewOf<AuditEvent>) {
+      await db.insert(auditEvents).values(data)
+    },
+    /** Newest first. */
+    async findLatest({ limit, actorUserId }: { limit: number; actorUserId?: number }) {
+      const rows = await db
+        .select()
+        .from(auditEvents)
+        .where(actorUserId === undefined ? undefined : eq(auditEvents.actorUserId, actorUserId))
+        .orderBy(desc(auditEvents.id))
+        .limit(limit)
+      return rows.map(toAuditEvent)
+    },
+  }
+}

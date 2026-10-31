@@ -43,6 +43,13 @@ npm run dev -w api   # API on http://localhost:3001 (migrates + seeds automatica
 
 Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
 
+Sign in from the command line (the session is an httpOnly cookie, see [ADR 0002](docs/adr/0002-identity-and-sign-in.md)):
+
+```bash
+curl -c cookies.txt -H "Content-Type: application/json" -d '{"email":"pm@demo.local","password":"demo1234"}' http://localhost:3001/api/auth/login
+curl -b cookies.txt http://localhost:3001/api/auth/me
+```
+
 ### Database commands
 
 | Command | What it does |
@@ -55,7 +62,7 @@ Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
 ## Test
 
 ```bash
-npm test -w api   # Vitest: unit + integration tests of the API
+npm test          # all tests of all workspaces (Turbo runs Vitest in apps/api)
 ```
 
 ## Demo users
@@ -64,8 +71,8 @@ All demo users have the password `demo1234` (demo data only).
 
 | Role | Sign in with | What to try |
 |---|---|---|
-| Admin | `admin@demo.local` | Manage users (coming in #5) |
-| Project manager | `pm@demo.local` | See bookings on your orders (coming in #6) |
+| Admin | `admin@demo.local` | `GET /api/users` lists all users; `GET /api/audit-events` shows the audit log (admin only) |
+| Project manager | `pm@demo.local` | `GET /api/auth/me`; `GET /api/users` is refused with 403 |
 | Consultant (Acme Consulting) | `consultant@demo.local` | Book time on an order (coming next sprint) |
 
 ## Evidence map
@@ -76,8 +83,8 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 |---|---|
 | 1 · Persistence and data model | [schema.ts](apps/api/src/persistence/schema.ts), [migrations](apps/api/drizzle/), [seed.ts](apps/api/src/persistence/seed.ts), [ER diagram](docs/domain.md) |
 | 2 · Business rules and unit tests | TODO – domain rule files, test folder |
-| 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), TODO – mockup views / enforcement code |
-| 4 · Architecture and engineering | TODO – A structure · B [ADRs](docs/adr/) · C Git history · D API docs · E compose file · F [mockup](docs/mockup/) |
+| 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), enforcement in [auth/middleware.ts](apps/api/src/auth/middleware.ts), tests in [auth.test.ts](apps/api/test/auth.test.ts), audit log [ADR 0012](docs/adr/0012-audit-log.md) / [audit-log.ts](apps/api/src/audit/audit-log.ts), TODO – mockup views |
+| 4 · Architecture and engineering | A structure: [api/](apps/api/src/api/) · [domain/](apps/api/src/domain/) · [persistence/](apps/api/src/persistence/) · B [ADRs](docs/adr/), incl. [identity](docs/adr/0002-identity-and-sign-in.md) and [operation](docs/adr/0003-operation-and-scaling.md) · C Git history · D TODO API docs · E TODO compose file · F [mockup](docs/mockup/) |
 
 ## Team
 

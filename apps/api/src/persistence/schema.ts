@@ -50,6 +50,25 @@ export const orders = sqliteTable("orders", {
   ...timestamps,
 })
 
+// Audit log (ADR 0012): one row per API request. Append-only: the application never updates or deletes rows.
+// No request bodies, passwords or cookies are stored here.
+export const AUDIT_OUTCOMES = ["success", "rejected", "denied", "error"] as const
+
+export const auditEvents = sqliteTable("audit_events", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  occurredAt: text("occurred_at").notNull(), // ISO timestamp, UTC
+  // Null when nobody is signed in (e.g. a failed sign-in). No foreign key on purpose:
+  // the audit trail must outlive a deleted user account.
+  actorUserId: integer("actor_user_id"),
+  actorRole: text("actor_role"),
+  method: text("method").notNull(), // GET, POST, …
+  route: text("route").notNull(), // pattern, e.g. "/api/orders/:id/budget"
+  path: text("path").notNull(), // concrete path, e.g. "/api/orders/7/budget" (no query string)
+  statusCode: integer("status_code").notNull(),
+  outcome: text("outcome", { enum: AUDIT_OUTCOMES }).notNull(),
+  durationMs: integer("duration_ms").notNull(),
+})
+
 // One booking: exactly one user, one order, a date, a duration and a description.
 export const timeEntries = sqliteTable("time_entries", {
   id: integer("id").primaryKey({ autoIncrement: true }),

@@ -36,6 +36,30 @@ export interface TimeEntry {
   description: string
 }
 
+/** success = 2xx/3xx · rejected = other 4xx (invalid input, broken rule) · denied = 401/403 · error = 5xx */
+export type AuditOutcome = "success" | "rejected" | "denied" | "error"
+
+/** One recorded action in the audit log (ADR 0012). */
+export interface AuditEvent {
+  id: number
+  occurredAt: string // ISO timestamp, UTC
+  actorUserId: number | null
+  actorRole: Role | null
+  method: string
+  route: string
+  path: string
+  statusCode: number
+  outcome: AuditOutcome
+  durationMs: number
+}
+
+export function auditOutcome(statusCode: number): AuditOutcome {
+  if (statusCode === 401 || statusCode === 403) return "denied"
+  if (statusCode >= 500) return "error"
+  if (statusCode >= 400) return "rejected"
+  return "success"
+}
+
 /** Money budget of an order in cents (hours × rate). */
 export function budgetCents(order: Order): number {
   return order.budgetHours * order.hourlyRateCents
