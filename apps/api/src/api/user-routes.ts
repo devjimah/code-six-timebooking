@@ -1,12 +1,13 @@
 // Accounts – admin only (ADR 0004, ticket #5). There is no self-registration on purpose.
 import { Router } from "express"
 import { createUser } from "../application/create-user.js"
+import { resetPassword } from "../application/manage-passwords.js"
 import { deactivateUser, reactivateUser, updateUser } from "../application/manage-users.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
 import { userRepository } from "../persistence/repositories.js"
-import { createUserRequest, toUserResponse, updateUserRequest, userIdParams } from "./dto.js"
+import { createUserRequest, resetPasswordRequest, toUserResponse, updateUserRequest, userIdParams } from "./dto.js"
 
 export function userRoutes(db: Db) {
   const router = Router()
@@ -48,6 +49,15 @@ export function userRoutes(db: Db) {
     const { id } = userIdParams.parse(req.params)
     setAuditContext(res, { targetType: "user", targetId: id })
     res.json(toUserResponse(await reactivateUser(db, id)))
+  })
+
+  // POST /api/users/:id/password – the admin types a new password (step 5). The person is signed out everywhere
+  // and must choose their own password at the next sign-in. The audit log records that it happened, never the password.
+  router.post("/:id/password", requireRole("admin"), async (req, res) => {
+    const { id } = userIdParams.parse(req.params)
+    const { password } = resetPasswordRequest.parse(req.body)
+    setAuditContext(res, { targetType: "user", targetId: id })
+    res.json(toUserResponse(await resetPassword(db, req.user!, id, password)))
   })
 
   return router

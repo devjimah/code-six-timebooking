@@ -7,6 +7,7 @@ import {
   auditEventResponse,
   auditEventsQuery,
   bookableOrderResponse,
+  changePasswordRequest,
   createTimeEntryRequest,
   createUserRequest,
   errorResponse,
@@ -18,6 +19,7 @@ import {
   orderRequest,
   orderResponse,
   projectManagerResponse,
+  resetPasswordRequest,
   supplierIdParams,
   updateUserRequest,
   userIdParams,
@@ -67,6 +69,13 @@ export const routes: RouteDoc[] = [
     success: { status: 200, description: "The signed-in user", schema: userResponse },
   },
   {
+    method: "post", path: "/api/auth/password", tag: "Sign-in", roles: [],
+    summary: "Change the own password; signs out all other browsers, this one gets a new session cookie",
+    body: changePasswordRequest,
+    success: { status: 200, description: "Password changed", schema: userResponse },
+    errors: { 400: "Invalid request body (new password 10–72 characters)", 422: "CURRENT_PASSWORD_WRONG, NEW_PASSWORD_SAME_AS_CURRENT" },
+  },
+  {
     method: "get", path: "/api/users", tag: "Users", summary: "All users", roles: ["admin"],
     success: { status: 200, description: "All users", schema: z.array(userResponse) },
   },
@@ -107,6 +116,14 @@ export const routes: RouteDoc[] = [
     params: userIdParams,
     success: { status: 200, description: "Account active again", schema: userResponse },
     errors: { 400: "Invalid id", 404: "USER_NOT_FOUND" },
+  },
+  {
+    method: "post", path: "/api/users/{id}/password", tag: "Users", roles: ["admin"],
+    summary: "Reset a password: the admin types a new one, the person is signed out and must replace it at the next sign-in",
+    params: userIdParams,
+    body: resetPasswordRequest,
+    success: { status: 200, description: "Password reset", schema: userResponse },
+    errors: { 400: "Invalid id or body (password 10–72 characters)", 404: "USER_NOT_FOUND", 422: "CANNOT_RESET_OWN_PASSWORD" },
   },
   {
     method: "get", path: "/api/suppliers", tag: "Suppliers",
@@ -243,7 +260,9 @@ function operation(route: RouteDoc) {
   // 401 and 403 follow from the role list; a route can still describe them more precisely in `errors`.
   const errors: Record<string, string> = {}
   if (route.roles) errors[401] = "Not signed in (UNAUTHENTICATED)"
-  if (route.roles?.length) errors[403] = `Signed in, but not as ${route.roles.join(" or ")} (FORBIDDEN)`
+  if (route.roles?.length) {
+    errors[403] = `Signed in, but not as ${route.roles.join(" or ")} (FORBIDDEN), or an admin-chosen password must be changed first (PASSWORD_CHANGE_REQUIRED)`
+  }
   Object.assign(errors, route.errors)
 
   const responses: Record<string, object> = {

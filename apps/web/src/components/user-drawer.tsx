@@ -65,6 +65,12 @@ export function UserDrawer({ user, supplierName, trigger, open, onOpenChange, ac
                   <dd>{t("users.deactivatedSince", { date: formatDateTime(user.deactivatedAt) })}</dd>
                 </>
               )}
+              {user.mustChangePassword && (
+                <>
+                  <dt className="text-muted-foreground">{t("profile.password")}</dt>
+                  <dd>{t("profile.passwordTemporary")}</dd>
+                </>
+              )}
               {supplierName && (
                 <>
                   <dt className="text-muted-foreground">{t("profile.company")}</dt>

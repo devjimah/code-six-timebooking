@@ -27,6 +27,7 @@ export const userResponse = z.object({
   role: z.enum(ROLES),
   supplierId: z.number().int().nullable(),
   deactivatedAt: z.string().nullable().meta({ description: "ISO timestamp; null = active" }),
+  mustChangePassword: z.boolean().meta({ description: "An admin chose the password; the person must replace it first" }),
 })
 export type UserResponse = z.infer<typeof userResponse>
 
@@ -37,7 +38,12 @@ export const toUserResponse = (user: User): UserResponse => ({
   role: user.role,
   supplierId: user.supplierId,
   deactivatedAt: user.deactivatedAt,
+  mustChangePassword: user.mustChangePassword,
 })
+
+// One password policy for new accounts, resets and changes.
+// bcrypt only uses the first 72 bytes, so longer passwords would give a false sense of security.
+const password = z.string().min(10).max(72)
 
 // POST /api/users – admin only (ADR 0004).
 export const createUserRequest = z.object({
@@ -46,13 +52,23 @@ export const createUserRequest = z.object({
   role: z.enum(ROLES),
   // Required for consultants, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
   supplierId: z.number().int().positive().nullable().default(null),
-  // bcrypt only uses the first 72 bytes, so longer passwords would give a false sense of security.
-  password: z.string().min(10).max(72).meta({ description: "Initial password; the admin hands it to the person" }),
+  password: password.meta({ description: "Initial password; the admin hands it to the person" }),
 })
 
 // PUT /api/users/:id – admin only. Same fields as creating an account, without the password.
 export const updateUserRequest = createUserRequest.omit({ password: true })
 export const userIdParams = z.object({ id: z.coerce.number().int().positive() })
+
+// POST /api/users/:id/password – admin only (step 5). The person must replace it at the next sign-in.
+export const resetPasswordRequest = z.object({
+  password: password.meta({ description: "New password; the admin hands it to the person" }),
+})
+
+// POST /api/auth/password – every signed-in person, for their own account.
+export const changePasswordRequest = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: password,
+})
 
 export const supplierResponse = z.object({ id: z.number().int(), name: z.string() })
 

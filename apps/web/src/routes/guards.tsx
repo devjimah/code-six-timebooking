@@ -6,8 +6,20 @@ import { useAuth } from "@/auth/auth-context.tsx"
 import type { Role } from "@/lib/api-types.ts"
 import { homePathFor } from "@/routes/navigation.ts"
 
-/** Only for signed-in users; everyone else goes to /login. */
+export const CHANGE_PASSWORD_PATH = "/account/password"
+
+/**
+ * Only for signed-in users; everyone else goes to /login. Someone whose password an admin chose goes to
+ * "Choose your own password" first – the API refuses everything else for them (PASSWORD_CHANGE_REQUIRED).
+ */
 export function RequireAuth() {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/login" replace />
+  return user.mustChangePassword ? <Navigate to={CHANGE_PASSWORD_PATH} replace /> : <Outlet />
+}
+
+/** Signed in, nothing more – for the password screen itself. */
+export function RequireSession() {
   const { user } = useAuth()
   return user ? <Outlet /> : <Navigate to="/login" replace />
 }

@@ -35,7 +35,9 @@
     "role": "Role",
     "email": "Email",
     "close": "Close",
-    "company": "Company"
+    "company": "Company",
+    "password": "Password",
+    "passwordTemporary": "Set by an admin – will be changed at the next sign-in"
   },
   "nav": {
     "home": "Home",
@@ -53,7 +55,7 @@
     "chooseSupplier": "Choose a supplier",
     "supplierHint": "Consultants always belong to a supplier.",
     "initialPassword": "Initial password",
-    "passwordHint": "10 to 72 characters.",
+    "passwordHint": "10 to 72 characters. The person chooses their own password at the first sign-in.",
     "create": "Create account",
     "creating": "Creating …",
     "cancel": "Cancel",
@@ -74,7 +76,13 @@
     "reactivated": "{{name}} is active again.",
     "deactivated": "Deactivated",
     "status": "Status",
-    "deactivatedSince": "Deactivated since {{date}}"
+    "deactivatedSince": "Deactivated since {{date}}",
+    "resetButton": "Reset password",
+    "resetTitle": "Reset password of {{name}}",
+    "resetDescription": "Type a new password and hand it to the person yourself. They are signed out everywhere at once and choose their own password at the next sign-in.",
+    "newPassword": "New password",
+    "passwordReset": "Password of {{name}} reset. The person is signed out.",
+    "resetHint": "10 to 72 characters."
   },
   "audit": {
     "description": "Every action in the API: who, what, on what, with which result and why – newest first. Tap a row for all details.",
@@ -131,7 +139,8 @@
     "auth": {
       "login": "Sign-in",
       "logout": "Sign-out",
-      "session": "Session checked"
+      "session": "Session checked",
+      "change_password": "Changed own password"
     },
     "user": {
       "list": "Viewed users",
@@ -139,7 +148,8 @@
       "list_project_managers": "Viewed project managers",
       "update": "Changed user",
       "deactivate": "Deactivated user",
-      "reactivate": "Reactivated user"
+      "reactivate": "Reactivated user",
+      "reset_password": "Reset password"
     },
     "supplier": {
       "list": "Viewed suppliers",
@@ -231,6 +241,22 @@
     "noBookings": "No time has been booked on this order yet.",
     "loadFailed": "The order could not be loaded"
   },
+  "password": {
+    "title": "Change password",
+    "titleForced": "Choose your own password",
+    "description": "You will be signed out in all other browsers.",
+    "descriptionForced": "Welcome, {{name}}. Your admin set your password. Choose your own before you continue – then only you know it.",
+    "current": "Current password",
+    "currentForced": "Password from your admin",
+    "new": "New password",
+    "hint": "10 to 72 characters, different from the current one.",
+    "repeat": "Repeat new password",
+    "mismatch": "The two passwords do not match.",
+    "save": "Save password",
+    "saving": "Saving …",
+    "failed": "Password not changed",
+    "changed": "Your password has been changed."
+  },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
     "BUDGET_EXCEEDED": "Booking rejected: the free budget of this order is not enough.",
@@ -265,6 +291,10 @@
     "MANAGES_ORDERS": "This project manager is still responsible for orders. Purchasing must assign them to someone else first.",
     "USER_NOT_FOUND": "This account does not exist.",
     "ACCOUNT_DEACTIVATED": "This account has been deactivated. Contact your admin.",
-    "PROJECT_MANAGER_DEACTIVATED": "This project manager is deactivated and cannot be responsible for an order."
+    "PROJECT_MANAGER_DEACTIVATED": "This project manager is deactivated and cannot be responsible for an order.",
+    "PASSWORD_CHANGE_REQUIRED": "Choose your own password first.",
+    "CURRENT_PASSWORD_WRONG": "Your current password is wrong.",
+    "NEW_PASSWORD_SAME_AS_CURRENT": "Choose a new password that differs from the current one.",
+    "CANNOT_RESET_OWN_PASSWORD": "You do not reset your own password – change it in your profile instead."
   }
 }

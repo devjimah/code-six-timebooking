@@ -32,12 +32,18 @@ export function assertRoleChangeAllowed(input: {
   }
 }
 
-/** Protects against locking yourself out: no own role change, no own deactivation. */
-export function assertNotOwnAccount(input: { actorId: number; targetId: number; action: "change_role" | "deactivate" }): void {
+const OWN_ACCOUNT_ERRORS = {
+  change_role: ["CANNOT_CHANGE_OWN_ROLE", "You cannot change your own role. Ask another admin."],
+  deactivate: ["CANNOT_DEACTIVATE_YOURSELF", "You cannot deactivate your own account. Ask another admin."],
+  // A reset would make the admin choose a password and then be forced to replace it – use "Change password".
+  reset_password: ["CANNOT_RESET_OWN_PASSWORD", "You cannot reset your own password. Use \"Change password\" instead."],
+} as const
+
+/** Protects against locking yourself out: no own role change, no own deactivation, no reset of the own password. */
+export function assertNotOwnAccount(input: { actorId: number; targetId: number; action: keyof typeof OWN_ACCOUNT_ERRORS }): void {
   if (input.actorId !== input.targetId) return
-  throw input.action === "change_role"
-    ? new DomainError("CANNOT_CHANGE_OWN_ROLE", "You cannot change your own role. Ask another admin.")
-    : new DomainError("CANNOT_DEACTIVATE_YOURSELF", "You cannot deactivate your own account. Ask another admin.")
+  const [code, message] = OWN_ACCOUNT_ERRORS[input.action]
+  throw new DomainError(code, message)
 }
 
 /** A project manager may only leave once no order depends on them – nobody else could check its work. */

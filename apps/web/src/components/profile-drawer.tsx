@@ -1,17 +1,20 @@
-// The signed-in user's own profile, opened from the sidebar footer, with sign-out.
+// The signed-in user's own profile, opened from the sidebar footer, with password change and sign-out.
 import { useTranslation } from "react-i18next"
-import { ChevronsUpDown, LogOut } from "lucide-react"
+import { useNavigate } from "react-router"
+import { ChevronsUpDown, KeyRound, LogOut } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Button } from "@workspace/ui/components/button"
 import { SidebarMenuButton } from "@workspace/ui/components/sidebar"
 import { useAuth, type CurrentUser } from "@/auth/auth-context.tsx"
 import { UserDrawer } from "@/components/user-drawer.tsx"
+import { CHANGE_PASSWORD_PATH } from "@/routes/guards.tsx"
 import { initials } from "@/lib/initials.ts"
 
 export function ProfileDrawer({ user }: { user: CurrentUser }) {
   const { t } = useTranslation()
   const { logout } = useAuth()
+  const navigate = useNavigate()
 
   return (
     <UserDrawer
@@ -29,10 +32,16 @@ export function ProfileDrawer({ user }: { user: CurrentUser }) {
         </SidebarMenuButton>
       }
       actions={
-        <Button onClick={() => void logout()}>
-          <LogOut aria-hidden />
-          {t("logout")}
-        </Button>
+        <>
+          <Button variant="outline" onClick={() => navigate(CHANGE_PASSWORD_PATH)}>
+            <KeyRound aria-hidden />
+            {t("password.title")}
+          </Button>
+          <Button onClick={() => void logout()}>
+            <LogOut aria-hidden />
+            {t("logout")}
+          </Button>
+        </>
       }
     />
   )

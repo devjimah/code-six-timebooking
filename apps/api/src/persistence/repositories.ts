@@ -14,6 +14,7 @@ const toUser = (r: typeof users.$inferSelect): User => ({
   role: r.role,
   supplierId: r.supplierId,
   deactivatedAt: r.deactivatedAt,
+  mustChangePassword: r.mustChangePassword,
 })
 const toSupplier = (r: typeof suppliers.$inferSelect): Supplier => ({ id: r.id, name: r.name })
 const toOrder = (r: typeof orders.$inferSelect): Order => ({
@@ -59,8 +60,10 @@ export function supplierRepository(db: Db) {
 
 export function userRepository(db: Db) {
   return {
-    /** New accounts are always active. */
-    async create(data: Omit<NewOf<User>, "deactivatedAt"> & { passwordHash: string }) {
+    /** New accounts are always active. `mustChangePassword` is false unless given (the seeded demo users). */
+    async create(
+      data: Omit<NewOf<User>, "deactivatedAt" | "mustChangePassword"> & { passwordHash: string; mustChangePassword?: boolean },
+    ) {
       const [row] = await db.insert(users).values(data).returning()
       return toUser(row!)
     },
@@ -72,15 +75,29 @@ export function userRepository(db: Db) {
       const [row] = await db.select().from(users).where(eq(users.email, email))
       return row ? toUser(row) : null
     },
-    // Only for sign-in: the hash stays next to the user, never inside the domain object.
+    // Only for sign-in and password changes: the hash and the session version stay next to the user,
+    // never inside the domain object.
     async findCredentialsByEmail(email: string) {
       const [row] = await db.select().from(users).where(eq(users.email, email))
-      return row ? { user: toUser(row), passwordHash: row.passwordHash } : null
+      return row ? { user: toUser(row), passwordHash: row.passwordHash, sessionVersion: row.sessionVersion } : null
+    },
+    async findCredentialsById(id: number) {
+      const [row] = await db.select().from(users).where(eq(users.id, id))
+      return row ? { user: toUser(row), passwordHash: row.passwordHash, sessionVersion: row.sessionVersion } : null
+    },
+    /** Stores a new password hash and ends all sessions issued before (step 5): the session version goes up. */
+    async setPassword(id: number, data: { passwordHash: string; mustChangePassword: boolean }) {
+      const [row] = await db
+        .update(users)
+        .set({ ...data, sessionVersion: sql`${users.sessionVersion} + 1` })
+        .where(eq(users.id, id))
+        .returning()
+      return { user: toUser(row!), sessionVersion: row!.sessionVersion }
     },
     async findAll() {
       return (await db.select().from(users)).map(toUser)
     },
-    async update(id: number, data: Partial<Omit<NewOf<User>, "id">>) {
+    async update(id: number, data: Partial<Omit<NewOf<User>, "mustChangePassword">>) {
       const [row] = await db.update(users).set(data).where(eq(users.id, id)).returning()
       return toUser(row!)
     },

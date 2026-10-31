@@ -10,8 +10,9 @@ import { MyOrdersPage } from "@/pages/project-manager/my-orders-page.tsx"
 import { OrderDetailPage } from "@/pages/project-manager/order-detail-page.tsx"
 import { OrdersPage } from "@/pages/purchasing/orders-page.tsx"
 import { SuppliersPage } from "@/pages/purchasing/suppliers-page.tsx"
+import { ChangePasswordPage } from "@/pages/change-password-page.tsx"
 import { LoginPage } from "@/pages/login-page.tsx"
-import { RedirectIfSignedIn, RequireAuth, RequireRole } from "@/routes/guards.tsx"
+import { CHANGE_PASSWORD_PATH, RedirectIfSignedIn, RequireAuth, RequireRole, RequireSession } from "@/routes/guards.tsx"
 import { homePathFor } from "@/routes/navigation.ts"
 
 export function App() {
@@ -26,6 +27,10 @@ export function App() {
       <Routes>
         <Route element={<RedirectIfSignedIn />}>
           <Route path="/login" element={<LoginPage />} />
+        </Route>
+
+        <Route element={<RequireSession />}>
+          <Route path={CHANGE_PASSWORD_PATH} element={<ChangePasswordPage />} />
         </Route>
 
         <Route element={<RequireAuth />}>

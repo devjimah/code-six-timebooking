@@ -17,6 +17,8 @@ export interface User {
   supplierId: number | null
   /** ISO timestamp when an admin deactivated the account; null = active. Accounts are never deleted. */
   deactivatedAt: string | null
+  /** True after an admin chose the password (new account or reset): the person must pick their own first. */
+  mustChangePassword: boolean
 }
 
 export interface Order {

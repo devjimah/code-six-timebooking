@@ -31,6 +31,11 @@ export const users = sqliteTable("users", {
   supplierId: integer("supplier_id").references(() => suppliers.id),
   // Set when an admin deactivates the account (step 4). The person can no longer sign in; their bookings stay.
   deactivatedAt: text("deactivated_at"),
+  // Step 5: a password chosen by an admin (new account or reset) must be replaced by the person at the next sign-in.
+  mustChangePassword: integer("must_change_password", { mode: "boolean" }).notNull().default(false),
+  // Goes up with every password change. A session cookie carries the version it was issued with; an older
+  // version is not accepted any more, so a reset signs the person out of every browser at once.
+  sessionVersion: integer("session_version").notNull().default(0),
   ...timestamps,
 })
 

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next"
 import { Outlet, useLocation } from "react-router"
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { Toaster } from "@workspace/ui/components/sonner"
 import { useAuth } from "@/auth/auth-context.tsx"
 import { AppSidebar } from "@/components/app-sidebar.tsx"
 import { LanguageSwitcher } from "@/components/language-switcher.tsx"
@@ -32,7 +31,6 @@ export function AppLayout() {
           <Outlet />
         </div>
       </SidebarInset>
-      <Toaster position="top-center" />
     </SidebarProvider>
   )
 }

@@ -1,8 +1,9 @@
-// Admin: all accounts (GET /api/users). Tap a name for the profile, with Edit and Deactivate / Reactivate.
+// Admin: all accounts (GET /api/users). Tap a name for the profile, with Edit, Reset password and
+// Deactivate / Reactivate.
 // Accounts are never deleted: bookings and audit events keep pointing to the person (step 4).
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { CircleAlert, Pencil, UserCheck, UserPlus, UserX } from "lucide-react"
+import { CircleAlert, KeyRound, Pencil, UserCheck, UserPlus, UserX } from "lucide-react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
@@ -30,6 +31,7 @@ import { ApiError, api } from "@/lib/api.ts"
 import type { Role, Supplier, User } from "@/lib/api-types.ts"
 import { initials } from "@/lib/initials.ts"
 import { useApi } from "@/lib/use-api.ts"
+import { ResetPasswordDrawer } from "@/pages/admin/reset-password-drawer.tsx"
 import { UserFormDrawer } from "@/pages/admin/user-form-drawer.tsx"
 
 const ROLE_BADGE: Record<Role, "default" | "secondary" | "outline"> = {
@@ -46,6 +48,7 @@ export function UsersPage() {
   const suppliers = useApi<Supplier[]>("/suppliers")
   const [selected, setSelected] = React.useState<User | null>(null)
   const [editing, setEditing] = React.useState<User | "new" | null>(null)
+  const [resetting, setResetting] = React.useState<User | null>(null)
 
   const supplierName = (id: number | null) => suppliers.data?.find((s) => s.id === id)?.name ?? null
   const error = users.error ?? suppliers.error
@@ -161,6 +164,19 @@ export function UsersPage() {
                 <Pencil aria-hidden />
                 {t("users.editButton")}
               </Button>
+              {/* Your own password: "Change password" in your profile, which asks for the current one. */}
+              {!isMe && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setResetting(selected)
+                    setSelected(null)
+                  }}
+                >
+                  <KeyRound aria-hidden />
+                  {t("users.resetButton")}
+                </Button>
+              )}
               {selected.deactivatedAt !== null ? (
                 <Button variant="outline" onClick={() => void setActive(selected, true)}>
                   <UserCheck aria-hidden />
@@ -195,6 +211,8 @@ export function UsersPage() {
           )
         }
       />
+
+      <ResetPasswordDrawer user={resetting} onClose={() => setResetting(null)} onSaved={users.reload} />
 
       <UserFormDrawer
         editing={editing}

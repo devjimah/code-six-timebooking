@@ -11,6 +11,7 @@ export type User = {
   role: Role
   supplierId: number | null
   deactivatedAt: string | null // ISO timestamp; null = active
+  mustChangePassword: boolean // an admin chose the password; the person must replace it first (step 5)
 }
 
 export type Supplier = {
