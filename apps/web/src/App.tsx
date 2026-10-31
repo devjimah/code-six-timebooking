@@ -1,27 +1,42 @@
-import { Trans, useTranslation } from "react-i18next"
+// All screens and who may open them (ADR 0013: React Router). The API checks permissions again on every request.
+import { BrowserRouter, Navigate, Route, Routes } from "react-router"
 
-import { LanguageSwitcher } from "@/components/language-switcher.tsx"
-import { formatDate, formatEuroCents, formatHours } from "@/i18n/format.ts"
+import { useAuth } from "@/auth/auth-context.tsx"
+import { AppLayout } from "@/components/app-layout.tsx"
+import { AuditPage } from "@/pages/admin/audit-page.tsx"
+import { UsersPage } from "@/pages/admin/users-page.tsx"
+import { HomePage } from "@/pages/home-page.tsx"
+import { LoginPage } from "@/pages/login-page.tsx"
+import { RedirectIfSignedIn, RequireAuth, RequireRole } from "@/routes/guards.tsx"
+import { homePathFor } from "@/routes/navigation.ts"
 
 export function App() {
-  const { t } = useTranslation()
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return null // avoids flashing the login form while GET /api/auth/me is still running
+  }
 
   return (
-    <div className="flex min-h-svh flex-col gap-6 p-6">
-      <header className="flex items-center justify-between gap-4">
-        <h1 className="font-medium">{t("app.title")}</h1>
-        <LanguageSwitcher />
-      </header>
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <p>{t("app.tagline")}</p>
-        {/* Placeholder until the booking screen exists: shows German formatting of the challenge's example hour. */}
-        <p className="tabular-nums">
-          {t("app.exampleBooking")}: {formatDate("2026-10-27")} · {formatHours(210)} · {formatEuroCents(36750)}
-        </p>
-        <div className="text-muted-foreground font-mono text-xs">
-          <Trans i18nKey="app.darkModeHint" components={{ kbd: <kbd /> }} />
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<RedirectIfSignedIn />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
+
+        <Route element={<RequireAuth />}>
+          <Route element={<AppLayout />}>
+            {/* Admins have no general start screen; they land on the user list. */}
+            <Route index element={user?.role === "admin" ? <Navigate to={homePathFor("admin")} replace /> : <HomePage />} />
+            <Route element={<RequireRole role="admin" />}>
+              <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/audit" element={<AuditPage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

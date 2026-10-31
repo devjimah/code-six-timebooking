@@ -39,9 +39,10 @@ npm run db:migrate -w api                # creates the database and seeds demo d
 
 ```bash
 npm run dev -w api   # API on http://localhost:3001 (migrates + seeds automatically on start)
+npm run dev -w web   # in a second terminal: web app on http://localhost:5173 (forwards /api to the API)
 ```
 
-Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
+Check: open http://localhost:3001/api/health → `{"status":"ok"}`. Then open http://localhost:5173 and sign in with a demo user (the sign-in page has one-click demo buttons in development).
 
 **API documentation:** open http://localhost:3001/api/docs (Swagger UI). Sign in with `POST /api/auth/login` there first; the browser keeps the cookie, so *Try it out* works for the other routes. The raw spec is at http://localhost:3001/api/openapi.json.
 
@@ -91,9 +92,9 @@ All demo users have the password `demo1234` (demo data only).
 
 | Role | Sign in with | What to try |
 |---|---|---|
-| Admin | `admin@demo.local` | `GET /api/users` lists all users; `POST /api/users` creates an account (try it in [Swagger UI](http://localhost:3001/api/docs)); `GET /api/audit-events` shows the audit log (admin only) |
+| Admin | `admin@demo.local` | Web app: **Users** (list, tap a name for the profile drawer, *New user*; try a consultant without a company) and **Audit log** (filter by user). API: `GET /api/users` lists all users; `POST /api/users` creates an account (try it in [Swagger UI](http://localhost:3001/api/docs)); `GET /api/audit-events` shows the audit log (admin only) |
 | Project manager | `pm@demo.local` | `GET /api/orders/managed` lists your orders with their budget; `GET /api/orders/1/budget` shows booked and remaining budget of your order; `GET /api/users` is refused with 403 |
-| Consultant (Acme Consulting) | `consultant@demo.local` | `GET /api/orders/bookable` lists the orders you may book on; `POST /api/time-entries` books time; try more than 10 h on Tue 27 Oct 2026 or an order of another company; `GET /api/time-entries/mine` |
+| Consultant (Acme Consulting) | `consultant@demo.local` | `GET /api/orders/bookable` lists the orders you may book on; `POST /api/time-entries` books time; try more than 10 h on Tue 27 Oct 2026, Sunday 25 Oct 2026, or an order of another company; `GET /api/time-entries/mine` |
 
 ## Evidence map
 
@@ -102,8 +103,8 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 | Criterion | Evidence |
 |---|---|
 | 1 · Persistence and data model | [schema.ts](apps/api/src/persistence/schema.ts), [migrations](apps/api/drizzle/), [seed.ts](apps/api/src/persistence/seed.ts), [ER diagram](docs/domain.md) |
-| 2 · Business rules and unit tests | Rules in [domain/rules/](apps/api/src/domain/rules/) (10 h per day · order budget · valid duration · own company's orders · no future dates · consultants belong to a supplier), used by [book-time.ts](apps/api/src/application/book-time.ts), unit tests in [test/domain/](apps/api/test/domain/), API tests in [booking.test.ts](apps/api/test/booking.test.ts), errors as 422 via [error-handler.ts](apps/api/src/api/error-handler.ts) ([ADR 0005](docs/adr/0005-error-handling.md), [ADR 0006](docs/adr/0006-business-rules-in-the-domain.md)); run with `npm test` |
-| 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), enforcement in [auth/middleware.ts](apps/api/src/auth/middleware.ts) (roles; only admins create accounts, [ADR 0004](docs/adr/0004-role-model-and-accounts.md), [users.test.ts](apps/api/test/users.test.ts)) and [get-order-budget.ts](apps/api/src/application/get-order-budget.ts) and [list-orders.ts](apps/api/src/application/list-orders.ts) (only your own orders), tests in [auth.test.ts](apps/api/test/auth.test.ts) and [order-list.test.ts](apps/api/test/order-list.test.ts), audit log [ADR 0012](docs/adr/0012-audit-log.md) / [audit-log.ts](apps/api/src/audit/audit-log.ts), TODO – mockup views |
+| 2 · Business rules and unit tests | Rules in [domain/rules/](apps/api/src/domain/rules/) (10 h per day · order budget · valid duration · own company's orders · no future dates · no Sundays or public holidays · consultants belong to a supplier), used by [book-time.ts](apps/api/src/application/book-time.ts), unit tests in [test/domain/](apps/api/test/domain/), API tests in [booking.test.ts](apps/api/test/booking.test.ts), errors as 422 via [error-handler.ts](apps/api/src/api/error-handler.ts) ([ADR 0005](docs/adr/0005-error-handling.md), [ADR 0006](docs/adr/0006-business-rules-in-the-domain.md)); run with `npm test` |
+| 3 · Roles, permissions and privacy | [Permission concept](docs/roles-and-privacy.md), enforcement in [auth/middleware.ts](apps/api/src/auth/middleware.ts) (roles; only admins create accounts, [ADR 0004](docs/adr/0004-role-model-and-accounts.md), [users.test.ts](apps/api/test/users.test.ts)) and [get-order-budget.ts](apps/api/src/application/get-order-budget.ts) and [list-orders.ts](apps/api/src/application/list-orders.ts) (only your own orders), tests in [auth.test.ts](apps/api/test/auth.test.ts) and [order-list.test.ts](apps/api/test/order-list.test.ts), audit log [ADR 0012](docs/adr/0012-audit-log.md) / [audit-log.ts](apps/api/src/audit/audit-log.ts), role views in the web app: admin [users](apps/web/src/pages/admin/users-page.tsx) and [audit log](apps/web/src/pages/admin/audit-page.tsx), one sidebar per role in [navigation.ts](apps/web/src/routes/navigation.ts) ([ADR 0013](docs/adr/0013-web-routing-and-app-shell.md)), TODO – project manager and consultant views |
 | 4 · Architecture and engineering | A structure: [api/](apps/api/src/api/) · [domain/](apps/api/src/domain/) · [persistence/](apps/api/src/persistence/) · B [ADRs](docs/adr/), incl. [identity](docs/adr/0002-identity-and-sign-in.md) and [operation](docs/adr/0003-operation-and-scaling.md) · C Git history · D [Swagger UI](http://localhost:3001/api/docs) generated from the zod DTOs in [openapi.ts](apps/api/src/api/openapi.ts) ([ADR 0009](docs/adr/0009-api-documentation.md)), kept in sync by [openapi.test.ts](apps/api/test/openapi.test.ts) · E TODO compose file · F [mockup](docs/mockup/) |
 
 ## Team

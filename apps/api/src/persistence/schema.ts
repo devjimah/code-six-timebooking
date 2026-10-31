@@ -51,7 +51,7 @@ export const orders = sqliteTable("orders", {
 })
 
 // Audit log (ADR 0012): one row per API request. Append-only: the application never updates or deletes rows.
-// No request bodies, passwords or cookies are stored here.
+// No request bodies, passwords, cookies or free-text descriptions are stored here – only allow-listed key facts.
 export const AUDIT_OUTCOMES = ["success", "rejected", "denied", "error"] as const
 
 export const auditEvents = sqliteTable("audit_events", {
@@ -67,6 +67,14 @@ export const auditEvents = sqliteTable("audit_events", {
   statusCode: integer("status_code").notNull(),
   outcome: text("outcome", { enum: AUDIT_OUTCOMES }).notNull(),
   durationMs: integer("duration_ms").notNull(),
+  // What the request meant (migration 0002). Null on events recorded before that.
+  action: text("action"), // e.g. "time_entry.create", see ACTIONS in audit/audit-log.ts
+  targetType: text("target_type"), // what the action was about, e.g. "order" or "user"
+  targetId: integer("target_id"),
+  errorCode: text("error_code"), // why it was refused, e.g. "DAILY_LIMIT_EXCEEDED"
+  details: text("details"), // JSON of key facts set by the route, e.g. {"workDate":"2026-10-27","durationMinutes":180}
+  ipAddress: text("ip_address"), // personal data: covered by the retention period in ADR 0012
+  userAgent: text("user_agent"),
 })
 
 // One booking: exactly one user, one order, a date, a duration and a description.

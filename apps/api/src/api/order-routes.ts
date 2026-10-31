@@ -3,6 +3,7 @@
 import { Router } from "express"
 import { getOrderBudget } from "../application/get-order-budget.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
+import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
 import { orderIdParams, toBookableOrderResponse, toOrderBudgetResponse } from "./dto.js"
@@ -25,6 +26,7 @@ export function orderRoutes(db: Db) {
   // Role check here (403 for consultants, admins …); ownership check in the use case (403 NOT_YOUR_ORDER).
   router.get("/:id/budget", requireRole("project_manager"), async (req, res) => {
     const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
     const { order, budget } = await getOrderBudget(db, req.user!, id)
     res.json(toOrderBudgetResponse(order, budget))
   })

@@ -8,6 +8,9 @@ export const config = {
   port: Number(process.env.PORT ?? 3001),
   sessionSecret: process.env.SESSION_SECRET ?? DEV_SESSION_SECRET,
   secureCookies: production,
+  // Number of reverse proxies in front of the API (0 = none). Needed so the audit log records the client's
+  // IP address instead of the proxy's. Only raise it when a proxy really sets X-Forwarded-For, or IPs can be faked.
+  trustProxyHops: Number(process.env.TRUST_PROXY_HOPS ?? 0),
 }
 
 // With the public default secret, anyone could forge a session cookie. Refuse to start in production.

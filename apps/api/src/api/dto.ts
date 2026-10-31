@@ -57,6 +57,8 @@ export const toSupplierResponse = (supplier: Supplier): SupplierResponse => ({ i
 export const auditEventsQuery = z.object({
   limit: z.coerce.number().int().min(1).max(500).default(100),
   userId: z.coerce.number().int().positive().optional(),
+  outcome: z.enum(["success", "rejected", "denied", "error"]).optional(),
+  action: z.string().max(64).optional().meta({ example: "time_entry.create" }),
 })
 
 export const auditEventResponse = z.object({
@@ -70,6 +72,16 @@ export const auditEventResponse = z.object({
   statusCode: z.number().int(),
   outcome: z.enum(["success", "rejected", "denied", "error"]),
   durationMs: z.number(),
+  action: z.string().nullable().meta({ example: "time_entry.create", description: "Null on events recorded before actions existed" }),
+  targetType: z.string().nullable().meta({ example: "order" }),
+  targetId: z.number().int().nullable(),
+  errorCode: z.string().nullable().meta({ example: "DAILY_LIMIT_EXCEEDED" }),
+  details: z
+    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
+    .nullable()
+    .meta({ description: "Key facts of the action; never passwords or free text" }),
+  ipAddress: z.string().nullable(),
+  userAgent: z.string().nullable(),
 })
 export type AuditEventResponse = z.infer<typeof auditEventResponse>
 
