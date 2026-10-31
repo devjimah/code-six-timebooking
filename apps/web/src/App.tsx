@@ -1,17 +1,25 @@
-import { Button } from "@workspace/ui/components/button"
+import { Trans, useTranslation } from "react-i18next"
+
+import { LanguageSwitcher } from "@/components/language-switcher.tsx"
+import { formatDate, formatEuroCents, formatHours } from "@/i18n/format.ts"
 
 export function App() {
+  const { t } = useTranslation()
+
   return (
-    <div className="flex min-h-svh p-6">
+    <div className="flex min-h-svh flex-col gap-6 p-6">
+      <header className="flex items-center justify-between gap-4">
+        <h1 className="font-medium">{t("app.title")}</h1>
+        <LanguageSwitcher />
+      </header>
       <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
+        <p>{t("app.tagline")}</p>
+        {/* Placeholder until the booking screen exists: shows German formatting of the challenge's example hour. */}
+        <p className="tabular-nums">
+          {t("app.exampleBooking")}: {formatDate("2026-10-27")} · {formatHours(210)} · {formatEuroCents(36750)}
+        </p>
         <div className="text-muted-foreground font-mono text-xs">
-          (Press <kbd>d</kbd> to toggle dark mode)
+          <Trans i18nKey="app.darkModeHint" components={{ kbd: <kbd /> }} />
         </div>
       </div>
     </div>
