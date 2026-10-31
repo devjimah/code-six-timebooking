@@ -1,27 +1,13 @@
-import { Trans, useTranslation } from "react-i18next"
+import { useAuth } from "@/auth/auth-context.tsx"
+import { HomePage } from "@/pages/home-page.tsx"
+import { LoginPage } from "@/pages/login-page.tsx"
 
-import { LanguageSwitcher } from "@/components/language-switcher.tsx"
-import { formatDate, formatEuroCents, formatHours } from "@/i18n/format.ts"
-
+// Signed out → sign-in screen. Signed in → the app. Role screens are added here next.
 export function App() {
-  const { t } = useTranslation()
+  const { user, loading } = useAuth()
 
-  return (
-    <div className="flex min-h-svh flex-col gap-6 p-6">
-      <header className="flex items-center justify-between gap-4">
-        <h1 className="font-medium">{t("app.title")}</h1>
-        <LanguageSwitcher />
-      </header>
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <p>{t("app.tagline")}</p>
-        {/* Placeholder until the booking screen exists: shows German formatting of the challenge's example hour. */}
-        <p className="tabular-nums">
-          {t("app.exampleBooking")}: {formatDate("2026-10-27")} · {formatHours(210)} · {formatEuroCents(36750)}
-        </p>
-        <div className="text-muted-foreground font-mono text-xs">
-          <Trans i18nKey="app.darkModeHint" components={{ kbd: <kbd /> }} />
-        </div>
-      </div>
-    </div>
-  )
+  if (loading) {
+    return null // avoids flashing the login form while GET /api/auth/me is still running
+  }
+  return user ? <HomePage user={user} /> : <LoginPage />
 }

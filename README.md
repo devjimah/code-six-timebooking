@@ -39,9 +39,10 @@ npm run db:migrate -w api                # creates the database and seeds demo d
 
 ```bash
 npm run dev -w api   # API on http://localhost:3001 (migrates + seeds automatically on start)
+npm run dev -w web   # in a second terminal: web app on http://localhost:5173 (forwards /api to the API)
 ```
 
-Check: open http://localhost:3001/api/health → `{"status":"ok"}`.
+Check: open http://localhost:3001/api/health → `{"status":"ok"}`. Then open http://localhost:5173 and sign in with a demo user (the sign-in page has one-click demo buttons in development).
 
 **API documentation:** open http://localhost:3001/api/docs (Swagger UI). Sign in with `POST /api/auth/login` there first; the browser keeps the cookie, so *Try it out* works for the other routes. The raw spec is at http://localhost:3001/api/openapi.json.
 

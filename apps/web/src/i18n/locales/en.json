@@ -1,14 +1,39 @@
 {
   "app": {
     "title": "Time booking",
-    "tagline": "Every hour you buy, in view: book time, check budgets, reorder in time.",
-    "darkModeHint": "Press <kbd>d</kbd> to toggle dark mode",
-    "exampleBooking": "Example booking"
+    "tagline": "Every hour you buy, in view: book time, check budgets, reorder in time."
   },
   "language": {
     "label": "Language",
     "de": "Deutsch",
     "en": "English"
+  },
+  "login": {
+    "title": "Sign in",
+    "description": "Sign in with your business email address.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in …",
+    "failed": "Sign-in failed",
+    "noAccount": "No account yet? Your admin creates it for you.",
+    "demoHint": "Demo accounts (development only, password demo1234):"
+  },
+  "home": {
+    "welcome": "Welcome, {{name}}",
+    "signedInAs": "Signed in as {{email}} · {{role}}"
+  },
+  "roles": {
+    "consultant": "Consultant",
+    "project_manager": "Project manager",
+    "admin": "Admin"
+  },
+  "logout": "Sign out",
+  "profile": {
+    "open": "Open profile",
+    "role": "Role",
+    "email": "Email",
+    "close": "Close"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
@@ -24,6 +49,9 @@
     "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers and admins work for the client; leave the supplier empty.",
     "SUPPLIER_NOT_FOUND": "This supplier does not exist.",
     "EMAIL_TAKEN": "An account with this email address already exists.",
-    "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9)."
+    "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9).",
+    "INVALID_CREDENTIALS": "Email or password is wrong.",
+    "VALIDATION_FAILED": "Please enter a valid email address and a password.",
+    "NETWORK_ERROR": "The server cannot be reached. Is the API running?"
   }
 }
