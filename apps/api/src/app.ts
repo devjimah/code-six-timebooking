@@ -20,9 +20,11 @@ export type AppOptions = {
   sessionSecret: string
   secureCookies: boolean
   trustProxyHops?: number
+  /** How long purchasing needs for a follow-up order; the forecast says when to start (ADR 0015). */
+  purchasingLeadTimeWeeks?: number
 }
 
-export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0 }: AppOptions) {
+export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0, purchasingLeadTimeWeeks = 4 }: AppOptions) {
   const app = express()
   // Makes req.ip the client's address behind a reverse proxy (see TRUST_PROXY_HOPS in .env.example).
   app.set("trust proxy", trustProxyHops)
@@ -46,7 +48,7 @@ export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0
   app.use("/api/users", rememberMountPath, userRoutes(db))
   app.use("/api/suppliers", rememberMountPath, supplierRoutes(db))
   app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db))
-  app.use("/api/orders", rememberMountPath, orderRoutes(db))
+  app.use("/api/orders", rememberMountPath, orderRoutes(db, purchasingLeadTimeWeeks))
   app.use("/api/project-managers", rememberMountPath, projectManagerRoutes(db))
   app.use("/api/public-holidays", rememberMountPath, publicHolidayRoutes())
   app.use("/api/audit-events", rememberMountPath, auditRoutes(db))

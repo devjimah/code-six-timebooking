@@ -1,6 +1,6 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
-import { and, asc, desc, eq, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm"
+import { and, asc, desc, eq, gte, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm"
 import { READ_METHODS } from "../domain/audit-retention.js"
 import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
@@ -242,6 +242,16 @@ export function timeEntryRepository(db: Db) {
         .select({ orderId: timeEntries.orderId, total: sql<number>`sum(${timeEntries.durationMinutes})` })
         .from(timeEntries)
         .where(inArray(timeEntries.orderId, orderIds))
+        .groupBy(timeEntries.orderId)
+      return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
+    },
+    /** Minutes booked from this date on, per order, for the forecast's pace. Orders without bookings are missing. */
+    async minutesPerOrderSince(orderIds: number[], fromDate: string) {
+      if (orderIds.length === 0) return new Map<number, number>()
+      const rows = await db
+        .select({ orderId: timeEntries.orderId, total: sql<number>`sum(${timeEntries.durationMinutes})` })
+        .from(timeEntries)
+        .where(and(inArray(timeEntries.orderId, orderIds), gte(timeEntries.workDate, fromDate)))
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },

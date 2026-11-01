@@ -32,6 +32,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Approve or return a booking ([ADR 0014](adr/0014-booking-approval.md)) | – | ✔ own orders | – | – | built |
 | See the status of a booking and the reason for a return | own only | ✔ own orders | Σ approved and not approved hours per order | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
+| See how long a budget lasts and when to order more ([ADR 0015](adr/0015-budget-forecast.md)) | – | ✔ own orders | ✔ all orders | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
 | See names of project managers (to assign an order) | – | – | ✔ names only | ✔ (user list) | built |

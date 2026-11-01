@@ -62,7 +62,11 @@
       "endingSoon": "Ending soon",
       "endingSoonDescription": "Running orders whose period ends within the next {{days}} days.",
       "noneEnding": "No order ends soon.",
-      "allDescription": "All orders with budget and period, the ones ending first on top."
+      "allDescription": "All orders with budget and period, the ones ending first on top.",
+      "runningOutEarly": "Budget runs out before the order ends",
+      "runningOutEarlyDescription": "At the pace of the last 4 weeks. Sundays and public holidays use no budget.",
+      "noneRunningOut": "At the current pace, every budget lasts until its order ends.",
+      "usedUpOn": "Used up on {{date}}."
     },
     "admin": {
       "intro": "Accounts and security at a glance. Admins see no business data such as bookings or budgets.",
@@ -454,5 +458,16 @@
     "TIME_ENTRY_NOT_FOUND": "This booking does not exist.",
     "BOOKING_APPROVED": "This booking is approved and can no longer be changed or deleted.",
     "NOT_YOUR_BOOKING": "You can only change your own bookings."
+  },
+  "forecast": {
+    "title": "How long the budget lasts",
+    "pace": "Current pace: {{hours}} per week, from the last 4 weeks",
+    "runsOut": "At this pace the budget is used up on {{date}}, before the order ends on {{end}}.",
+    "missing": "About {{hours}} ({{days}} person-days) are missing until then.",
+    "orderBy": "Order more by {{date}}: purchasing needs {{weeks}} weeks.",
+    "orderNow": "Order more now: purchasing needs {{weeks}} weeks.",
+    "lasts": "At this pace the budget lasts until the order ends on {{end}}.",
+    "noPace": "Nothing was booked in the last 4 weeks, so there is no pace to forecast from.",
+    "ended": "This order ended on {{end}}."
   }
 }

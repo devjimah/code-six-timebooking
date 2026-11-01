@@ -66,7 +66,7 @@ describe("order budget for the project manager", () => {
     const res = await budgetOf(portalId, await sessionCookieFor("pm@demo.local"))
 
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({
+    expect(await res.json()).toMatchObject({
       orderId: portalId,
       code: "PO-2026-001",
       title: "Customer portal relaunch",

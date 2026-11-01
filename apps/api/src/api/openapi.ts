@@ -12,6 +12,7 @@ import {
   createUserRequest,
   errorResponse,
   loginRequest,
+  orderBudgetDetailResponse,
   orderBudgetResponse,
   orderBookingResponse,
   orderIdParams,
@@ -172,7 +173,7 @@ export const routes: RouteDoc[] = [
   },
   {
     method: "get", path: "/api/orders", tag: "Orders", roles: ["purchasing"],
-    summary: "All orders with supplier, project manager, period and budget (sums only, no single bookings)",
+    summary: "All orders with supplier, project manager, period, budget and forecast (sums only, no single bookings)",
     success: { status: 200, description: "All orders, by code", schema: z.array(orderOverviewResponse) },
   },
   {
@@ -224,10 +225,10 @@ export const routes: RouteDoc[] = [
   },
   {
     method: "get", path: "/api/orders/{id}/budget", tag: "Orders",
-    summary: "Booked and remaining budget of one of your orders",
+    summary: "Booked and remaining budget of one of your orders, and how long it lasts at the current pace",
     roles: ["project_manager"],
     params: orderIdParams,
-    success: { status: 200, description: "Budget of the order", schema: orderBudgetResponse },
+    success: { status: 200, description: "Budget and forecast of the order", schema: orderBudgetDetailResponse },
     errors: {
       400: "The id is not a number",
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",

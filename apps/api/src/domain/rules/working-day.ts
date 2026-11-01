@@ -5,6 +5,11 @@ import { formatDay } from "../format.js"
 import { DomainError } from "../errors.js"
 import { nationwideHoliday } from "../public-holidays.js"
 
+/** The calendar of this rule, also used by the budget forecast: not a Sunday and not a public holiday. */
+export function isWorkingDay(date: string): boolean {
+  return new Date(`${date}T00:00:00Z`).getUTCDay() !== 0 && nationwideHoliday(date) === null
+}
+
 export function assertWorkingDay(workDate: string): void {
   const isSunday = new Date(`${workDate}T00:00:00Z`).getUTCDay() === 0
   if (isSunday) {

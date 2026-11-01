@@ -1,4 +1,5 @@
-// Purchasing home: what needs a follow-up order – orders running out of budget and orders whose period ends soon –
+// Purchasing home: what needs a follow-up order – orders whose budget runs out before they end (ADR 0015), orders
+// running out of budget and orders whose period ends soon –
 // plus the money in sum. Data: GET /api/orders (sums per order, no single bookings) and GET /api/suppliers.
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router"
@@ -38,6 +39,18 @@ export function PurchasingHome() {
       orders.loading,
     ],
   ] as const
+
+  // The most urgent first: the order that must be followed up soonest.
+  const runningOutEarly = list
+    .filter((o) => o.forecast.state === "runs_out_early")
+    .sort((a, b) => (a.forecast.orderMoreBy ?? "").localeCompare(b.forecast.orderMoreBy ?? ""))
+  const forecastNote = (o: { orderId: number }) => {
+    const { runsOutOn, orderMoreBy, leadTimeWeeks } = list.find((x) => x.orderId === o.orderId)!.forecast
+    const usedUp = t("home.purchasing.usedUpOn", { date: formatDate(runsOutOn ?? "") })
+    return orderMoreBy && orderMoreBy > today
+      ? `${usedUp} ${t("forecast.orderBy", { date: formatDate(orderMoreBy), weeks: leadTimeWeeks })}`
+      : `${usedUp} ${t("forecast.orderNow", { weeks: leadTimeWeeks })}`
+  }
 
   const lowBudget = list
     .filter((o) => o.usedPercent >= ATTENTION_PERCENT)
@@ -102,6 +115,20 @@ export function PurchasingHome() {
       </div>
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>{t("home.purchasing.runningOutEarly")}</CardTitle>
+            <CardDescription>{t("home.purchasing.runningOutEarlyDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {orders.loading ? (
+              <Skeleton className="h-16 w-full" />
+            ) : (
+              <OrderProgressList orders={runningOutEarly} note={forecastNote} empty={t("home.purchasing.noneRunningOut")} />
+            )}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>{t("home.purchasing.lowBudget")}</CardTitle>

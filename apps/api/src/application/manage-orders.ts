@@ -2,6 +2,8 @@
 // (docs/roles-and-privacy.md). The role check is in the route; the rules are in src/domain/rules.
 import { DomainError } from "../domain/errors.js"
 import { type OrderBudget, calculateOrderBudget } from "../domain/budget.js"
+import { type BudgetForecast, PACE_WINDOW_DAYS, forecastBudget } from "../domain/forecast.js"
+import { addDays } from "../domain/public-holidays.js"
 import type { Order, User } from "../domain/models.js"
 import { assertBudgetNotBelowBooked, assertSupplierUnchangedAfterBookings } from "../domain/rules/order-change.js"
 import { assertUniqueOrderCode, normalizeOrderCode } from "../domain/rules/order-code.js"
@@ -9,6 +11,7 @@ import { assertPeriodCoversBookings, assertValidOrderPeriod } from "../domain/ru
 import { assertIsProjectManager } from "../domain/rules/project-manager.js"
 import type { Db } from "../persistence/db.js"
 import { orderRepository, supplierRepository, timeEntryRepository, userRepository } from "../persistence/repositories.js"
+import { todayInCompanyTimeZone } from "./clock.js"
 import { NotFoundError } from "./errors.js"
 
 export type OrderInput = Omit<Order, "id">
@@ -16,21 +19,30 @@ export type OrderInput = Omit<Order, "id">
 export type OrderOverview = {
   order: Order
   budget: OrderBudget
+  forecast: BudgetForecast
   approvedMinutes: number // of the booked minutes, how many the project manager has approved (ticket #50)
   supplierName: string
   projectManagerName: string
 }
 
 /** All orders with their budget – purchasing follows up on every order, so it sees the sums of all of them. */
-export async function listAllOrders(db: Db): Promise<OrderOverview[]> {
+export async function listAllOrders(db: Db, leadTimeWeeks: number, today = todayInCompanyTimeZone()): Promise<OrderOverview[]> {
   const all = await orderRepository(db).findAll()
   const booked = await timeEntryRepository(db).sumMinutesPerOrder(all.map((o) => o.id))
   const approved = await timeEntryRepository(db).approvedMinutesPerOrder(all.map((o) => o.id))
+  const recent = await timeEntryRepository(db).minutesPerOrderSince(all.map((o) => o.id), addDays(today, 1 - PACE_WINDOW_DAYS))
   const suppliers = new Map((await supplierRepository(db).findAll()).map((s) => [s.id, s.name]))
   const users = new Map((await userRepository(db).findAll()).map((u) => [u.id, u.name]))
   return all.map((order) => ({
     order,
     budget: calculateOrderBudget(order, booked.get(order.id) ?? 0),
+    forecast: forecastBudget({
+      order,
+      bookedMinutes: booked.get(order.id) ?? 0,
+      minutesInPaceWindow: recent.get(order.id) ?? 0,
+      today,
+      leadTimeWeeks,
+    }),
     approvedMinutes: approved.get(order.id) ?? 0,
     supplierName: suppliers.get(order.supplierId) ?? "",
     projectManagerName: users.get(order.projectManagerId) ?? "",
