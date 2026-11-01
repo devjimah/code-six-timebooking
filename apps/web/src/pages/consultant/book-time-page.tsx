@@ -1,7 +1,7 @@
 // Consultant: book working time on an order of the own company (POST /api/time-entries, issue #12) and see the own
 // bookings (GET /api/time-entries/mine). The form only helps to get it right first time – the server checks every
-// rule again and answers with a reason we translate: 10 h per day, no Sundays or public holidays, no future dates,
-// inside the order's period, budget left, own company's order.
+// rule again and answers with a reason we translate: 10 h per day, no overlapping times, no Sundays or public
+// holidays, no future dates, inside the order's period, budget left, own company's order.
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { CircleAlert, Clock } from "lucide-react"
@@ -19,13 +19,14 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
 import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
-import { previewWorkedMinutes, todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { findOverlap, previewWorkedMinutes, suggestedStart, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
 import { BookingList, DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
 
 const BREAKS = ["0", "15", "30", "45", "60"] // minutes
-// After a booking, the times and the text start again; order and date stay for the next booking of the day.
+// After a booking, the times and the text start again; order and date stay for the next booking of the day,
+// which then starts where this one ended.
 const EMPTY_TIMES = { startTime: "09:00", endTime: "", breakMinutes: "0", description: "" }
 const DESCRIPTION_MIN = 10 // same limits as createTimeEntryRequest in the API
 const DESCRIPTION_MAX = 500
@@ -46,10 +47,16 @@ export function BookTimePage() {
 
   const order = orders.data?.find((o) => String(o.id) === form.orderId)
   const durationMinutes = previewWorkedMinutes(form.startTime, form.endTime, Number(form.breakMinutes))
-  const bookedThatDay = (entries.data ?? [])
-    .filter((e) => e.workDate === form.workDate)
-    .reduce((sum, e) => sum + e.durationMinutes, 0)
+  const entriesOn = (workDate: string) => (entries.data ?? []).filter((e) => e.workDate === workDate)
+  const bookedThatDay = entriesOn(form.workDate).reduce((sum, e) => sum + e.durationMinutes, 0)
   const overDailyLimit = bookedThatDay + durationMinutes > DAILY_LIMIT_MINUTES
+  const clash = findOverlap(form.startTime, form.endTime, entriesOn(form.workDate))
+  // Why "Book" stays disabled: both times are there, but nothing is worked in between.
+  const timesInvalid = form.endTime !== "" && durationMinutes === 0
+
+  // A new day starts where the last booking of that day ended – unless the times are already filled in.
+  const chooseDate = (workDate: string) =>
+    update(form.endTime === "" ? { workDate, startTime: suggestedStart(entriesOn(workDate)) } : { workDate })
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -57,7 +64,7 @@ export function BookTimePage() {
     setError(null)
     setSubmitting(true)
     try {
-      await api<TimeEntry>("/time-entries", {
+      const created = await api<TimeEntry>("/time-entries", {
         method: "POST",
         body: JSON.stringify({
           orderId: order.id,
@@ -69,7 +76,7 @@ export function BookTimePage() {
         }),
       })
       toast.success(t("booking.saved", { hours: formatHours(durationMinutes), code: order.code }))
-      update(EMPTY_TIMES)
+      update({ ...EMPTY_TIMES, startTime: created.endTime })
       entries.reload()
     } catch (caught) {
       setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
@@ -173,15 +180,30 @@ export function BookTimePage() {
                   <FieldDescription className="tabular-nums">
                     {t("booking.worked", { hours: formatHours(durationMinutes) })}
                   </FieldDescription>
+                  {/* The same checks as the server, before pressing "Book"; the server still decides. */}
+                  {clash && (
+                    <FieldDescription className="text-destructive">
+                      {t("booking.overlap", {
+                        start: clash.startTime,
+                        end: clash.endTime,
+                        code: orders.data?.find((o) => o.id === clash.orderId)?.code ?? "",
+                      })}
+                    </FieldDescription>
+                  )}
+                  {timesInvalid && (
+                    <FieldDescription className="text-destructive">{t("booking.timesInvalid")}</FieldDescription>
+                  )}
                 </FieldSet>
                 <FieldSet>
                   <FieldLegend variant="label">{t("booking.date")}</FieldLegend>
                   <BookingCalendar
                     value={form.workDate}
-                    onChange={(workDate) => update({ workDate })}
+                    onChange={chooseDate}
                     order={order}
                     today={today}
                     entries={entries.data ?? []}
+                    startTime={form.startTime}
+                    endTime={form.endTime}
                     durationMinutes={durationMinutes}
                   />
                   <ul className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">

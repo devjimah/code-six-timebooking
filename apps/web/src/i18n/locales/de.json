@@ -331,6 +331,8 @@
     "breakValue_one": "{{count}} Min.",
     "breakValue_other": "{{count}} Min.",
     "worked": "Gearbeitet: {{hours}}",
+    "overlap": "Überschneidet sich mit Ihrer Buchung {{start}}–{{end}} auf {{code}} an diesem Tag.",
+    "timesInvalid": "Das Ende muss nach dem Beginn liegen und die Pause kürzer sein als die Zeit dazwischen.",
     "date": "Datum",
     "dayProgress": "Gebuchte Zeit an diesem Tag",
     "alreadyBooked": "An diesem Tag schon gebucht: {{booked}} von höchstens {{limit}}.",
@@ -357,7 +359,8 @@
     "holiday": "Feiertag ({{name}}) – keine Arbeit an Sonn- und Feiertagen (ArbZG §9)",
     "booked": "Schon gebucht: {{booked}}",
     "conflict": "Konflikt: schon {{booked}} gebucht, mit dieser Buchung {{total}} – mehr als 10 Stunden",
-    "legendConflict": "Mit dieser Dauer über 10 Stunden",
+    "overlap": "Konflikt: Diese Zeiten überschneiden sich mit Ihrer Buchung {{start}}–{{end}}",
+    "legendConflict": "Mit diesen Zeiten überschneidend oder über 10 Stunden",
     "legendBlocked": "Nicht buchbar",
     "legendHours": "Zahl unter dem Tag = schon gebucht"
   },

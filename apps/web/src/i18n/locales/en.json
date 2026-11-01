@@ -331,6 +331,8 @@
     "breakValue_one": "{{count}} min",
     "breakValue_other": "{{count}} min",
     "worked": "Worked: {{hours}}",
+    "overlap": "Overlaps your booking {{start}}–{{end}} on {{code}} on this day.",
+    "timesInvalid": "The end must be after the start, and the break shorter than the time in between.",
     "date": "Date",
     "dayProgress": "Time booked on this day",
     "alreadyBooked": "Already booked on this day: {{booked}} of at most {{limit}}.",
@@ -357,7 +359,8 @@
     "holiday": "Public holiday ({{name}}) – no work on Sundays and public holidays (ArbZG §9)",
     "booked": "Already booked: {{booked}}",
     "conflict": "Conflict: {{booked}} already booked, {{total}} with this booking – more than 10 hours",
-    "legendConflict": "Over 10 hours with this duration",
+    "overlap": "Conflict: these times overlap your booking {{start}}–{{end}}",
+    "legendConflict": "Overlaps a booking or over 10 hours with these times",
     "legendBlocked": "Not bookable",
     "legendHours": "Number under the day = already booked"
   },
