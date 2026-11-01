@@ -34,6 +34,9 @@ const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   userId: r.userId,
   orderId: r.orderId,
   workDate: r.workDate,
+  startTime: r.startTime,
+  endTime: r.endTime,
+  breakMinutes: r.breakMinutes,
   durationMinutes: r.durationMinutes,
   description: r.description,
 })

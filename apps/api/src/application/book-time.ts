@@ -53,5 +53,9 @@ export async function bookTime(
 
   // Known gap (ADR 0006): two bookings saved at the same moment could both pass the checks.
   // Acceptable for the demo; production wraps check and insert in one transaction.
-  return entries.create({ userId: consultant.id, ...input })
+  // TEMPORARY (#20, step 2 of 7): the API still sends a duration only, so the booking starts at 09:00 like the
+  // migrated ones. Step 4 replaces this with the times the consultant enters.
+  const end = 9 * 60 + input.durationMinutes
+  const endTime = `${String(Math.floor(end / 60)).padStart(2, "0")}:${String(end % 60).padStart(2, "0")}`
+  return entries.create({ userId: consultant.id, ...input, startTime: "09:00", endTime, breakMinutes: 0 })
 }
