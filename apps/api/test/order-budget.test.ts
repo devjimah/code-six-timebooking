@@ -94,7 +94,8 @@ describe("order budget for the project manager", () => {
       body: JSON.stringify({
         orderId: portalId,
         workDate: "2026-10-23",
-        durationMinutes: 210,
+        startTime: "09:00",
+        endTime: "12:30",
         description: "Legacy data reconciliation",
       }),
     })

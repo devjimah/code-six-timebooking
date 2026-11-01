@@ -55,7 +55,12 @@ export function BookingList({ entries, orders, maxDays }: Props) {
                   <span className="text-muted-foreground block font-mono text-xs">{codeOf(entry.orderId)}</span>
                   <span className="block break-words">{entry.description}</span>
                 </span>
-                <span className="shrink-0 tabular-nums">{formatHours(entry.durationMinutes)}</span>
+                <span className="shrink-0 text-right tabular-nums">
+                  <span className="block">{formatHours(entry.durationMinutes)}</span>
+                  <span className="text-muted-foreground block text-xs">
+                    {t("booking.timeRange", { start: entry.startTime, end: entry.endTime })}
+                  </span>
+                </span>
               </li>
             ))}
           </ul>

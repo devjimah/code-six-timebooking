@@ -324,14 +324,14 @@
     "order": "Order",
     "chooseOrder": "Choose an order",
     "period": "Period: {{start}} – {{end}}",
+    "workingTime": "Working time",
+    "start": "Start",
+    "end": "End",
+    "break": "Break",
+    "breakValue_one": "{{count}} min",
+    "breakValue_other": "{{count}} min",
+    "worked": "Worked: {{hours}}",
     "date": "Date",
-    "duration": "Duration",
-    "hours": "Hours",
-    "minutes": "Minutes",
-    "hoursValue_one": "{{count}} hour",
-    "hoursValue_other": "{{count}} hours",
-    "minutesValue_one": "{{count}} minute",
-    "minutesValue_other": "{{count}} minutes",
     "dayProgress": "Time booked on this day",
     "alreadyBooked": "Already booked on this day: {{booked}} of at most {{limit}}.",
     "overLimit": "Too much: {{booked}} are already booked on this day, at most 10 hours are allowed.",
@@ -347,6 +347,7 @@
     "mine": "My bookings",
     "mineDescription": "Newest first, with the total per day.",
     "dayTotal": "{{booked}} / {{limit}}",
+    "timeRange": "{{start}}–{{end}}",
     "none": "No bookings yet."
   },
   "calendar": {
@@ -363,7 +364,6 @@
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
     "BUDGET_EXCEEDED": "Booking rejected: the free budget of this order is not enough.",
-    "INVALID_DURATION": "Booking rejected: the duration must be a positive number of whole minutes.",
     "ORDER_NOT_FOUND": "Booking rejected: this order does not exist.",
     "ORDER_NOT_ASSIGNED": "Booking rejected: you can only book on orders of your own company.",
     "DATE_IN_FUTURE": "Booking rejected: the date is in the future. Book time once the work is done.",
@@ -398,6 +398,9 @@
     "PASSWORD_CHANGE_REQUIRED": "Choose your own password first.",
     "CURRENT_PASSWORD_WRONG": "Your current password is wrong.",
     "NEW_PASSWORD_SAME_AS_CURRENT": "Choose a new password that differs from the current one.",
-    "CANNOT_RESET_OWN_PASSWORD": "You do not reset your own password – change it in your profile instead."
+    "CANNOT_RESET_OWN_PASSWORD": "You do not reset your own password – change it in your profile instead.",
+    "INVALID_TIME": "Booking rejected: please enter start and end as a time between 00:00 and 23:59.",
+    "END_NOT_AFTER_START": "Booking rejected: the end must be after the start on the same day.",
+    "INVALID_BREAK": "Booking rejected: the break must be shorter than the time between start and end."
   }
 }

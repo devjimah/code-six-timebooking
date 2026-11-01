@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldLegend } from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
 import { Progress } from "@workspace/ui/components/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -18,13 +19,14 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
 import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
-import { todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { previewWorkedMinutes, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
 import { BookingList, DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
 
-const HOURS = Array.from({ length: 11 }, (_, h) => String(h)) // 0 … 10
-const MINUTES = ["0", "15", "30", "45"]
+const BREAKS = ["0", "15", "30", "45", "60"] // minutes
+// After a booking, the times and the text start again; order and date stay for the next booking of the day.
+const EMPTY_TIMES = { startTime: "09:00", endTime: "", breakMinutes: "0", description: "" }
 const DESCRIPTION_MIN = 10 // same limits as createTimeEntryRequest in the API
 const DESCRIPTION_MAX = 500
 
@@ -34,7 +36,7 @@ export function BookTimePage() {
   const entries = useApi<TimeEntry[]>("/time-entries/mine")
   const today = todayInCompanyTimeZone()
 
-  const [form, setForm] = React.useState({ orderId: "", workDate: today, hours: "0", minutes: "0", description: "" })
+  const [form, setForm] = React.useState({ orderId: "", workDate: today, ...EMPTY_TIMES })
   const [error, setError] = React.useState<string | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
   const update = (changes: Partial<typeof form>) => setForm((current) => ({ ...current, ...changes }))
@@ -43,7 +45,7 @@ export function BookTimePage() {
   if (orders.data?.length === 1 && form.orderId === "") update({ orderId: String(orders.data[0]!.id) })
 
   const order = orders.data?.find((o) => String(o.id) === form.orderId)
-  const durationMinutes = Number(form.hours) * 60 + Number(form.minutes)
+  const durationMinutes = previewWorkedMinutes(form.startTime, form.endTime, Number(form.breakMinutes))
   const bookedThatDay = (entries.data ?? [])
     .filter((e) => e.workDate === form.workDate)
     .reduce((sum, e) => sum + e.durationMinutes, 0)
@@ -60,13 +62,14 @@ export function BookTimePage() {
         body: JSON.stringify({
           orderId: order.id,
           workDate: form.workDate,
-          durationMinutes,
+          startTime: form.startTime,
+          endTime: form.endTime,
+          breakMinutes: Number(form.breakMinutes),
           description: form.description,
         }),
       })
       toast.success(t("booking.saved", { hours: formatHours(durationMinutes), code: order.code }))
-      // Keep order and date: the next booking is often for the same day.
-      update({ hours: "0", minutes: "0", description: "" })
+      update(EMPTY_TIMES)
       entries.reload()
     } catch (caught) {
       setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
@@ -124,35 +127,52 @@ export function BookTimePage() {
                     </FieldDescription>
                   )}
                 </Field>
-                {/* Duration before the date: the calendar then shows the days where this duration would clash. */}
+                {/* Times before the date: the calendar then shows the days where this much time would clash. */}
                 <FieldSet>
-                  <FieldLegend variant="label">{t("booking.duration")}</FieldLegend>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Select value={form.hours} onValueChange={(hours) => update({ hours })}>
-                      <SelectTrigger className="w-full" aria-label={t("booking.hours")}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {HOURS.map((h) => (
-                          <SelectItem key={h} value={h}>
-                            {t("booking.hoursValue", { count: Number(h) })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={form.minutes} onValueChange={(minutes) => update({ minutes })}>
-                      <SelectTrigger className="w-full" aria-label={t("booking.minutes")}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MINUTES.map((m) => (
-                          <SelectItem key={m} value={m}>
-                            {t("booking.minutesValue", { count: Number(m) })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <FieldLegend variant="label">{t("booking.workingTime")}</FieldLegend>
+                  {/* Phones: start and end side by side, break below – three time fields do not fit in 390 px. */}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <Field>
+                      <FieldLabel htmlFor="booking-start">{t("booking.start")}</FieldLabel>
+                      <Input
+                        id="booking-start"
+                        type="time"
+                        step={900}
+                        required
+                        value={form.startTime}
+                        onChange={(e) => update({ startTime: e.target.value })}
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="booking-end">{t("booking.end")}</FieldLabel>
+                      <Input
+                        id="booking-end"
+                        type="time"
+                        step={900}
+                        required
+                        value={form.endTime}
+                        onChange={(e) => update({ endTime: e.target.value })}
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="booking-break">{t("booking.break")}</FieldLabel>
+                      <Select value={form.breakMinutes} onValueChange={(breakMinutes) => update({ breakMinutes })}>
+                        <SelectTrigger id="booking-break" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BREAKS.map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {t("booking.breakValue", { count: Number(m) })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
                   </div>
+                  <FieldDescription className="tabular-nums">
+                    {t("booking.worked", { hours: formatHours(durationMinutes) })}
+                  </FieldDescription>
                 </FieldSet>
                 <FieldSet>
                   <FieldLegend variant="label">{t("booking.date")}</FieldLegend>

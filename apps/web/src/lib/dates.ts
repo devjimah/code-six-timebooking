@@ -29,3 +29,18 @@ export function startOfWeek(isoDate: string): string {
 export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000)
 }
+
+/**
+ * Worked minutes of "HH:MM" start and end minus the break, for the form's preview only – 0 while the input is
+ * incomplete or makes no sense. The server derives the real duration and explains what is wrong (working-times.ts).
+ */
+export function previewWorkedMinutes(startTime: string, endTime: string, breakMinutes: number): number {
+  const toMinutes = (time: string) => {
+    const match = /^(\d{2}):(\d{2})$/.exec(time)
+    return match ? Number(match[1]) * 60 + Number(match[2]) : null
+  }
+  const start = toMinutes(startTime)
+  const end = toMinutes(endTime)
+  if (start === null || end === null) return 0
+  return Math.max(end - start - breakMinutes, 0)
+}

@@ -47,7 +47,7 @@ describe("OpenAPI document", () => {
   it("takes request rules from the same zod DTO the route validates with", () => {
     const body = (document.paths["/api/time-entries"]!.post as any).requestBody.content["application/json"].schema
 
-    expect(body.required).toEqual(["orderId", "workDate", "durationMinutes", "description"])
+    expect(body.required).toEqual(["orderId", "workDate", "startTime", "endTime", "description"])
     expect(body.properties.description).toMatchObject({ minLength: 10, maxLength: 500 })
     expect(body.properties.workDate.format).toBe("date")
   })

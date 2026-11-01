@@ -155,20 +155,22 @@ describe("what an audit event says", () => {
     const description = "Secret project detail that must not be logged"
     await post(
       "/api/time-entries",
-      { orderId: 1, workDate: "2026-10-27", durationMinutes: -30, description },
+      { orderId: 1, workDate: "2026-10-27", startTime: "13:47", endTime: "11:23", description },
       await sessionCookieFor("consultant@demo.local"),
     )
 
-    const event = await waitForEvent((e) => e.action === "time_entry.create" && e.errorCode === "INVALID_DURATION")
+    const event = await waitForEvent((e) => e.action === "time_entry.create" && e.errorCode === "END_NOT_AFTER_START")
 
     expect(event).toMatchObject({
       outcome: "rejected",
       statusCode: 422,
       targetType: "order",
       targetId: 1,
-      details: { workDate: "2026-10-27", durationMinutes: -30 },
+      details: { workDate: "2026-10-27" },
     })
+    // Neither the free text nor the personal start and end times (ADR 0010) are logged.
     expect(JSON.stringify(event)).not.toContain(description)
+    expect(JSON.stringify(event)).not.toMatch(/13:47|11:23/)
   })
 
   it("records a new account with its key facts and id, but not its password", async () => {

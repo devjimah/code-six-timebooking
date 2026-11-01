@@ -23,7 +23,8 @@ the accepting and the rejecting case.
 
 ## Decision
 
-We choose **option 3**, one file per rule: `daily-limit.ts`, `order-budget.ts` and `duration.ts`, with tests in
+We choose **option 3**, one file per rule: `daily-limit.ts`, `order-budget.ts` and `duration.ts` (since ADR 0010 replaced by
+`working-times.ts`, which derives the duration from start, end and break), with tests in
 `apps/api/test/domain/`. The use case loads the
 data and calls the rules before saving ([ADR 0007](0007-booking-use-case-and-validation.md)).
 

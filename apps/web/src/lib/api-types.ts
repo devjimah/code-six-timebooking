@@ -29,12 +29,16 @@ export type BookableOrder = {
   endDate: string
 }
 
-// GET /api/time-entries/mine and POST /api/time-entries (timeEntryResponse): the consultant's own booking
+// GET /api/time-entries/mine and POST /api/time-entries (timeEntryResponse): the consultant's own booking.
+// Start, end and break are only ever sent to the consultant (ADR 0010).
 export type TimeEntry = {
   id: number
   orderId: number
   workDate: string // "YYYY-MM-DD"
-  durationMinutes: number
+  startTime: string // "HH:MM"
+  endTime: string // "HH:MM"
+  breakMinutes: number
+  durationMinutes: number // end − start − break, derived by the server
   description: string
 }
 

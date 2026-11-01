@@ -27,7 +27,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See own bookings, with own totals per day, week and month | ✔ | – | – | – | built |
 | See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
 | See single bookings of an order (date, hours, description, consultant's name) | own only | ✔ own orders, no daily totals per person | – | – | built |
-| See start time, end time and break of a booking ([ADR 0010](adr/0010-time-entry-granularity.md)) | own only | – | – | – | planned (#20) |
+| See start time, end time and break of a booking ([ADR 0010](adr/0010-time-entry-granularity.md)) | own only | – | – | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
@@ -103,8 +103,8 @@ that is convenience, not security.
 
 | Route | Allowed for | Extra check |
 |---|---|---|
-| `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules |
-| `GET /api/time-entries/mine` | consultant | only own entries |
+| `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules; times not logged |
+| `GET /api/time-entries/mine` | consultant | only own entries – the only route that returns start, end and break |
 | `GET /api/public-holidays?year=` | consultant | – (the holidays the booking rule uses, for the calendar) |
 | `GET /api/orders/bookable` | consultant | only own supplier's orders, no money; the period, so the form offers only valid dates |
 | `GET /api/orders/managed` | project manager | only own orders |
@@ -112,7 +112,7 @@ that is convenience, not security.
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
 | `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
-| `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person |
+| `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `PUT /api/users/:id` | admin | role changes only without dependent bookings/orders; not own role |
 | `POST /api/users/:id/deactivate`, `.../reactivate` | admin | not yourself; not a project manager with orders |

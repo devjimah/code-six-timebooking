@@ -119,16 +119,23 @@ export const toAuditEventResponse = (event: AuditEvent): AuditEventResponse => (
 export const createTimeEntryRequest = z.object({
   orderId: z.number().int().positive(),
   workDate: z.iso.date(), // "YYYY-MM-DD"
-  // Only the type is checked here. What counts as a valid duration is a business rule (domain/rules/duration.ts).
-  durationMinutes: z.number(),
+  // Only the types are checked here. Valid times and breaks are a business rule (domain/rules/working-times.ts),
+  // which also derives the duration (ADR 0010).
+  startTime: z.string().meta({ example: "09:00" }),
+  endTime: z.string().meta({ example: "12:30" }),
+  breakMinutes: z.number().default(0),
   description: z.string().trim().min(10).max(500),
 })
 export type CreateTimeEntryRequest = z.infer<typeof createTimeEntryRequest>
 
+// Only ever sent to the consultant who booked it – the times are theirs alone (ADR 0010).
 export const timeEntryResponse = z.object({
   id: z.number().int(),
   orderId: z.number().int(),
   workDate: z.string().meta({ example: "2026-10-27" }),
+  startTime: z.string().meta({ example: "09:00" }),
+  endTime: z.string().meta({ example: "12:30" }),
+  breakMinutes: z.number().int(),
   durationMinutes: z.number().int(),
   description: z.string(),
 })
@@ -139,6 +146,9 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
   id: entry.id,
   orderId: entry.orderId,
   workDate: entry.workDate,
+  startTime: entry.startTime,
+  endTime: entry.endTime,
+  breakMinutes: entry.breakMinutes,
   durationMinutes: entry.durationMinutes,
   description: entry.description,
 })
@@ -200,6 +210,7 @@ export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => 
 
 // GET /api/orders/:id/time-entries – the project manager checks the work on their order.
 // The consultant's name, but not their email or user id; no totals per person (docs/roles-and-privacy.md).
+// The duration only – start, end and break are the consultant's alone (ADR 0010).
 export const orderBookingResponse = z.object({
   id: z.number().int(),
   workDate: z.string().meta({ example: "2026-10-27" }),
