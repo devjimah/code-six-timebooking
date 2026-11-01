@@ -4,6 +4,7 @@
 import { DomainError } from "../domain/errors.js"
 import type { TimeEntry, User } from "../domain/models.js"
 import { assertWithinDailyLimit } from "../domain/rules/daily-limit.js"
+import { assertNoOverlap } from "../domain/rules/no-overlap.js"
 import { assertAssignedToOrder } from "../domain/rules/order-assignment.js"
 import { assertWithinOrderBudget } from "../domain/rules/order-budget.js"
 import { assertWithinOrderPeriod } from "../domain/rules/order-period.js"
@@ -42,6 +43,11 @@ export async function bookTime(
   assertWithinOrderPeriod({ order, workDate: input.workDate })
 
   const entries = timeEntryRepository(db)
+  assertNoOverlap({
+    startTime: input.startTime,
+    endTime: input.endTime,
+    sameDayBookings: await entries.slotsForUserOnDate(consultant.id, input.workDate),
+  })
   assertWithinDailyLimit({
     workDate: input.workDate,
     alreadyBookedMinutes: await entries.sumMinutesForUserOnDate(consultant.id, input.workDate),

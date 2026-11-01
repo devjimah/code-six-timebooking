@@ -129,6 +129,24 @@ describe("rules enforced by the API", () => {
     expect((await res.json()).code).toBe("DAILY_LIMIT_EXCEEDED")
   })
 
+  it("rejects a booking that overlaps the consultant's booking on another order, and names it (#54)", async () => {
+    // 27 Oct: 09:00–17:00 already booked on PO-2026-001
+    const res = await book(booking({ orderId: orderId["PO-2026-002"], workDate: "2026-10-27", startTime: "16:00", endTime: "17:30" }))
+
+    expect(res.status).toBe(422)
+    expect(await res.json()).toEqual({
+      code: "BOOKING_OVERLAP",
+      message: "Booking rejected: 16:00–17:30 overlaps your booking 09:00–17:00 on PO-2026-001.",
+    })
+  })
+
+  it("accepts a booking that starts when the previous one ends", async () => {
+    // 28 Oct: 09:00–13:00 already booked on PO-2026-002
+    const res = await book(booking({ workDate: "2026-10-28", startTime: "13:00", endTime: "14:00" }))
+
+    expect(res.status).toBe(201)
+  })
+
   it("accepts the free budget exactly, then rejects the next booking on that order", async () => {
     // "SAP data migration": 40 h budget, 4 h used → 36 h free = 3 × 10 h + 6 h
     const sap = orderId["PO-2026-002"]
