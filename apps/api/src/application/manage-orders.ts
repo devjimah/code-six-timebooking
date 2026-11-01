@@ -16,6 +16,7 @@ export type OrderInput = Omit<Order, "id">
 export type OrderOverview = {
   order: Order
   budget: OrderBudget
+  approvedMinutes: number // of the booked minutes, how many the project manager has approved (ticket #50)
   supplierName: string
   projectManagerName: string
 }
@@ -24,11 +25,13 @@ export type OrderOverview = {
 export async function listAllOrders(db: Db): Promise<OrderOverview[]> {
   const all = await orderRepository(db).findAll()
   const booked = await timeEntryRepository(db).sumMinutesPerOrder(all.map((o) => o.id))
+  const approved = await timeEntryRepository(db).approvedMinutesPerOrder(all.map((o) => o.id))
   const suppliers = new Map((await supplierRepository(db).findAll()).map((s) => [s.id, s.name]))
   const users = new Map((await userRepository(db).findAll()).map((u) => [u.id, u.name]))
   return all.map((order) => ({
     order,
     budget: calculateOrderBudget(order, booked.get(order.id) ?? 0),
+    approvedMinutes: approved.get(order.id) ?? 0,
     supplierName: suppliers.get(order.supplierId) ?? "",
     projectManagerName: users.get(order.projectManagerId) ?? "",
   }))

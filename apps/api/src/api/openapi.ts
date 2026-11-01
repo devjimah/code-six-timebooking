@@ -28,6 +28,10 @@ import {
   supplierRequest,
   supplierResponse,
   timeEntryResponse,
+  approveOpenResponse,
+  bookingReviewResponse,
+  returnBookingRequest,
+  timeEntryIdParams,
   userResponse,
 } from "./dto.js"
 
@@ -239,6 +243,42 @@ export const routes: RouteDoc[] = [
       400: "The id is not a number",
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
       404: "The order does not exist (ORDER_NOT_FOUND)",
+    },
+  },
+  {
+    method: "post", path: "/api/orders/{id}/time-entries/approve-open", tag: "Orders", roles: ["project_manager"],
+    summary: "Approve all open bookings of your own order; returned ones stay with the consultant",
+    params: orderIdParams,
+    success: { status: 200, description: "How many were approved", schema: approveOpenResponse },
+    errors: {
+      400: "The id is not a number",
+      403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
+      404: "The order does not exist (ORDER_NOT_FOUND)",
+    },
+  },
+  {
+    method: "post", path: "/api/time-entries/{id}/approve", tag: "Time entries", roles: ["project_manager"],
+    summary: "Approve an open booking on your own order",
+    params: timeEntryIdParams,
+    success: { status: 200, description: "Approved", schema: bookingReviewResponse },
+    errors: {
+      400: "The id is not a number",
+      403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
+      404: "The booking does not exist (TIME_ENTRY_NOT_FOUND)",
+      422: "The booking is not open (BOOKING_NOT_OPEN)",
+    },
+  },
+  {
+    method: "post", path: "/api/time-entries/{id}/return", tag: "Time entries", roles: ["project_manager"],
+    summary: "Return an open booking on your own order to the consultant, with a reason",
+    params: timeEntryIdParams,
+    body: returnBookingRequest,
+    success: { status: 200, description: "Returned", schema: bookingReviewResponse },
+    errors: {
+      400: "The id is not a number, or no reason was sent",
+      403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
+      404: "The booking does not exist (TIME_ENTRY_NOT_FOUND)",
+      422: "The booking is not open (BOOKING_NOT_OPEN), or the reason is empty (RETURN_REASON_REQUIRED)",
     },
   },
   {

@@ -7,7 +7,7 @@ import type { Db } from "../persistence/db.js"
 import { timeEntryRepository } from "../persistence/repositories.js"
 import { loadOwnOrder } from "./own-order.js"
 
-export type OrderBooking = Pick<TimeEntry, "id" | "workDate" | "durationMinutes" | "description"> & {
+export type OrderBooking = Pick<TimeEntry, "id" | "workDate" | "durationMinutes" | "description" | "status" | "returnReason"> & {
   consultantName: string
 }
 

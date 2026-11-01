@@ -54,6 +54,16 @@ export function BookingList({ entries, orders, maxDays }: Props) {
                 <span className="min-w-0">
                   <span className="text-muted-foreground block font-mono text-xs">{codeOf(entry.orderId)}</span>
                   <span className="block break-words">{entry.description}</span>
+                  {entry.status !== "open" && (
+                    <Badge variant={entry.status === "returned" ? "destructive" : "secondary"} className="mt-1">
+                      {t(`booking.status.${entry.status}`)}
+                    </Badge>
+                  )}
+                  {entry.returnReason && (
+                    <span className="text-destructive mt-1 block text-xs break-words">
+                      {t("booking.returnReason", { reason: entry.returnReason })}
+                    </span>
+                  )}
                 </span>
                 <span className="shrink-0 text-right tabular-nums">
                   <span className="block">{formatHours(entry.durationMinutes)}</span>

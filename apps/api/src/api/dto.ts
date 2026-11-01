@@ -128,6 +128,8 @@ export const createTimeEntryRequest = z.object({
 })
 export type CreateTimeEntryRequest = z.infer<typeof createTimeEntryRequest>
 
+const bookingStatus = z.enum(["open", "approved", "returned"])
+
 // Only ever sent to the consultant who booked it – the times are theirs alone (ADR 0010).
 export const timeEntryResponse = z.object({
   id: z.number().int(),
@@ -138,6 +140,8 @@ export const timeEntryResponse = z.object({
   breakMinutes: z.number().int(),
   durationMinutes: z.number().int(),
   description: z.string(),
+  status: bookingStatus,
+  returnReason: z.string().nullable().meta({ description: "Why the project manager returned it" }),
 })
 export type TimeEntryResponse = z.infer<typeof timeEntryResponse>
 
@@ -151,7 +155,30 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
   breakMinutes: entry.breakMinutes,
   durationMinutes: entry.durationMinutes,
   description: entry.description,
+  status: entry.status,
+  returnReason: entry.returnReason,
 })
+
+// GET /api/time-entries/:id – the id arrives as text in the URL.
+export const timeEntryIdParams = z.object({ id: z.coerce.number().int().positive() })
+
+// POST /api/time-entries/:id/return – that the reason is not empty is a business rule (booking-review.ts).
+export const returnBookingRequest = z.object({ reason: z.string().max(500) })
+
+// The answer to approve and return: no times, the project manager never gets them (ADR 0010).
+export const bookingReviewResponse = z.object({
+  id: z.number().int(),
+  status: bookingStatus,
+  returnReason: z.string().nullable(),
+})
+export const toBookingReviewResponse = (entry: TimeEntry): z.infer<typeof bookingReviewResponse> => ({
+  id: entry.id,
+  status: entry.status,
+  returnReason: entry.returnReason,
+})
+
+// POST /api/orders/:id/time-entries/approve-open
+export const approveOpenResponse = z.object({ approved: z.number().int().meta({ description: "How many were approved" }) })
 
 // GET /api/orders/bookable – what a consultant needs to pick an order. No rate and no money:
 // prices are agreed between the client and the supplier's management, not shown to every consultant.
@@ -216,6 +243,8 @@ export const orderBookingResponse = z.object({
   workDate: z.string().meta({ example: "2026-10-27" }),
   durationMinutes: z.number().int(),
   description: z.string(),
+  status: bookingStatus,
+  returnReason: z.string().nullable(),
   consultantName: z.string(),
 })
 
@@ -267,6 +296,8 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
 
 // GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
 export const orderOverviewResponse = orderBudgetResponse.extend({
+  approvedHours: z.number().meta({ description: "Booked hours the project manager has approved" }),
+  notApprovedHours: z.number().meta({ description: "Booked hours still open or returned" }),
   supplierId: z.number().int(),
   supplierName: z.string(),
   projectManagerId: z.number().int(),
@@ -279,10 +310,13 @@ export const orderOverviewResponse = orderBudgetResponse.extend({
 export const toOrderOverviewResponse = (row: {
   order: Order
   budget: OrderBudget
+  approvedMinutes: number
   supplierName: string
   projectManagerName: string
 }): z.infer<typeof orderOverviewResponse> => ({
   ...toOrderBudgetResponse(row.order, row.budget),
+  approvedHours: hours(row.approvedMinutes),
+  notApprovedHours: hours(row.budget.bookedMinutes - row.approvedMinutes),
   supplierId: row.order.supplierId,
   supplierName: row.supplierName,
   projectManagerId: row.order.projectManagerId,

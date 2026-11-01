@@ -21,6 +21,9 @@ export const ACTION_LABELS = {
   "supplier.update": "auditActions.supplier.update",
   "time_entry.create": "auditActions.time_entry.create",
   "time_entry.list_own": "auditActions.time_entry.list_own",
+  "time_entry.approve": "auditActions.time_entry.approve",
+  "time_entry.return": "auditActions.time_entry.return",
+  "order.approve_open": "auditActions.order.approve_open",
   "order.list_all": "auditActions.order.list_all",
   "order.create": "auditActions.order.create",
   "order.update": "auditActions.order.update",
@@ -51,6 +54,7 @@ export function targetLabel(t: TFunction, event: AuditEvent, users: User[] | und
   }
   if (event.targetType === "order") return t("audit.target.order", { id: event.targetId })
   if (event.targetType === "supplier") return t("audit.target.supplier", { id: event.targetId })
+  if (event.targetType === "time_entry") return t("audit.target.timeEntry", { id: event.targetId })
   return `${event.targetType} #${event.targetId}`
 }
 
@@ -65,6 +69,7 @@ const DETAIL_LABELS = {
   workDate: "audit.details.workDate",
   durationMinutes: "audit.details.durationMinutes",
   timeEntryId: "audit.details.timeEntryId",
+  approved: "audit.details.approved",
   code: "audit.details.code",
   projectManagerId: "audit.details.projectManagerId",
   budgetHours: "audit.details.budgetHours",

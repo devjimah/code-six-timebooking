@@ -39,6 +39,8 @@ const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   breakMinutes: r.breakMinutes,
   durationMinutes: r.durationMinutes,
   description: r.description,
+  status: r.status,
+  returnReason: r.returnReason,
 })
 
 export function supplierRepository(db: Db) {
@@ -148,9 +150,26 @@ export function orderRepository(db: Db) {
 
 export function timeEntryRepository(db: Db) {
   return {
-    async create(data: NewOf<TimeEntry>) {
+    /** New bookings are always open. */
+    async create(data: Omit<NewOf<TimeEntry>, "status" | "returnReason">) {
       const [row] = await db.insert(timeEntries).values(data).returning()
       return toTimeEntry(row!)
+    },
+    async findById(id: number) {
+      const [row] = await db.select().from(timeEntries).where(eq(timeEntries.id, id))
+      return row ? toTimeEntry(row) : null
+    },
+    async setReview(id: number, data: Pick<TimeEntry, "status" | "returnReason">) {
+      const [row] = await db.update(timeEntries).set(data).where(eq(timeEntries.id, id)).returning()
+      return toTimeEntry(row!)
+    },
+    /** Approves every open booking of the order in one statement. Returns how many. */
+    async approveOpenOfOrder(orderId: number) {
+      const result = await db
+        .update(timeEntries)
+        .set({ status: "approved" })
+        .where(and(eq(timeEntries.orderId, orderId), eq(timeEntries.status, "open")))
+      return result.rowsAffected
     },
     /** Newest work date first. */
     async findByUser(userId: number) {
@@ -217,6 +236,16 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
+    /** Approved minutes per order, for purchasing's overview. Orders without approved bookings are missing. */
+    async approvedMinutesPerOrder(orderIds: number[]) {
+      if (orderIds.length === 0) return new Map<number, number>()
+      const rows = await db
+        .select({ orderId: timeEntries.orderId, total: sql<number>`sum(${timeEntries.durationMinutes})` })
+        .from(timeEntries)
+        .where(and(inArray(timeEntries.orderId, orderIds), eq(timeEntries.status, "approved")))
+        .groupBy(timeEntries.orderId)
+      return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
+    },
     /** Bookings of one order with the consultant's name, newest work date first. No email, no user id. */
     async findByOrderWithConsultantName(orderId: number) {
       const rows = await db
@@ -225,6 +254,8 @@ export function timeEntryRepository(db: Db) {
           workDate: timeEntries.workDate,
           durationMinutes: timeEntries.durationMinutes,
           description: timeEntries.description,
+          status: timeEntries.status,
+          returnReason: timeEntries.returnReason,
           consultantName: users.name,
         })
         .from(timeEntries)

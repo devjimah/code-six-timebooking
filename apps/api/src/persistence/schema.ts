@@ -88,6 +88,9 @@ export const auditEvents = sqliteTable("audit_events", {
   userAgent: text("user_agent"),
 })
 
+// Check and approve (ADR 0014): new bookings are open; the project manager approves or returns them.
+export const BOOKING_STATUSES = ["open", "approved", "returned"] as const
+
 // One booking: exactly one user, one order, a date, start and end time, a duration and a description.
 export const timeEntries = sqliteTable("time_entries", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -105,6 +108,9 @@ export const timeEntries = sqliteTable("time_entries", {
   // Derived: end − start − break. Stored so budget and daily sums stay simple SQL sums.
   durationMinutes: integer("duration_minutes").notNull(),
   description: text("description").notNull(),
+  status: text("status", { enum: BOOKING_STATUSES }).notNull().default("open"),
+  // Why the project manager returned it; null otherwise. Shown to the consultant, never logged (free text).
+  returnReason: text("return_reason"),
   ...timestamps,
 })
 

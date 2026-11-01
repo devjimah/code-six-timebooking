@@ -132,6 +132,12 @@ export function OrdersPage() {
                           t("orders.left", { hours: formatHours(order.remainingHours * 60) })
                         )}
                       </span>
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {t("orders.approvalSplit", {
+                          approved: formatHours((order.approvedHours ?? 0) * 60),
+                          open: formatHours((order.notApprovedHours ?? 0) * 60),
+                        })}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className="pr-4">

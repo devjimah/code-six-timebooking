@@ -33,6 +33,9 @@ export interface Order {
   endDate: string // "YYYY-MM-DD", last day work may be booked
 }
 
+/** Check and approve (ADR 0014): open → approved, or open → returned → (corrected) → open. */
+export type BookingStatus = "open" | "approved" | "returned"
+
 export interface TimeEntry {
   id: number
   userId: number
@@ -43,6 +46,8 @@ export interface TimeEntry {
   breakMinutes: number
   durationMinutes: number // end − start − break
   description: string
+  status: BookingStatus
+  returnReason: string | null // why the project manager returned it; null otherwise
 }
 
 /** success = 2xx/3xx · rejected = other 4xx (invalid input, broken rule) · denied = 401/403 · error = 5xx */

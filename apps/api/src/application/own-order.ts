@@ -11,7 +11,7 @@ export async function loadOwnOrder(db: Db, projectManager: User, orderId: number
     throw new NotFoundError("ORDER_NOT_FOUND", `Order ${orderId} does not exist.`)
   }
   if (order.projectManagerId !== projectManager.id) {
-    throw new AccessDeniedError("NOT_YOUR_ORDER", "Only the project manager of this order can see its budget and bookings.")
+    throw new AccessDeniedError("NOT_YOUR_ORDER", "Only the project manager of this order can see its budget and check its bookings.")
   }
   return order
 }

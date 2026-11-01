@@ -1,11 +1,18 @@
-// POST /api/time-entries and GET /api/time-entries/mine – consultants only (ticket #12).
+// Consultants book and see their own time (ticket #12); project managers approve or return it (ticket #50).
 import { Router } from "express"
 import { bookTime } from "../application/book-time.js"
+import { approveBooking, returnBooking } from "../application/review-bookings.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
 import { timeEntryRepository } from "../persistence/repositories.js"
-import { createTimeEntryRequest, toTimeEntryResponse } from "./dto.js"
+import {
+  createTimeEntryRequest,
+  returnBookingRequest,
+  timeEntryIdParams,
+  toBookingReviewResponse,
+  toTimeEntryResponse,
+} from "./dto.js"
 
 export function timeEntryRoutes(db: Db) {
   const router = Router()
@@ -24,6 +31,20 @@ export function timeEntryRoutes(db: Db) {
   router.get("/mine", requireRole("consultant"), async (req, res) => {
     const entries = await timeEntryRepository(db).findByUser(req.user!.id)
     res.json(entries.map(toTimeEntryResponse))
+  })
+
+  // Role check here; "is it your order?" in the use case (403 NOT_YOUR_ORDER). The reason is free text: not logged.
+  router.post("/:id/approve", requireRole("project_manager"), async (req, res) => {
+    const { id } = timeEntryIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "time_entry", targetId: id })
+    res.json(toBookingReviewResponse(await approveBooking(db, req.user!, id)))
+  })
+
+  router.post("/:id/return", requireRole("project_manager"), async (req, res) => {
+    const { id } = timeEntryIdParams.parse(req.params)
+    const { reason } = returnBookingRequest.parse(req.body)
+    setAuditContext(res, { targetType: "time_entry", targetId: id })
+    res.json(toBookingReviewResponse(await returnBooking(db, req.user!, id, reason)))
   })
 
   return router
