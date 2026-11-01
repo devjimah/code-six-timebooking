@@ -21,11 +21,69 @@
   },
   "home": {
     "welcome": "Welcome, {{name}}",
-    "signedInAs": "Signed in as {{email}} · {{role}}"
+    "loadFailed": "The overview could not be loaded",
+    "all": "All",
+    "attention": "Needs attention",
+    "ended": "Ended",
+    "startsOn": "Starts on {{date}}",
+    "endsIn_one": "Ends tomorrow",
+    "endsIn_other": "Ends in {{count}} days",
+    "endsOn_one": "Ends on {{date}} (tomorrow)",
+    "endsOn_other": "Ends on {{date}} (in {{count}} days)",
+    "consultant": {
+      "intro": "Your working time at a glance. Only you see your daily and weekly totals.",
+      "today": "Today",
+      "week": "This week",
+      "month": "This month",
+      "ofLimit": "of at most {{limit}} a day",
+      "latest": "Latest bookings",
+      "orders": "Your orders",
+      "ordersDescription": "Orders of your company you can book on – each only within its period."
+    },
+    "pm": {
+      "intro": "The budget of your orders and what to check.",
+      "orders": "Orders",
+      "booked": "Booked",
+      "bookedOf": "{{booked}} of {{budget}}",
+      "remaining": "Still free",
+      "attentionDescription": "Orders with {{percent}} % or more of the budget used – a follow-up order may be needed soon.",
+      "allFine": "All orders still have enough budget.",
+      "ordersDescription": "Tap an order to check the work booked on it."
+    },
+    "purchasing": {
+      "intro": "Where a follow-up order will be needed soon.",
+      "running": "Running orders",
+      "suppliers": "Suppliers",
+      "used": "Used",
+      "usedOf": "{{booked}} of {{budget}}",
+      "lowBudget": "Running low on budget",
+      "lowBudgetDescription": "{{percent}} % or more used.",
+      "noLowBudget": "No order is running low.",
+      "endingSoon": "Ending soon",
+      "endingSoonDescription": "Running orders whose period ends within the next {{days}} days.",
+      "noneEnding": "No order ends soon.",
+      "allDescription": "All orders with budget and period, the ones ending first on top."
+    },
+    "admin": {
+      "intro": "Accounts and security at a glance. Admins see no business data such as bookings or budgets.",
+      "active": "Active accounts",
+      "waiting": "Waiting for own password",
+      "deactivated": "Deactivated",
+      "lastDay": "Last 24 hours",
+      "lastDayDescription": "From the audit log: sign-ins and what was refused.",
+      "signIns": "Sign-ins",
+      "failedSignIns": "Failed sign-ins",
+      "refused": "Refused requests",
+      "errors": "Errors",
+      "nothingNotable": "Nothing notable.",
+      "byRole": "Active accounts by role",
+      "byRoleDescription": "Deactivated accounts are not counted."
+    }
   },
   "roles": {
     "consultant": "Consultant",
     "project_manager": "Project manager",
+    "purchasing": "Purchasing",
     "admin": "Admin"
   },
   "logout": "Sign out",
@@ -34,12 +92,18 @@
     "role": "Role",
     "email": "Email",
     "close": "Close",
-    "company": "Company"
+    "company": "Company",
+    "password": "Password",
+    "passwordTemporary": "Set by an admin – will be changed at the next sign-in"
   },
   "nav": {
     "home": "Home",
     "users": "Users",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "suppliers": "Suppliers",
+    "orders": "Orders",
+    "myOrders": "My orders",
+    "bookTime": "Book time"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -49,13 +113,34 @@
     "chooseSupplier": "Choose a supplier",
     "supplierHint": "Consultants always belong to a supplier.",
     "initialPassword": "Initial password",
-    "passwordHint": "10 to 72 characters.",
+    "passwordHint": "10 to 72 characters. The person chooses their own password at the first sign-in.",
     "create": "Create account",
     "creating": "Creating …",
     "cancel": "Cancel",
     "created": "Account for {{name}} created.",
     "client": "Client",
-    "loadFailed": "Users could not be loaded"
+    "loadFailed": "Users could not be loaded",
+    "edit": "Edit {{name}}",
+    "editButton": "Edit",
+    "editDescription": "Change name, email, role and company. The password stays as it is.",
+    "saved": "Account of {{name}} saved.",
+    "ownRoleHint": "You cannot change your own role – ask another admin.",
+    "roleChangeHint": "The role only changes while nothing depends on it: no bookings of a consultant, no orders of a project manager.",
+    "deactivate": "Deactivate",
+    "deactivateTitle": "Deactivate {{name}}?",
+    "deactivateDescription": "The person is signed out at once and can no longer sign in. Their bookings and audit entries stay. You can reactivate the account later.",
+    "deactivatedToast": "{{name}} is deactivated.",
+    "reactivate": "Reactivate",
+    "reactivated": "{{name}} is active again.",
+    "deactivated": "Deactivated",
+    "status": "Status",
+    "deactivatedSince": "Deactivated since {{date}}",
+    "resetButton": "Reset password",
+    "resetTitle": "Reset password of {{name}}",
+    "resetDescription": "Type a new password and hand it to the person yourself. They are signed out everywhere at once and choose their own password at the next sign-in.",
+    "newPassword": "New password",
+    "passwordReset": "Password of {{name}} reset. The person is signed out.",
+    "resetHint": "10 to 72 characters."
   },
   "audit": {
     "description": "Every action in the API: who, what, on what, with which result and why – newest first. Tap a row for all details.",
@@ -89,7 +174,8 @@
     "showDetails": "Show details",
     "target": {
       "user": "User #{{id}}",
-      "order": "Order #{{id}}"
+      "order": "Order #{{id}}",
+      "supplier": "Supplier #{{id}}"
     },
     "details": {
       "email": "Email",
@@ -97,21 +183,36 @@
       "supplierId": "Supplier no.",
       "workDate": "Work date",
       "durationMinutes": "Duration",
-      "timeEntryId": "Booking no."
+      "timeEntryId": "Booking no.",
+      "name": "Name",
+      "code": "Order number",
+      "projectManagerId": "Project manager no.",
+      "budgetHours": "Budget",
+      "hourlyRateCents": "Hourly rate",
+      "startDate": "Start",
+      "endDate": "End"
     }
   },
   "auditActions": {
     "auth": {
       "login": "Sign-in",
       "logout": "Sign-out",
-      "session": "Session checked"
+      "session": "Session checked",
+      "change_password": "Changed own password"
     },
     "user": {
       "list": "Viewed users",
-      "create": "Created user"
+      "create": "Created user",
+      "list_project_managers": "Viewed project managers",
+      "update": "Changed user",
+      "deactivate": "Deactivated user",
+      "reactivate": "Reactivated user",
+      "reset_password": "Reset password"
     },
     "supplier": {
-      "list": "Viewed suppliers"
+      "list": "Viewed suppliers",
+      "create": "Created supplier",
+      "update": "Renamed supplier"
     },
     "time_entry": {
       "create": "Booked time",
@@ -120,14 +221,144 @@
     "order": {
       "list_bookable": "Viewed bookable orders",
       "list_managed": "Viewed own orders",
-      "view_budget": "Viewed budget"
+      "view_budget": "Viewed budget",
+      "list_all": "Viewed all orders",
+      "create": "Placed order",
+      "update": "Changed order",
+      "view_bookings": "Viewed bookings of an order"
     },
     "audit": {
       "view": "Viewed audit log"
     },
     "request": {
       "unknown_route": "Called unknown address"
+    },
+    "calendar": {
+      "list_holidays": "Viewed public holidays"
     }
+  },
+  "suppliers": {
+    "description": "The companies orders are placed with. Tap a name to change it.",
+    "new": "New supplier",
+    "newDescription": "Add a company you order services from.",
+    "rename": "Rename supplier",
+    "renameNamed": "Rename {{name}}",
+    "renameDescription": "The new name applies at once to all orders and consultants of this company.",
+    "name": "Name",
+    "create": "Create",
+    "save": "Save",
+    "saving": "Saving …",
+    "created": "{{name}} created.",
+    "renamed": "Renamed to {{name}}.",
+    "empty": "No suppliers yet.",
+    "loadFailed": "Suppliers could not be loaded"
+  },
+  "orders": {
+    "description": "All orders with their budget – sums only, no single bookings. Tap an order to change it.",
+    "new": "New order",
+    "newDescription": "Order services from a supplier, with a budget and a period.",
+    "edit": "Change order {{code}}",
+    "editBooked": "{{hours}} are already booked on this order: the budget cannot shrink below that, the supplier is fixed, and the period must include all bookings.",
+    "change": "Change",
+    "order": "Order",
+    "code": "Order number",
+    "title": "Title",
+    "supplier": "Supplier",
+    "supplierLocked": "Time has been booked – the supplier can no longer be changed.",
+    "projectManager": "Project manager",
+    "choosePm": "Choose a project manager",
+    "budgetHours": "Budget (hours)",
+    "hourlyRate": "Hourly rate (€)",
+    "budgetPreview": "Total budget: {{amount}}",
+    "startDate": "Start",
+    "endDate": "End",
+    "period": "Period",
+    "used": "Used",
+    "usedOf": "{{percent}} % of the budget of {{code}} used",
+    "left": "{{hours}} left",
+    "overBudget": "Over budget",
+    "totalOrdered": "Ordered",
+    "totalBooked": "Booked",
+    "totalRemaining": "Free",
+    "create": "Place order",
+    "created": "Order {{code}} created.",
+    "saved": "Order {{code}} saved.",
+    "empty": "No orders yet.",
+    "loadFailed": "Orders could not be loaded"
+  },
+  "myOrders": {
+    "description": "The orders you are responsible for. Tap an order to check the work booked on it.",
+    "open": "Open",
+    "openNamed": "Open order {{code}}",
+    "empty": "You are not responsible for any order.",
+    "back": "My orders",
+    "budget": "Budget",
+    "bookings": "Booked work",
+    "privacyNote": "Each booking on its own, to check the work. On purpose without daily or weekly totals per person: you check the work, not the consultants' working hours.",
+    "date": "Date",
+    "consultant": "Consultant",
+    "work": "Work done",
+    "hours": "Hours",
+    "noBookings": "No time has been booked on this order yet.",
+    "loadFailed": "The order could not be loaded"
+  },
+  "password": {
+    "title": "Change password",
+    "titleForced": "Choose your own password",
+    "description": "You will be signed out in all other browsers.",
+    "descriptionForced": "Welcome, {{name}}. Your admin set your password. Choose your own before you continue – then only you know it.",
+    "current": "Current password",
+    "currentForced": "Password from your admin",
+    "new": "New password",
+    "hint": "10 to 72 characters, different from the current one.",
+    "repeat": "Repeat new password",
+    "mismatch": "The two passwords do not match.",
+    "save": "Save password",
+    "saving": "Saving …",
+    "failed": "Password not changed",
+    "changed": "Your password has been changed."
+  },
+  "booking": {
+    "title": "Book time",
+    "description": "Book your working time on an order of your company.",
+    "order": "Order",
+    "chooseOrder": "Choose an order",
+    "period": "Period: {{start}} – {{end}}",
+    "date": "Date",
+    "duration": "Duration",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "hoursValue_one": "{{count}} hour",
+    "hoursValue_other": "{{count}} hours",
+    "minutesValue_one": "{{count}} minute",
+    "minutesValue_other": "{{count}} minutes",
+    "dayProgress": "Time booked on this day",
+    "alreadyBooked": "Already booked on this day: {{booked}} of at most {{limit}}.",
+    "overLimit": "Too much: {{booked}} are already booked on this day, at most 10 hours are allowed.",
+    "work": "What did you work on?",
+    "workPlaceholder": "e.g. built and tested the login page",
+    "workHint": "{{count}} / {{max}} characters, at least 10.",
+    "submit": "Book",
+    "saving": "Booking …",
+    "saved": "{{hours}} booked on {{code}}.",
+    "rejected": "Not booked",
+    "noOrders": "There is no order for your company right now.",
+    "loadFailed": "Data could not be loaded",
+    "mine": "My bookings",
+    "mineDescription": "Newest first, with the total per day.",
+    "dayTotal": "{{booked}} / {{limit}}",
+    "none": "No bookings yet."
+  },
+  "calendar": {
+    "future": "In the future – time is booked once it has been worked",
+    "outsidePeriod": "Outside the order's period",
+    "sunday": "Sunday – no work on Sundays and public holidays (ArbZG §9)",
+    "holiday": "Public holiday ({{name}}) – no work on Sundays and public holidays (ArbZG §9)",
+    "booked": "Already booked: {{booked}}",
+    "conflict": "Conflict: {{booked}} already booked, {{total}} with this booking – more than 10 hours",
+    "legendConflict": "Over 10 hours with this duration",
+    "legendBlocked": "Not bookable",
+    "legendHours": "Number under the day = already booked"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
@@ -136,11 +367,11 @@
     "ORDER_NOT_FOUND": "Booking rejected: this order does not exist.",
     "ORDER_NOT_ASSIGNED": "Booking rejected: you can only book on orders of your own company.",
     "DATE_IN_FUTURE": "Booking rejected: the date is in the future. Book time once the work is done.",
-    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget.",
+    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget and bookings.",
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again.",
     "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers and admins work for the client; leave the supplier empty.",
+    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers, purchasing and admins work for the client; leave the supplier empty.",
     "SUPPLIER_NOT_FOUND": "This supplier does not exist.",
     "EMAIL_TAKEN": "An account with this email address already exists.",
     "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9).",
@@ -148,6 +379,25 @@
     "VALIDATION_FAILED": "Please enter a valid email address and a password.",
     "NETWORK_ERROR": "The server cannot be reached. Is the API running?",
     "UNAUTHENTICATED": "Please sign in.",
-    "FORBIDDEN": "Your role is not allowed to do this."
+    "FORBIDDEN": "Your role is not allowed to do this.",
+    "SUPPLIER_NAME_TAKEN": "A supplier with this name already exists.",
+    "ORDER_CODE_TAKEN": "An order with this order number already exists.",
+    "ORDER_PERIOD_INVALID": "The period cannot end before it starts.",
+    "NOT_A_PROJECT_MANAGER": "Only a project manager can be responsible for an order.",
+    "BUDGET_BELOW_BOOKED": "More time is already booked on this order – the budget cannot be smaller.",
+    "SUPPLIER_FIXED_AFTER_BOOKINGS": "Time has already been booked on this order, so it stays with its supplier. Create a new order instead.",
+    "PERIOD_EXCLUDES_BOOKINGS": "There are bookings outside this period. The period must include every booked day.",
+    "OUTSIDE_ORDER_PERIOD": "Booking rejected: the date is outside the period of this order.",
+    "ROLE_IN_USE": "The role cannot change: bookings or orders depend on it. Create a new account instead – or let purchasing reassign the orders first.",
+    "CANNOT_CHANGE_OWN_ROLE": "You cannot change your own role. Ask another admin.",
+    "CANNOT_DEACTIVATE_YOURSELF": "You cannot deactivate your own account. Ask another admin.",
+    "MANAGES_ORDERS": "This project manager is still responsible for orders. Purchasing must assign them to someone else first.",
+    "USER_NOT_FOUND": "This account does not exist.",
+    "ACCOUNT_DEACTIVATED": "This account has been deactivated. Contact your admin.",
+    "PROJECT_MANAGER_DEACTIVATED": "This project manager is deactivated and cannot be responsible for an order.",
+    "PASSWORD_CHANGE_REQUIRED": "Choose your own password first.",
+    "CURRENT_PASSWORD_WRONG": "Your current password is wrong.",
+    "NEW_PASSWORD_SAME_AS_CURRENT": "Choose a new password that differs from the current one.",
+    "CANNOT_RESET_OWN_PASSWORD": "You do not reset your own password – change it in your profile instead."
   }
 }

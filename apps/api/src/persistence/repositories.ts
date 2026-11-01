@@ -14,6 +14,8 @@ const toUser = (r: typeof users.$inferSelect): User => ({
   name: r.name,
   role: r.role,
   supplierId: r.supplierId,
+  deactivatedAt: r.deactivatedAt,
+  mustChangePassword: r.mustChangePassword,
 })
 const toSupplier = (r: typeof suppliers.$inferSelect): Supplier => ({ id: r.id, name: r.name })
 const toOrder = (r: typeof orders.$inferSelect): Order => ({
@@ -24,6 +26,8 @@ const toOrder = (r: typeof orders.$inferSelect): Order => ({
   projectManagerId: r.projectManagerId,
   budgetHours: r.budgetHours,
   hourlyRateCents: r.hourlyRateCents,
+  startDate: r.startDate,
+  endDate: r.endDate,
 })
 const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   id: r.id,
@@ -44,15 +48,23 @@ export function supplierRepository(db: Db) {
       const [row] = await db.select().from(suppliers).where(eq(suppliers.id, id))
       return row ? toSupplier(row) : null
     },
+    /** Alphabetical, so pickers in the UI are easy to scan. */
     async findAll() {
-      return (await db.select().from(suppliers)).map(toSupplier)
+      return (await db.select().from(suppliers).orderBy(asc(suppliers.name))).map(toSupplier)
+    },
+    async update(id: number, data: Partial<NewOf<Supplier>>) {
+      const [row] = await db.update(suppliers).set(data).where(eq(suppliers.id, id)).returning()
+      return toSupplier(row!)
     },
   }
 }
 
 export function userRepository(db: Db) {
   return {
-    async create(data: NewOf<User> & { passwordHash: string }) {
+    /** New accounts are always active. `mustChangePassword` is false unless given (the seeded demo users). */
+    async create(
+      data: Omit<NewOf<User>, "deactivatedAt" | "mustChangePassword"> & { passwordHash: string; mustChangePassword?: boolean },
+    ) {
       const [row] = await db.insert(users).values(data).returning()
       return toUser(row!)
     },
@@ -64,13 +76,31 @@ export function userRepository(db: Db) {
       const [row] = await db.select().from(users).where(eq(users.email, email))
       return row ? toUser(row) : null
     },
-    // Only for sign-in: the hash stays next to the user, never inside the domain object.
+    // Only for sign-in and password changes: the hash and the session version stay next to the user,
+    // never inside the domain object.
     async findCredentialsByEmail(email: string) {
       const [row] = await db.select().from(users).where(eq(users.email, email))
-      return row ? { user: toUser(row), passwordHash: row.passwordHash } : null
+      return row ? { user: toUser(row), passwordHash: row.passwordHash, sessionVersion: row.sessionVersion } : null
+    },
+    async findCredentialsById(id: number) {
+      const [row] = await db.select().from(users).where(eq(users.id, id))
+      return row ? { user: toUser(row), passwordHash: row.passwordHash, sessionVersion: row.sessionVersion } : null
+    },
+    /** Stores a new password hash and ends all sessions issued before (step 5): the session version goes up. */
+    async setPassword(id: number, data: { passwordHash: string; mustChangePassword: boolean }) {
+      const [row] = await db
+        .update(users)
+        .set({ ...data, sessionVersion: sql`${users.sessionVersion} + 1` })
+        .where(eq(users.id, id))
+        .returning()
+      return { user: toUser(row!), sessionVersion: row!.sessionVersion }
     },
     async findAll() {
       return (await db.select().from(users)).map(toUser)
+    },
+    async update(id: number, data: Partial<Omit<NewOf<User>, "mustChangePassword">>) {
+      const [row] = await db.update(users).set(data).where(eq(users.id, id)).returning()
+      return toUser(row!)
     },
   }
 }
@@ -86,7 +116,11 @@ export function orderRepository(db: Db) {
       return row ? toOrder(row) : null
     },
     async findAll() {
-      return (await db.select().from(orders)).map(toOrder)
+      return (await db.select().from(orders).orderBy(asc(orders.code))).map(toOrder)
+    },
+    async update(id: number, data: NewOf<Order>) {
+      const [row] = await db.update(orders).set(data).where(eq(orders.id, id)).returning()
+      return toOrder(row!)
     },
     /** Orders a consultant of this supplier may book on, with the supplier's name for display. */
     async findBySupplierWithName(supplierId: number) {
@@ -124,6 +158,11 @@ export function timeEntryRepository(db: Db) {
         .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
       return rows.map(toTimeEntry)
     },
+    /** For the role-change rule: does this person have any bookings? */
+    async countByUser(userId: number) {
+      const [row] = await db.select({ n: sql<number>`count(*)` }).from(timeEntries).where(eq(timeEntries.userId, userId))
+      return Number(row?.n ?? 0)
+    },
     /** For the 10-hour rule: everything this person booked on this date, on any order. */
     async sumMinutesForUserOnDate(userId: number, workDate: string) {
       const [row] = await db
@@ -131,6 +170,14 @@ export function timeEntryRepository(db: Db) {
         .from(timeEntries)
         .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
       return Number(row?.total ?? 0)
+    },
+    /** First and last booked work date of an order, or null without bookings – for the period editing rule. */
+    async bookedDateRange(orderId: number) {
+      const [row] = await db
+        .select({ first: sql<string | null>`min(${timeEntries.workDate})`, last: sql<string | null>`max(${timeEntries.workDate})` })
+        .from(timeEntries)
+        .where(eq(timeEntries.orderId, orderId))
+      return row?.first && row.last ? { first: row.first, last: row.last } : null
     },
     /** For the budget rule: everything booked on this order, by anyone (ADR 0008: computed, not stored). */
     async sumMinutesForOrder(orderId: number) {
@@ -150,8 +197,21 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
-    async findByOrder(orderId: number) {
-      return (await db.select().from(timeEntries).where(eq(timeEntries.orderId, orderId))).map(toTimeEntry)
+    /** Bookings of one order with the consultant's name, newest work date first. No email, no user id. */
+    async findByOrderWithConsultantName(orderId: number) {
+      const rows = await db
+        .select({
+          id: timeEntries.id,
+          workDate: timeEntries.workDate,
+          durationMinutes: timeEntries.durationMinutes,
+          description: timeEntries.description,
+          consultantName: users.name,
+        })
+        .from(timeEntries)
+        .innerJoin(users, eq(timeEntries.userId, users.id))
+        .where(eq(timeEntries.orderId, orderId))
+        .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
+      return rows
     },
   }
 }

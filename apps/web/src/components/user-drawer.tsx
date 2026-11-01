@@ -17,6 +17,7 @@ import {
 } from "@workspace/ui/components/drawer"
 import { Separator } from "@workspace/ui/components/separator"
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
+import { formatDateTime } from "@/i18n/format.ts"
 import type { User } from "@/lib/api-types.ts"
 import { initials } from "@/lib/initials.ts"
 
@@ -58,6 +59,18 @@ export function UserDrawer({ user, supplierName, trigger, open, onOpenChange, ac
               <dd>{t(`roles.${user.role}`)}</dd>
               <dt className="text-muted-foreground">{t("profile.email")}</dt>
               <dd className="truncate">{user.email}</dd>
+              {user.deactivatedAt && (
+                <>
+                  <dt className="text-muted-foreground">{t("users.status")}</dt>
+                  <dd>{t("users.deactivatedSince", { date: formatDateTime(user.deactivatedAt) })}</dd>
+                </>
+              )}
+              {user.mustChangePassword && (
+                <>
+                  <dt className="text-muted-foreground">{t("profile.password")}</dt>
+                  <dd>{t("profile.passwordTemporary")}</dd>
+                </>
+              )}
               {supplierName && (
                 <>
                   <dt className="text-muted-foreground">{t("profile.company")}</dt>

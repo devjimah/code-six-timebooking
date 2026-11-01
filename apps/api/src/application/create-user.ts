@@ -34,5 +34,7 @@ export async function createUser(db: Db, input: NewAccount): Promise<User> {
     role: input.role,
     supplierId: input.supplierId,
     passwordHash,
+    // The admin knows this password, so the person chooses their own at the first sign-in (step 5).
+    mustChangePassword: true,
   })
 }

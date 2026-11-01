@@ -7,19 +7,32 @@ import {
   auditEventResponse,
   auditEventsQuery,
   bookableOrderResponse,
+  changePasswordRequest,
   createTimeEntryRequest,
   createUserRequest,
   errorResponse,
   loginRequest,
   orderBudgetResponse,
+  orderBookingResponse,
   orderIdParams,
+  orderOverviewResponse,
+  orderRequest,
+  orderResponse,
+  projectManagerResponse,
+  publicHolidayResponse,
+  publicHolidaysQuery,
+  resetPasswordRequest,
+  supplierIdParams,
+  updateUserRequest,
+  userIdParams,
+  supplierRequest,
   supplierResponse,
   timeEntryResponse,
   userResponse,
 } from "./dto.js"
 
 type RouteDoc = {
-  method: "get" | "post"
+  method: "get" | "post" | "put" | "patch"
   path: string // OpenAPI style: /api/orders/{id}/budget
   summary: string
   tag: string
@@ -43,7 +56,11 @@ export const routes: RouteDoc[] = [
     summary: "Sign in with email and password; sets the session cookie",
     body: loginRequest,
     success: { status: 200, description: "Signed in", schema: userResponse },
-    errors: { 400: "Invalid request body", 401: "Email or password is wrong (INVALID_CREDENTIALS)" },
+    errors: {
+      400: "Invalid request body",
+      401: "Email or password is wrong (INVALID_CREDENTIALS)",
+      403: "Right password, but the account is deactivated (ACCOUNT_DEACTIVATED)",
+    },
   },
   {
     method: "post", path: "/api/auth/logout", tag: "Sign-in", summary: "Sign out; clears the session cookie",
@@ -52,6 +69,13 @@ export const routes: RouteDoc[] = [
   {
     method: "get", path: "/api/auth/me", tag: "Sign-in", summary: "The signed-in user", roles: [],
     success: { status: 200, description: "The signed-in user", schema: userResponse },
+  },
+  {
+    method: "post", path: "/api/auth/password", tag: "Sign-in", roles: [],
+    summary: "Change the own password; signs out all other browsers, this one gets a new session cookie",
+    body: changePasswordRequest,
+    success: { status: 200, description: "Password changed", schema: userResponse },
+    errors: { 400: "Invalid request body (new password 10–72 characters)", 422: "CURRENT_PASSWORD_WRONG, NEW_PASSWORD_SAME_AS_CURRENT" },
   },
   {
     method: "get", path: "/api/users", tag: "Users", summary: "All users", roles: ["admin"],
@@ -68,14 +92,66 @@ export const routes: RouteDoc[] = [
     },
   },
   {
-    method: "get", path: "/api/suppliers", tag: "Users", summary: "All suppliers, to choose a consultant's company",
-    roles: ["admin"],
+    method: "put", path: "/api/users/{id}", tag: "Users", roles: ["admin"],
+    summary: "Change name, email, role or company. A role only changes while no bookings or orders depend on it; " +
+      "not your own role",
+    params: userIdParams,
+    body: updateUserRequest,
+    success: { status: 200, description: "Account changed", schema: userResponse },
+    errors: {
+      400: "Invalid id or body",
+      404: "USER_NOT_FOUND",
+      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_CONSULTANTS, SUPPLIER_NOT_FOUND, EMAIL_TAKEN, ROLE_IN_USE, " +
+        "CANNOT_CHANGE_OWN_ROLE",
+    },
+  },
+  {
+    method: "post", path: "/api/users/{id}/deactivate", tag: "Users", roles: ["admin"],
+    summary: "Deactivate an account: no more sign-in, open sessions end. Not yourself; not a project manager with orders",
+    params: userIdParams,
+    success: { status: 200, description: "Account deactivated (or already was)", schema: userResponse },
+    errors: { 400: "Invalid id", 404: "USER_NOT_FOUND", 422: "CANNOT_DEACTIVATE_YOURSELF, MANAGES_ORDERS" },
+  },
+  {
+    method: "post", path: "/api/users/{id}/reactivate", tag: "Users", roles: ["admin"],
+    summary: "Reactivate an account",
+    params: userIdParams,
+    success: { status: 200, description: "Account active again", schema: userResponse },
+    errors: { 400: "Invalid id", 404: "USER_NOT_FOUND" },
+  },
+  {
+    method: "post", path: "/api/users/{id}/password", tag: "Users", roles: ["admin"],
+    summary: "Reset a password: the admin types a new one, the person is signed out and must replace it at the next sign-in",
+    params: userIdParams,
+    body: resetPasswordRequest,
+    success: { status: 200, description: "Password reset", schema: userResponse },
+    errors: { 400: "Invalid id or body (password 10–72 characters)", 404: "USER_NOT_FOUND", 422: "CANNOT_RESET_OWN_PASSWORD" },
+  },
+  {
+    method: "get", path: "/api/suppliers", tag: "Suppliers",
+    summary: "All suppliers, alphabetical (admin: to choose a consultant's company; purchasing: to manage them)",
+    roles: ["admin", "purchasing"],
     success: { status: 200, description: "All suppliers", schema: z.array(supplierResponse) },
+  },
+  {
+    method: "post", path: "/api/suppliers", tag: "Suppliers", summary: "Create a supplier company",
+    roles: ["purchasing"],
+    body: supplierRequest,
+    success: { status: 201, description: "Supplier created", schema: supplierResponse },
+    errors: { 400: "Invalid request body", 422: "SUPPLIER_NAME_TAKEN" },
+  },
+  {
+    method: "patch", path: "/api/suppliers/{id}", tag: "Suppliers", summary: "Rename a supplier company",
+    roles: ["purchasing"],
+    params: supplierIdParams,
+    body: supplierRequest,
+    success: { status: 200, description: "Supplier renamed", schema: supplierResponse },
+    errors: { 400: "Invalid id or body", 404: "SUPPLIER_NOT_FOUND", 422: "SUPPLIER_NAME_TAKEN" },
   },
   {
     method: "post", path: "/api/time-entries", tag: "Time entries", roles: ["consultant"],
     summary: "Book time on an order of your own company (max. 10 h per day, within the order budget, not in the future, " +
-      "not on Sundays or public holidays)",
+      "not on Sundays or public holidays, inside the order's period)",
     body: createTimeEntryRequest,
     success: { status: 201, description: "Booked", schema: timeEntryResponse },
     errors: {
@@ -88,6 +164,47 @@ export const routes: RouteDoc[] = [
     method: "get", path: "/api/time-entries/mine", tag: "Time entries", summary: "Your own time entries, newest first",
     roles: ["consultant"],
     success: { status: 200, description: "Your time entries", schema: z.array(timeEntryResponse) },
+  },
+  {
+    method: "get", path: "/api/orders", tag: "Orders", roles: ["purchasing"],
+    summary: "All orders with supplier, project manager, period and budget (sums only, no single bookings)",
+    success: { status: 200, description: "All orders, by code", schema: z.array(orderOverviewResponse) },
+  },
+  {
+    method: "post", path: "/api/orders", tag: "Orders", roles: ["purchasing"],
+    summary: "Place an order with a supplier",
+    body: orderRequest,
+    success: { status: 201, description: "Order created", schema: orderResponse },
+    errors: {
+      400: "Invalid request body",
+      422: "ORDER_CODE_TAKEN, ORDER_PERIOD_INVALID, SUPPLIER_NOT_FOUND, NOT_A_PROJECT_MANAGER, PROJECT_MANAGER_DEACTIVATED",
+    },
+  },
+  {
+    method: "put", path: "/api/orders/{id}", tag: "Orders", roles: ["purchasing"],
+    summary: "Change an order (all fields). Budget not below booked hours; supplier fixed after the first booking; " +
+      "period must include all bookings",
+    params: orderIdParams,
+    body: orderRequest,
+    success: { status: 200, description: "Order changed", schema: orderResponse },
+    errors: {
+      400: "Invalid id or body",
+      404: "ORDER_NOT_FOUND",
+      422: "ORDER_CODE_TAKEN, ORDER_PERIOD_INVALID, SUPPLIER_NOT_FOUND, NOT_A_PROJECT_MANAGER, BUDGET_BELOW_BOOKED, " +
+        "SUPPLIER_FIXED_AFTER_BOOKINGS, PERIOD_EXCLUDES_BOOKINGS",
+    },
+  },
+  {
+    method: "get", path: "/api/project-managers", tag: "Orders", roles: ["purchasing"],
+    summary: "Project managers who can be responsible for an order (names only)",
+    success: { status: 200, description: "Project managers", schema: z.array(projectManagerResponse) },
+  },
+  {
+    method: "get", path: "/api/public-holidays", tag: "Time entries", roles: ["consultant"],
+    summary: "Nationwide public holidays of a year – no bookings on them (ArbZG §9); for the booking calendar",
+    query: publicHolidaysQuery,
+    success: { status: 200, description: "Holidays in calendar order", schema: z.array(publicHolidayResponse) },
+    errors: { 400: "Missing or invalid year" },
   },
   {
     method: "get", path: "/api/orders/bookable", tag: "Orders", summary: "Orders of your own company you can book on",
@@ -106,6 +223,17 @@ export const routes: RouteDoc[] = [
     roles: ["project_manager"],
     params: orderIdParams,
     success: { status: 200, description: "Budget of the order", schema: orderBudgetResponse },
+    errors: {
+      400: "The id is not a number",
+      403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
+      404: "The order does not exist (ORDER_NOT_FOUND)",
+    },
+  },
+  {
+    method: "get", path: "/api/orders/{id}/time-entries", tag: "Orders", roles: ["project_manager"],
+    summary: "Single bookings of your own order, newest first – to check the work (no totals per person)",
+    params: orderIdParams,
+    success: { status: 200, description: "Bookings of the order", schema: z.array(orderBookingResponse) },
     errors: {
       400: "The id is not a number",
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
@@ -141,7 +269,9 @@ function operation(route: RouteDoc) {
   // 401 and 403 follow from the role list; a route can still describe them more precisely in `errors`.
   const errors: Record<string, string> = {}
   if (route.roles) errors[401] = "Not signed in (UNAUTHENTICATED)"
-  if (route.roles?.length) errors[403] = `Signed in, but not as ${route.roles.join(" or ")} (FORBIDDEN)`
+  if (route.roles?.length) {
+    errors[403] = `Signed in, but not as ${route.roles.join(" or ")} (FORBIDDEN), or an admin-chosen password must be changed first (PASSWORD_CHANGE_REQUIRED)`
+  }
   Object.assign(errors, route.errors)
 
   const responses: Record<string, object> = {

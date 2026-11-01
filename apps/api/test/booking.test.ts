@@ -156,6 +156,14 @@ describe("rules enforced by the API", () => {
     })
   })
 
+  it("rejects a booking before the order's period starts", async () => {
+    // PO-2026-002 runs from 1 Sep 2026; Mon 31 Aug 2026 is a normal working day in the past.
+    const res = await book(booking({ orderId: orderId["PO-2026-002"], workDate: "2026-08-31" }))
+
+    expect(res.status).toBe(422)
+    expect((await res.json()).code).toBe("OUTSIDE_ORDER_PERIOD")
+  })
+
   it("rejects a negative duration", async () => {
     const res = await book(booking({ durationMinutes: -60 }))
 

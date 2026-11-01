@@ -7,9 +7,16 @@ describe("supplier and role of an account", () => {
     expect(() => assertSupplierMatchesRole({ role: "consultant", supplierId: 1 })).not.toThrow()
   })
 
-  it("accepts a project manager and an admin without supplier", () => {
+  it("accepts a project manager, purchasing and an admin without supplier", () => {
     expect(() => assertSupplierMatchesRole({ role: "project_manager", supplierId: null })).not.toThrow()
+    expect(() => assertSupplierMatchesRole({ role: "purchasing", supplierId: null })).not.toThrow()
     expect(() => assertSupplierMatchesRole({ role: "admin", supplierId: null })).not.toThrow()
+  })
+
+  it("rejects purchasing with a supplier: purchasing works for the client", () => {
+    expect(() => assertSupplierMatchesRole({ role: "purchasing", supplierId: 1 })).toThrow(
+      expect.objectContaining({ code: "SUPPLIER_ONLY_FOR_CONSULTANTS" }),
+    )
   })
 
   it("rejects a consultant without supplier", () => {

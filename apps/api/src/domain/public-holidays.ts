@@ -21,11 +21,10 @@ export function easterSunday(year: number): string {
   return isoDate(year, month, day)
 }
 
-/** The nationwide public holiday on this date ("YYYY-MM-DD"), or null. */
-export function nationwideHoliday(date: string): string | null {
-  const year = Number(date.slice(0, 4))
+/** All nationwide public holidays of a year, by date ("YYYY-MM-DD" → name), in calendar order. */
+export function nationwideHolidays(year: number): Record<string, string> {
   const easter = easterSunday(year)
-  const holidays: Record<string, string> = {
+  return {
     [`${year}-01-01`]: "New Year's Day",
     [addDays(easter, -2)]: "Good Friday",
     [addDays(easter, 1)]: "Easter Monday",
@@ -36,7 +35,11 @@ export function nationwideHoliday(date: string): string | null {
     [`${year}-12-25`]: "Christmas Day",
     [`${year}-12-26`]: "Boxing Day",
   }
-  return holidays[date] ?? null
+}
+
+/** The nationwide public holiday on this date ("YYYY-MM-DD"), or null. */
+export function nationwideHoliday(date: string): string | null {
+  return nationwideHolidays(Number(date.slice(0, 4)))[date] ?? null
 }
 
 const isoDate = (year: number, month: number, day: number) =>

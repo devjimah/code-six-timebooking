@@ -5,8 +5,8 @@ import { sql } from "drizzle-orm"
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 // Roles are a fixed list, so we store them as text with a CHECK-like enum
-// instead of a separate table. Working names – rename once product-vision.md is done.
-export const ROLES = ["consultant", "project_manager", "admin"] as const
+// instead of a separate table. Who may do what: docs/roles-and-privacy.md.
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
 
 const timestamps = {
   createdAt: text("created_at")
@@ -29,6 +29,13 @@ export const users = sqliteTable("users", {
   role: text("role", { enum: ROLES }).notNull(),
   // Only consultants belong to a supplier; null for client-side roles.
   supplierId: integer("supplier_id").references(() => suppliers.id),
+  // Set when an admin deactivates the account (step 4). The person can no longer sign in; their bookings stay.
+  deactivatedAt: text("deactivated_at"),
+  // Step 5: a password chosen by an admin (new account or reset) must be replaced by the person at the next sign-in.
+  mustChangePassword: integer("must_change_password", { mode: "boolean" }).notNull().default(false),
+  // Goes up with every password change. A session cookie carries the version it was issued with; an older
+  // version is not accepted any more, so a reset signs the person out of every browser at once.
+  sessionVersion: integer("session_version").notNull().default(0),
   ...timestamps,
 })
 
@@ -47,6 +54,10 @@ export const orders = sqliteTable("orders", {
   budgetHours: integer("budget_hours").notNull(),
   // Money budget = budgetHours * hourlyRateCents. Cents avoid float rounding.
   hourlyRateCents: integer("hourly_rate_cents").notNull(),
+  // Period of the order, ISO dates. Bookings outside it are rejected (rules/order-period.ts).
+  // Migration 0003 gave orders that existed before it the whole year 2026 – only demo data existed then.
+  startDate: text("start_date").notNull().default("2026-01-01"),
+  endDate: text("end_date").notNull().default("2026-12-31"),
   ...timestamps,
 })
 

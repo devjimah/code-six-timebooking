@@ -73,8 +73,17 @@ describe("admin creates an account", () => {
 
     expect(res.status).toBe(201)
     const body = await res.json()
-    expect(body).toEqual({ id: expect.any(Number), email: "nina.neu@acme.example", name: "Nina Neu", role: "consultant", supplierId: acmeId })
-    expect(JSON.stringify(body)).not.toContain("password")
+    expect(body).toEqual({
+      id: expect.any(Number),
+      email: "nina.neu@acme.example",
+      name: "Nina Neu",
+      role: "consultant",
+      supplierId: acmeId,
+      deactivatedAt: null, // new accounts are active
+      mustChangePassword: true, // the admin knows the initial password, so the person chooses their own (step 5)
+    })
+    expect(JSON.stringify(body)).not.toContain("first-day-2026")
+    expect(JSON.stringify(body)).not.toContain("passwordHash")
 
     expect((await login("nina.neu@acme.example", "first-day-2026")).status).toBe(200)
   })

@@ -7,6 +7,7 @@ import { assertWithinDailyLimit } from "../domain/rules/daily-limit.js"
 import { assertValidDuration } from "../domain/rules/duration.js"
 import { assertAssignedToOrder } from "../domain/rules/order-assignment.js"
 import { assertWithinOrderBudget } from "../domain/rules/order-budget.js"
+import { assertWithinOrderPeriod } from "../domain/rules/order-period.js"
 import { assertNotInFuture } from "../domain/rules/work-date.js"
 import { assertWorkingDay } from "../domain/rules/working-day.js"
 import type { Db } from "../persistence/db.js"
@@ -36,6 +37,7 @@ export async function bookTime(
     throw new DomainError("ORDER_NOT_FOUND", `Booking rejected: order ${input.orderId} does not exist.`)
   }
   assertAssignedToOrder({ user: consultant, order })
+  assertWithinOrderPeriod({ order, workDate: input.workDate })
 
   const entries = timeEntryRepository(db)
   assertWithinDailyLimit({

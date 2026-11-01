@@ -12,6 +12,8 @@ type AuthState = {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  /** POST /api/auth/password – the server signs out other browsers and gives this one a fresh session. */
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
 }
 
 const AuthContext = React.createContext<AuthState | undefined>(undefined)
@@ -39,7 +41,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
-  const value = React.useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout])
+  const changePassword = React.useCallback(async (currentPassword: string, newPassword: string) => {
+    setUser(
+      await api<CurrentUser>("/auth/password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword }) }),
+    )
+  }, [])
+
+  const value = React.useMemo(
+    () => ({ user, loading, login, logout, changePassword }),
+    [user, loading, login, logout, changePassword],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

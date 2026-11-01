@@ -14,6 +14,14 @@ export function formatDate(isoDate: string): string {
   )
 }
 
+/** "2026-10-27" → "Di., 27.10." (de) or "Tue 27/10" (en) – for lists grouped by day */
+export function formatWeekday(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-").map(Number)
+  return new Intl.DateTimeFormat(locale(), { weekday: "short", day: "2-digit", month: "2-digit" }).format(
+    new Date(year!, month! - 1, day!),
+  )
+}
+
 /** "2026-10-27T14:05:00Z" → "27.10.2026, 15:05" (de, in the browser's time zone) */
 export function formatDateTime(isoTimestamp: string): string {
   return new Intl.DateTimeFormat(locale(), { dateStyle: "short", timeStyle: "short" }).format(new Date(isoTimestamp))

@@ -35,3 +35,7 @@ users of the client's provider, or sign in through their own provider federated 
 - We store password hashes in the demo. In production we store no passwords at all.
 - `SESSION_SECRET` must be set in `.env.example` with a dev-only default and replaced in every real installation.
 - Next: write the group-to-role mapping into `docs/roles-and-privacy.md`.
+- **Update 2026-10-31 – ending sessions:** a signed cookie cannot be taken back, so the server checks on every
+  request whether the account is still active (step 4) and whether the cookie's session version still matches the
+  account's `session_version`. A password reset or change raises the version, so every older cookie stops working
+  at once ([auth/session.ts](../../apps/api/src/auth/session.ts), [auth/middleware.ts](../../apps/api/src/auth/middleware.ts)).

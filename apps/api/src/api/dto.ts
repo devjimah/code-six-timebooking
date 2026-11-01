@@ -5,7 +5,7 @@ import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
-const ROLES = ["consultant", "project_manager", "admin"] as const
+const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
 
 // Every error response (401, 403, 404, 422 …) has this shape (ADR 0005). The UI translates `code`.
 export const errorResponse = z.object({
@@ -26,6 +26,8 @@ export const userResponse = z.object({
   name: z.string(),
   role: z.enum(ROLES),
   supplierId: z.number().int().nullable(),
+  deactivatedAt: z.string().nullable().meta({ description: "ISO timestamp; null = active" }),
+  mustChangePassword: z.boolean().meta({ description: "An admin chose the password; the person must replace it first" }),
 })
 export type UserResponse = z.infer<typeof userResponse>
 
@@ -35,7 +37,13 @@ export const toUserResponse = (user: User): UserResponse => ({
   name: user.name,
   role: user.role,
   supplierId: user.supplierId,
+  deactivatedAt: user.deactivatedAt,
+  mustChangePassword: user.mustChangePassword,
 })
+
+// One password policy for new accounts, resets and changes.
+// bcrypt only uses the first 72 bytes, so longer passwords would give a false sense of security.
+const password = z.string().min(10).max(72)
 
 // POST /api/users – admin only (ADR 0004).
 export const createUserRequest = z.object({
@@ -44,11 +52,31 @@ export const createUserRequest = z.object({
   role: z.enum(ROLES),
   // Required for consultants, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
   supplierId: z.number().int().positive().nullable().default(null),
-  // bcrypt only uses the first 72 bytes, so longer passwords would give a false sense of security.
-  password: z.string().min(10).max(72).meta({ description: "Initial password; the admin hands it to the person" }),
+  password: password.meta({ description: "Initial password; the admin hands it to the person" }),
+})
+
+// PUT /api/users/:id – admin only. Same fields as creating an account, without the password.
+export const updateUserRequest = createUserRequest.omit({ password: true })
+export const userIdParams = z.object({ id: z.coerce.number().int().positive() })
+
+// POST /api/users/:id/password – admin only (step 5). The person must replace it at the next sign-in.
+export const resetPasswordRequest = z.object({
+  password: password.meta({ description: "New password; the admin hands it to the person" }),
+})
+
+// POST /api/auth/password – every signed-in person, for their own account.
+export const changePasswordRequest = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: password,
 })
 
 export const supplierResponse = z.object({ id: z.number().int(), name: z.string() })
+
+// POST /api/suppliers and PATCH /api/suppliers/:id – purchasing only. Uniqueness is a domain rule (supplier-name.ts).
+export const supplierRequest = z.object({
+  name: z.string().trim().min(2).max(100).meta({ example: "Acme Consulting GmbH" }),
+})
+export const supplierIdParams = z.object({ id: z.coerce.number().int().positive() })
 export type SupplierResponse = z.infer<typeof supplierResponse>
 
 export const toSupplierResponse = (supplier: Supplier): SupplierResponse => ({ id: supplier.id, name: supplier.name })
@@ -117,11 +145,14 @@ export const toTimeEntryResponse = (entry: TimeEntry): TimeEntryResponse => ({
 
 // GET /api/orders/bookable – what a consultant needs to pick an order. No rate and no money:
 // prices are agreed between the client and the supplier's management, not shown to every consultant.
+// The period is included so the booking form can offer only dates the server will accept.
 export const bookableOrderResponse = z.object({
   id: z.number().int(),
   code: z.string().meta({ example: "PO-2026-001" }),
   title: z.string(),
   supplierName: z.string(),
+  startDate: z.string().meta({ example: "2026-07-01" }),
+  endDate: z.string().meta({ example: "2027-01-31" }),
 })
 export type BookableOrderResponse = z.infer<typeof bookableOrderResponse>
 
@@ -130,7 +161,55 @@ export const toBookableOrderResponse = (order: Order, supplierName: string): Boo
   code: order.code,
   title: order.title,
   supplierName,
+  startDate: order.startDate,
+  endDate: order.endDate,
 })
+
+// GET /api/public-holidays?year=2026 – for the booking calendar
+export const publicHolidaysQuery = z.object({ year: z.coerce.number().int().min(2000).max(2100) })
+export const publicHolidayResponse = z.object({
+  date: z.string().meta({ example: "2026-10-03" }),
+  name: z.string().meta({ example: "Day of German Unity" }),
+})
+
+// POST /api/orders and PUT /api/orders/:id – purchasing only. Format checks here; business rules in the domain.
+export const orderRequest = z.object({
+  code: z.string().trim().min(3).max(40).meta({ example: "PO-2026-004" }),
+  title: z.string().trim().min(3).max(200).meta({ example: "Data warehouse reporting" }),
+  supplierId: z.number().int().positive(),
+  projectManagerId: z.number().int().positive(),
+  budgetHours: z.number().int().min(1).max(100_000).meta({ description: "Ordered hours; 1 person-day = 8 h" }),
+  hourlyRateCents: z.number().int().min(1).max(10_000_00).meta({ description: "Euro cents: 9500 = 95,00 € per hour" }),
+  startDate: z.iso.date().meta({ example: "2026-11-01" }),
+  endDate: z.iso.date().meta({ example: "2027-03-31" }),
+})
+export type OrderRequest = z.infer<typeof orderRequest>
+
+export const orderResponse = z.object({
+  id: z.number().int(),
+  code: z.string(),
+  title: z.string(),
+  supplierId: z.number().int(),
+  projectManagerId: z.number().int(),
+  budgetHours: z.number().int(),
+  hourlyRateCents: z.number().int(),
+  startDate: z.string(),
+  endDate: z.string(),
+})
+export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
+
+// GET /api/orders/:id/time-entries – the project manager checks the work on their order.
+// The consultant's name, but not their email or user id; no totals per person (docs/roles-and-privacy.md).
+export const orderBookingResponse = z.object({
+  id: z.number().int(),
+  workDate: z.string().meta({ example: "2026-10-27" }),
+  durationMinutes: z.number().int(),
+  description: z.string(),
+  consultantName: z.string(),
+})
+
+// GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
+export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
 
 // GET /api/orders/:id/budget – the id arrives as text in the URL.
 export const orderIdParams = z.object({ id: z.coerce.number().int().positive() })
@@ -173,4 +252,31 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
   remainingCents: budget.remainingCents,
   usedPercent: budget.usedPercent,
   overBudget: budget.overBudget,
+})
+
+// GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
+export const orderOverviewResponse = orderBudgetResponse.extend({
+  supplierId: z.number().int(),
+  supplierName: z.string(),
+  projectManagerId: z.number().int(),
+  projectManagerName: z.string(),
+  hourlyRateCents: z.number().int(),
+  startDate: z.string(),
+  endDate: z.string(),
+})
+
+export const toOrderOverviewResponse = (row: {
+  order: Order
+  budget: OrderBudget
+  supplierName: string
+  projectManagerName: string
+}): z.infer<typeof orderOverviewResponse> => ({
+  ...toOrderBudgetResponse(row.order, row.budget),
+  supplierId: row.order.supplierId,
+  supplierName: row.supplierName,
+  projectManagerId: row.order.projectManagerId,
+  projectManagerName: row.projectManagerName,
+  hourlyRateCents: row.order.hourlyRateCents,
+  startDate: row.order.startDate,
+  endDate: row.order.endDate,
 })

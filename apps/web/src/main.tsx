@@ -2,6 +2,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
 import "@workspace/ui/globals.css"
+import { Toaster } from "@workspace/ui/components/sonner"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import "./i18n/index.ts" // must load before any component calls useTranslation()
 import { App } from "./App.tsx"
@@ -15,6 +16,8 @@ createRoot(document.getElementById("root")!).render(
         <AuthProvider>
           <App />
         </AuthProvider>
+        {/* Outside the app frame, so a message survives a change of screen (e.g. after the password screen). */}
+        <Toaster position="top-center" />
       </TooltipProvider>
     </ThemeProvider>
   </StrictMode>

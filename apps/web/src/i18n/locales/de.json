@@ -21,11 +21,69 @@
   },
   "home": {
     "welcome": "Willkommen, {{name}}",
-    "signedInAs": "Angemeldet als {{email}} · {{role}}"
+    "loadFailed": "Die Übersicht konnte nicht geladen werden",
+    "all": "Alle",
+    "attention": "Braucht Aufmerksamkeit",
+    "ended": "Beendet",
+    "startsOn": "Beginnt am {{date}}",
+    "endsIn_one": "Endet morgen",
+    "endsIn_other": "Endet in {{count}} Tagen",
+    "endsOn_one": "Endet am {{date}} (morgen)",
+    "endsOn_other": "Endet am {{date}} (in {{count}} Tagen)",
+    "consultant": {
+      "intro": "Ihre Arbeitszeit auf einen Blick. Nur Sie sehen Ihre Tages- und Wochensummen.",
+      "today": "Heute",
+      "week": "Diese Woche",
+      "month": "Dieser Monat",
+      "ofLimit": "von höchstens {{limit}} am Tag",
+      "latest": "Letzte Buchungen",
+      "orders": "Ihre Bestellungen",
+      "ordersDescription": "Auf diese Bestellungen Ihres Unternehmens können Sie buchen – jeweils nur in ihrem Zeitraum."
+    },
+    "pm": {
+      "intro": "Das Budget Ihrer Bestellungen und was Sie prüfen sollten.",
+      "orders": "Bestellungen",
+      "booked": "Gebucht",
+      "bookedOf": "{{booked}} von {{budget}}",
+      "remaining": "Noch frei",
+      "attentionDescription": "Bestellungen, deren Budget zu {{percent}} % oder mehr verbraucht ist – vielleicht braucht es bald eine Folgebestellung.",
+      "allFine": "Alle Bestellungen haben noch genug Budget.",
+      "ordersDescription": "Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen."
+    },
+    "purchasing": {
+      "intro": "Wo bald eine Folgebestellung nötig wird.",
+      "running": "Laufende Bestellungen",
+      "suppliers": "Lieferanten",
+      "used": "Verbraucht",
+      "usedOf": "{{booked}} von {{budget}}",
+      "lowBudget": "Budget wird knapp",
+      "lowBudgetDescription": "Zu {{percent}} % oder mehr verbraucht.",
+      "noLowBudget": "Keine Bestellung ist knapp.",
+      "endingSoon": "Endet bald",
+      "endingSoonDescription": "Laufende Bestellungen, deren Zeitraum in den nächsten {{days}} Tagen endet.",
+      "noneEnding": "Keine Bestellung endet bald.",
+      "allDescription": "Alle Bestellungen mit Budget und Zeitraum, die zuerst endenden oben."
+    },
+    "admin": {
+      "intro": "Konten und Sicherheit auf einen Blick. Geschäftsdaten wie Buchungen und Budgets sehen Admins nicht.",
+      "active": "Aktive Konten",
+      "waiting": "Warten auf eigenes Passwort",
+      "deactivated": "Deaktiviert",
+      "lastDay": "Letzte 24 Stunden",
+      "lastDayDescription": "Aus dem Audit-Log: Anmeldungen und was abgelehnt wurde.",
+      "signIns": "Anmeldungen",
+      "failedSignIns": "Fehlgeschlagene Anmeldungen",
+      "refused": "Verweigerte Zugriffe",
+      "errors": "Fehler",
+      "nothingNotable": "Nichts Auffälliges.",
+      "byRole": "Aktive Konten nach Rolle",
+      "byRoleDescription": "Deaktivierte Konten sind nicht mitgezählt."
+    }
   },
   "roles": {
     "consultant": "Berater",
     "project_manager": "Projektleitung",
+    "purchasing": "Einkauf",
     "admin": "Admin"
   },
   "logout": "Abmelden",
@@ -34,12 +92,18 @@
     "role": "Rolle",
     "email": "E-Mail",
     "close": "Schließen",
-    "company": "Unternehmen"
+    "company": "Unternehmen",
+    "password": "Passwort",
+    "passwordTemporary": "Vom Admin gesetzt – wird bei der nächsten Anmeldung geändert"
   },
   "nav": {
     "home": "Start",
     "users": "Benutzer",
-    "audit": "Protokoll"
+    "audit": "Protokoll",
+    "suppliers": "Dienstleister",
+    "orders": "Bestellungen",
+    "myOrders": "Meine Bestellungen",
+    "bookTime": "Zeit buchen"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -49,13 +113,34 @@
     "chooseSupplier": "Dienstleister wählen",
     "supplierHint": "Berater gehören immer zu einem Dienstleister.",
     "initialPassword": "Startpasswort",
-    "passwordHint": "10 bis 72 Zeichen.",
+    "passwordHint": "10 bis 72 Zeichen. Die Person wählt bei der ersten Anmeldung ein eigenes Passwort.",
     "create": "Konto anlegen",
     "creating": "Wird angelegt …",
     "cancel": "Abbrechen",
     "created": "Konto für {{name}} angelegt.",
     "client": "Auftraggeber",
-    "loadFailed": "Benutzer konnten nicht geladen werden"
+    "loadFailed": "Benutzer konnten nicht geladen werden",
+    "edit": "{{name}} bearbeiten",
+    "editButton": "Bearbeiten",
+    "editDescription": "Name, E-Mail, Rolle und Unternehmen ändern. Das Passwort bleibt, wie es ist.",
+    "saved": "Konto von {{name}} gespeichert.",
+    "ownRoleHint": "Ihre eigene Rolle können Sie nicht ändern – fragen Sie einen anderen Admin.",
+    "roleChangeHint": "Die Rolle ändert sich nur, solange nichts an ihr hängt: keine Buchungen eines Beraters, keine Bestellungen einer Projektleitung.",
+    "deactivate": "Deaktivieren",
+    "deactivateTitle": "{{name}} deaktivieren?",
+    "deactivateDescription": "Die Person wird sofort abgemeldet und kann sich nicht mehr anmelden. Ihre Buchungen und Protokolleinträge bleiben erhalten. Sie können das Konto später wieder aktivieren.",
+    "deactivatedToast": "{{name}} ist deaktiviert.",
+    "reactivate": "Wieder aktivieren",
+    "reactivated": "{{name}} ist wieder aktiv.",
+    "deactivated": "Deaktiviert",
+    "status": "Status",
+    "deactivatedSince": "Deaktiviert seit {{date}}",
+    "resetButton": "Passwort zurücksetzen",
+    "resetTitle": "Passwort von {{name}} zurücksetzen",
+    "resetDescription": "Geben Sie ein neues Passwort ein und geben Sie es der Person persönlich weiter. Sie wird überall sofort abgemeldet und wählt bei der nächsten Anmeldung ein eigenes Passwort.",
+    "newPassword": "Neues Passwort",
+    "passwordReset": "Passwort von {{name}} zurückgesetzt. Die Person ist abgemeldet.",
+    "resetHint": "10 bis 72 Zeichen."
   },
   "audit": {
     "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
@@ -89,7 +174,8 @@
     "showDetails": "Details anzeigen",
     "target": {
       "user": "Benutzer #{{id}}",
-      "order": "Bestellung #{{id}}"
+      "order": "Bestellung #{{id}}",
+      "supplier": "Dienstleister #{{id}}"
     },
     "details": {
       "email": "E-Mail",
@@ -97,21 +183,36 @@
       "supplierId": "Dienstleister-Nr.",
       "workDate": "Arbeitstag",
       "durationMinutes": "Dauer",
-      "timeEntryId": "Buchungs-Nr."
+      "timeEntryId": "Buchungs-Nr.",
+      "name": "Name",
+      "code": "Bestellnummer",
+      "projectManagerId": "Projektleitung-Nr.",
+      "budgetHours": "Budget",
+      "hourlyRateCents": "Stundensatz",
+      "startDate": "Beginn",
+      "endDate": "Ende"
     }
   },
   "auditActions": {
     "auth": {
       "login": "Anmeldung",
       "logout": "Abmeldung",
-      "session": "Sitzung geprüft"
+      "session": "Sitzung geprüft",
+      "change_password": "Eigenes Passwort geändert"
     },
     "user": {
       "list": "Benutzer angesehen",
-      "create": "Benutzer angelegt"
+      "create": "Benutzer angelegt",
+      "list_project_managers": "Projektleitungen angesehen",
+      "update": "Benutzer geändert",
+      "deactivate": "Benutzer deaktiviert",
+      "reactivate": "Benutzer wieder aktiviert",
+      "reset_password": "Passwort zurückgesetzt"
     },
     "supplier": {
-      "list": "Dienstleister angesehen"
+      "list": "Dienstleister angesehen",
+      "create": "Dienstleister angelegt",
+      "update": "Dienstleister umbenannt"
     },
     "time_entry": {
       "create": "Zeit gebucht",
@@ -120,14 +221,144 @@
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
       "list_managed": "Eigene Bestellungen angesehen",
-      "view_budget": "Budget angesehen"
+      "view_budget": "Budget angesehen",
+      "list_all": "Alle Bestellungen angesehen",
+      "create": "Bestellung angelegt",
+      "update": "Bestellung geändert",
+      "view_bookings": "Buchungen einer Bestellung angesehen"
     },
     "audit": {
       "view": "Protokoll angesehen"
     },
     "request": {
       "unknown_route": "Unbekannte Adresse aufgerufen"
+    },
+    "calendar": {
+      "list_holidays": "Feiertage abgerufen"
     }
+  },
+  "suppliers": {
+    "description": "Die Unternehmen, bei denen bestellt wird. Tippen Sie auf einen Namen, um ihn zu ändern.",
+    "new": "Neuer Dienstleister",
+    "newDescription": "Legen Sie ein Unternehmen an, bei dem Sie Leistungen bestellen.",
+    "rename": "Dienstleister umbenennen",
+    "renameNamed": "{{name}} umbenennen",
+    "renameDescription": "Der neue Name gilt sofort für alle Bestellungen und Berater dieses Unternehmens.",
+    "name": "Name",
+    "create": "Anlegen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "created": "{{name}} angelegt.",
+    "renamed": "Umbenannt in {{name}}.",
+    "empty": "Noch keine Dienstleister.",
+    "loadFailed": "Dienstleister konnten nicht geladen werden"
+  },
+  "orders": {
+    "description": "Alle Bestellungen mit ihrem Budget – nur Summen, keine einzelnen Buchungen. Tippen Sie auf eine Bestellung, um sie zu ändern.",
+    "new": "Neue Bestellung",
+    "newDescription": "Bestellen Sie Leistungen bei einem Dienstleister, mit Budget und Laufzeit.",
+    "edit": "Bestellung {{code}} ändern",
+    "editBooked": "Auf diese Bestellung sind schon {{hours}} gebucht: Das Budget darf nicht kleiner werden, der Dienstleister bleibt fest, die Laufzeit muss alle Buchungen enthalten.",
+    "change": "Ändern",
+    "order": "Bestellung",
+    "code": "Bestellnummer",
+    "title": "Bezeichnung",
+    "supplier": "Dienstleister",
+    "supplierLocked": "Es wurde schon Zeit gebucht – der Dienstleister kann nicht mehr geändert werden.",
+    "projectManager": "Projektleitung",
+    "choosePm": "Projektleitung wählen",
+    "budgetHours": "Budget (Stunden)",
+    "hourlyRate": "Stundensatz (€)",
+    "budgetPreview": "Budget gesamt: {{amount}}",
+    "startDate": "Beginn",
+    "endDate": "Ende",
+    "period": "Laufzeit",
+    "used": "Verbraucht",
+    "usedOf": "{{percent}} % des Budgets von {{code}} verbraucht",
+    "left": "noch {{hours}}",
+    "overBudget": "Über Budget",
+    "totalOrdered": "Bestellt",
+    "totalBooked": "Gebucht",
+    "totalRemaining": "Frei",
+    "create": "Bestellen",
+    "created": "Bestellung {{code}} angelegt.",
+    "saved": "Bestellung {{code}} gespeichert.",
+    "empty": "Noch keine Bestellungen.",
+    "loadFailed": "Bestellungen konnten nicht geladen werden"
+  },
+  "myOrders": {
+    "description": "Die Bestellungen, für die Sie verantwortlich sind. Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen.",
+    "open": "Öffnen",
+    "openNamed": "Bestellung {{code}} öffnen",
+    "empty": "Sie sind für keine Bestellung verantwortlich.",
+    "back": "Meine Bestellungen",
+    "budget": "Budget",
+    "bookings": "Gebuchte Arbeit",
+    "privacyNote": "Jede Buchung einzeln, zum Prüfen der Arbeit. Bewusst ohne Tages- oder Wochensummen pro Person: Sie prüfen die Arbeit, nicht die Arbeitszeit der Berater.",
+    "date": "Datum",
+    "consultant": "Berater",
+    "work": "Tätigkeit",
+    "hours": "Stunden",
+    "noBookings": "Auf diese Bestellung wurde noch keine Zeit gebucht.",
+    "loadFailed": "Bestellung konnte nicht geladen werden"
+  },
+  "password": {
+    "title": "Passwort ändern",
+    "titleForced": "Eigenes Passwort wählen",
+    "description": "Danach sind Sie in allen anderen Browsern abgemeldet.",
+    "descriptionForced": "Willkommen, {{name}}. Ihr Admin hat Ihr Passwort gesetzt. Wählen Sie ein eigenes, bevor es weitergeht – dann kennt nur noch Sie es.",
+    "current": "Aktuelles Passwort",
+    "currentForced": "Passwort vom Admin",
+    "new": "Neues Passwort",
+    "hint": "10 bis 72 Zeichen, anders als das bisherige.",
+    "repeat": "Neues Passwort wiederholen",
+    "mismatch": "Die beiden Passwörter stimmen nicht überein.",
+    "save": "Passwort speichern",
+    "saving": "Wird gespeichert …",
+    "failed": "Passwort nicht geändert",
+    "changed": "Ihr Passwort ist geändert."
+  },
+  "booking": {
+    "title": "Zeit buchen",
+    "description": "Buchen Sie Ihre Arbeitszeit auf eine Bestellung Ihres Unternehmens.",
+    "order": "Bestellung",
+    "chooseOrder": "Bestellung wählen",
+    "period": "Zeitraum: {{start}} – {{end}}",
+    "date": "Datum",
+    "duration": "Dauer",
+    "hours": "Stunden",
+    "minutes": "Minuten",
+    "hoursValue_one": "{{count}} Stunde",
+    "hoursValue_other": "{{count}} Stunden",
+    "minutesValue_one": "{{count}} Minute",
+    "minutesValue_other": "{{count}} Minuten",
+    "dayProgress": "Gebuchte Zeit an diesem Tag",
+    "alreadyBooked": "An diesem Tag schon gebucht: {{booked}} von höchstens {{limit}}.",
+    "overLimit": "Zu viel: An diesem Tag sind schon {{booked}} gebucht, erlaubt sind höchstens 10 Stunden.",
+    "work": "Was haben Sie gemacht?",
+    "workPlaceholder": "z. B. Anmeldeseite umgesetzt und getestet",
+    "workHint": "{{count}} / {{max}} Zeichen, mindestens 10.",
+    "submit": "Buchen",
+    "saving": "Wird gebucht …",
+    "saved": "{{hours}} auf {{code}} gebucht.",
+    "rejected": "Nicht gebucht",
+    "noOrders": "Für Ihr Unternehmen gibt es gerade keine Bestellung.",
+    "loadFailed": "Daten konnten nicht geladen werden",
+    "mine": "Meine Buchungen",
+    "mineDescription": "Neueste zuerst, mit der Summe je Tag.",
+    "dayTotal": "{{booked}} / {{limit}}",
+    "none": "Noch keine Buchungen."
+  },
+  "calendar": {
+    "future": "In der Zukunft – Zeit wird erst gebucht, wenn sie gearbeitet ist",
+    "outsidePeriod": "Außerhalb des Zeitraums der Bestellung",
+    "sunday": "Sonntag – keine Arbeit an Sonn- und Feiertagen (ArbZG §9)",
+    "holiday": "Feiertag ({{name}}) – keine Arbeit an Sonn- und Feiertagen (ArbZG §9)",
+    "booked": "Schon gebucht: {{booked}}",
+    "conflict": "Konflikt: schon {{booked}} gebucht, mit dieser Buchung {{total}} – mehr als 10 Stunden",
+    "legendConflict": "Mit dieser Dauer über 10 Stunden",
+    "legendBlocked": "Nicht buchbar",
+    "legendHours": "Zahl unter dem Tag = schon gebucht"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
@@ -136,11 +367,11 @@
     "ORDER_NOT_FOUND": "Buchung abgelehnt: Diese Bestellung gibt es nicht.",
     "ORDER_NOT_ASSIGNED": "Buchung abgelehnt: Sie können nur auf Bestellungen Ihres eigenen Unternehmens buchen.",
     "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
-    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget sehen.",
+    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget und ihre Buchungen sehen.",
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleiter und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
+    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleitung, Einkauf und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
     "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
     "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
     "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9).",
@@ -148,6 +379,25 @@
     "VALIDATION_FAILED": "Bitte geben Sie eine gültige E-Mail-Adresse und ein Passwort ein.",
     "NETWORK_ERROR": "Der Server ist nicht erreichbar. Läuft die API?",
     "UNAUTHENTICATED": "Bitte melden Sie sich an.",
-    "FORBIDDEN": "Ihre Rolle darf das nicht."
+    "FORBIDDEN": "Ihre Rolle darf das nicht.",
+    "SUPPLIER_NAME_TAKEN": "Es gibt bereits einen Dienstleister mit diesem Namen.",
+    "ORDER_CODE_TAKEN": "Es gibt bereits eine Bestellung mit dieser Bestellnummer.",
+    "ORDER_PERIOD_INVALID": "Das Ende der Laufzeit darf nicht vor dem Beginn liegen.",
+    "NOT_A_PROJECT_MANAGER": "Für eine Bestellung kann nur eine Projektleitung verantwortlich sein.",
+    "BUDGET_BELOW_BOOKED": "Auf diese Bestellung ist schon mehr Zeit gebucht – das Budget darf nicht kleiner sein.",
+    "SUPPLIER_FIXED_AFTER_BOOKINGS": "Auf diese Bestellung wurde schon Zeit gebucht; sie bleibt beim Dienstleister. Legen Sie stattdessen eine neue Bestellung an.",
+    "PERIOD_EXCLUDES_BOOKINGS": "Es gibt Buchungen außerhalb dieser Laufzeit. Die Laufzeit muss alle gebuchten Tage enthalten.",
+    "OUTSIDE_ORDER_PERIOD": "Buchung abgelehnt: Das Datum liegt außerhalb der Laufzeit dieser Bestellung.",
+    "ROLE_IN_USE": "Die Rolle kann nicht geändert werden: An ihr hängen Buchungen oder Bestellungen. Legen Sie stattdessen ein neues Konto an – oder lassen Sie den Einkauf die Bestellungen zuerst neu zuweisen.",
+    "CANNOT_CHANGE_OWN_ROLE": "Sie können Ihre eigene Rolle nicht ändern. Fragen Sie einen anderen Admin.",
+    "CANNOT_DEACTIVATE_YOURSELF": "Sie können Ihr eigenes Konto nicht deaktivieren. Fragen Sie einen anderen Admin.",
+    "MANAGES_ORDERS": "Diese Projektleitung ist noch für Bestellungen verantwortlich. Der Einkauf muss sie zuerst jemand anderem zuweisen.",
+    "USER_NOT_FOUND": "Dieses Konto gibt es nicht.",
+    "ACCOUNT_DEACTIVATED": "Dieses Konto wurde deaktiviert. Wenden Sie sich an Ihren Admin.",
+    "PROJECT_MANAGER_DEACTIVATED": "Diese Projektleitung ist deaktiviert und kann keine Bestellung verantworten.",
+    "PASSWORD_CHANGE_REQUIRED": "Wählen Sie zuerst ein eigenes Passwort.",
+    "CURRENT_PASSWORD_WRONG": "Das aktuelle Passwort ist falsch.",
+    "NEW_PASSWORD_SAME_AS_CURRENT": "Wählen Sie ein neues Passwort, das sich vom bisherigen unterscheidet.",
+    "CANNOT_RESET_OWN_PASSWORD": "Ihr eigenes Passwort setzen Sie nicht zurück, sondern ändern es in Ihrem Profil."
   }
 }

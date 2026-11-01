@@ -2,7 +2,7 @@
 // No Drizzle imports here – if we swapped SQLite for Postgres, this file would not change.
 // Note: User has no passwordHash; credentials stay inside the persistence/auth layer.
 
-export type Role = "consultant" | "project_manager" | "admin"
+export type Role = "consultant" | "project_manager" | "purchasing" | "admin"
 
 export interface Supplier {
   id: number
@@ -15,6 +15,10 @@ export interface User {
   name: string
   role: Role
   supplierId: number | null
+  /** ISO timestamp when an admin deactivated the account; null = active. Accounts are never deleted. */
+  deactivatedAt: string | null
+  /** True after an admin chose the password (new account or reset): the person must pick their own first. */
+  mustChangePassword: boolean
 }
 
 export interface Order {
@@ -25,6 +29,8 @@ export interface Order {
   projectManagerId: number
   budgetHours: number
   hourlyRateCents: number
+  startDate: string // "YYYY-MM-DD", first day work may be booked
+  endDate: string // "YYYY-MM-DD", last day work may be booked
 }
 
 export interface TimeEntry {
