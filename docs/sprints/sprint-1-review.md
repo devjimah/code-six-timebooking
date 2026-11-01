@@ -5,8 +5,9 @@ Plan: [Sprint 1 backlog](../sprint-1-backlog.md) · Board: [GitHub Project #2](h
 **Sprint goal:** an external consultant books working time on one of the client's orders, and the client sees what
 that does to the order's budget – the core flow of the [challenge](../challenge.md).
 
-**Result:** goal reached. The core flow works end to end in the web app: Carl Consultant books time in a calendar,
-and Paula Projectmanager sees the budget of the order change and can check each booking.
+**Result:** goal reached, sprint closed on Sun 1 Nov 2026 after the last PRs were merged. The core flow works end to
+end in the web app: Carl Consultant books time in a calendar, and Paula Projectmanager sees the budget of the order
+change and can check each booking.
 
 ## Delivered
 
@@ -30,12 +31,12 @@ left, 260 API tests (`npm test`).
 
 ## Not finished in the sprint
 
-- **#46, #47, #48 and #12 are in review** (PRs #42 → #43 → #44 → #49, merged in that order). By the Definition of Done
-  they count once merged; the sprint closes after the merge.
+- #46, #47, #48 and #12 waited in review until Sunday (stacked PRs #42 → #43 → #44 → #49, merged on 1 Nov). They count
+  for Sprint 1, but the sprint ran one morning long.
 - Not started, moved to Sprint 2: #10 (days a consultant is unavailable) and #20 / [ADR 0010](../adr/0010-time-entry-granularity.md)
   (start and end times) – both wait for a team decision.
 - Still `TODO`: [product vision](../product-vision.md), [domain model](../domain.md), the product name in the README,
-  a compose file (evidence map E).
+  a compose file (evidence map E). Each is now a story: #58, #52, #57.
 
 ## Retrospective
 
