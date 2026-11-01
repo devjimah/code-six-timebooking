@@ -175,7 +175,8 @@
     "target": {
       "user": "Benutzer #{{id}}",
       "order": "Bestellung #{{id}}",
-      "supplier": "Dienstleister #{{id}}"
+      "supplier": "Dienstleister #{{id}}",
+      "timeEntry": "Buchung #{{id}}"
     },
     "details": {
       "email": "E-Mail",
@@ -190,7 +191,8 @@
       "budgetHours": "Budget",
       "hourlyRateCents": "Stundensatz",
       "startDate": "Beginn",
-      "endDate": "Ende"
+      "endDate": "Ende",
+      "approved": "Freigegeben"
     }
   },
   "auditActions": {
@@ -216,7 +218,9 @@
     },
     "time_entry": {
       "create": "Zeit gebucht",
-      "list_own": "Eigene Buchungen angesehen"
+      "list_own": "Eigene Buchungen angesehen",
+      "approve": "Buchung freigegeben",
+      "return": "Buchung zurückgegeben"
     },
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
@@ -225,7 +229,8 @@
       "list_all": "Alle Bestellungen angesehen",
       "create": "Bestellung angelegt",
       "update": "Bestellung geändert",
-      "view_bookings": "Buchungen einer Bestellung angesehen"
+      "view_bookings": "Buchungen einer Bestellung angesehen",
+      "approve_open": "Alle offenen Buchungen einer Bestellung freigegeben"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -284,7 +289,8 @@
     "created": "Bestellung {{code}} angelegt.",
     "saved": "Bestellung {{code}} gespeichert.",
     "empty": "Noch keine Bestellungen.",
-    "loadFailed": "Bestellungen konnten nicht geladen werden"
+    "loadFailed": "Bestellungen konnten nicht geladen werden",
+    "approvalSplit": "{{approved}} freigegeben · {{open}} noch nicht"
   },
   "myOrders": {
     "description": "Die Bestellungen, für die Sie verantwortlich sind. Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen.",
@@ -300,7 +306,24 @@
     "work": "Tätigkeit",
     "hours": "Stunden",
     "noBookings": "Auf diese Bestellung wurde noch keine Zeit gebucht.",
-    "loadFailed": "Bestellung konnte nicht geladen werden"
+    "loadFailed": "Bestellung konnte nicht geladen werden",
+    "status": "Status",
+    "approve": "Freigeben",
+    "approveNamed": "Buchung vom {{date}} freigeben",
+    "return": "Zurückgeben",
+    "returnNamed": "Buchung vom {{date}} zurückgeben",
+    "approveAll": "Alle offenen freigeben ({{count}})",
+    "approved": "Buchung freigegeben.",
+    "approvedAll_one": "{{count}} Buchung freigegeben.",
+    "approvedAll_other": "{{count}} Buchungen freigegeben.",
+    "returned": "Buchung zurückgegeben.",
+    "returnTitle": "Diese Buchung zurückgeben?",
+    "returnDescription": "{{consultant}} sieht Ihre Begründung und kann die Buchung korrigieren. Die Stunden bleiben bis dahin im Budget.",
+    "reason": "Begründung",
+    "reasonPlaceholder": "z. B. diese Arbeit gehört auf eine andere Bestellung",
+    "returnConfirm": "Buchung zurückgeben",
+    "returning": "Wird zurückgegeben …",
+    "cancel": "Abbrechen"
   },
   "password": {
     "title": "Passwort ändern",
@@ -350,7 +373,13 @@
     "mineDescription": "Neueste zuerst, mit der Summe je Tag.",
     "dayTotal": "{{booked}} / {{limit}}",
     "timeRange": "{{start}}–{{end}}",
-    "none": "Noch keine Buchungen."
+    "none": "Noch keine Buchungen.",
+    "status": {
+      "open": "Offen",
+      "approved": "Freigegeben",
+      "returned": "Zurückgegeben"
+    },
+    "returnReason": "Zurückgegeben: {{reason}}"
   },
   "calendar": {
     "future": "In der Zukunft – Zeit wird erst gebucht, wenn sie gearbeitet ist",
@@ -370,7 +399,7 @@
     "ORDER_NOT_FOUND": "Buchung abgelehnt: Diese Bestellung gibt es nicht.",
     "ORDER_NOT_ASSIGNED": "Buchung abgelehnt: Sie können nur auf Bestellungen Ihres eigenen Unternehmens buchen.",
     "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
-    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget und ihre Buchungen sehen.",
+    "NOT_YOUR_ORDER": "Nur die Projektleitung dieser Bestellung darf ihr Budget sehen und ihre Buchungen prüfen.",
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
@@ -406,6 +435,9 @@
     "END_NOT_AFTER_START": "Buchung abgelehnt: Das Ende muss am selben Tag nach dem Beginn liegen.",
     "INVALID_BREAK": "Buchung abgelehnt: Die Pause muss kürzer sein als die Zeit zwischen Beginn und Ende.",
     "BOOKING_OVERLAP": "Buchung abgelehnt: Diese Zeit überschneidet sich mit einer anderen Ihrer Buchungen an diesem Tag.",
-    "REST_PERIOD_TOO_SHORT": "Buchung abgelehnt: Zwischen zwei Arbeitstagen liegen weniger als 11 Stunden Ruhezeit (ArbZG §5)."
+    "REST_PERIOD_TOO_SHORT": "Buchung abgelehnt: Zwischen zwei Arbeitstagen liegen weniger als 11 Stunden Ruhezeit (ArbZG §5).",
+    "BOOKING_NOT_OPEN": "Nur eine offene Buchung kann freigegeben oder zurückgegeben werden.",
+    "RETURN_REASON_REQUIRED": "Bitte begründen Sie die Rückgabe, damit die Buchung korrigiert werden kann.",
+    "TIME_ENTRY_NOT_FOUND": "Diese Buchung gibt es nicht."
   }
 }

@@ -175,7 +175,8 @@
     "target": {
       "user": "User #{{id}}",
       "order": "Order #{{id}}",
-      "supplier": "Supplier #{{id}}"
+      "supplier": "Supplier #{{id}}",
+      "timeEntry": "Booking #{{id}}"
     },
     "details": {
       "email": "Email",
@@ -190,7 +191,8 @@
       "budgetHours": "Budget",
       "hourlyRateCents": "Hourly rate",
       "startDate": "Start",
-      "endDate": "End"
+      "endDate": "End",
+      "approved": "Approved"
     }
   },
   "auditActions": {
@@ -216,7 +218,9 @@
     },
     "time_entry": {
       "create": "Booked time",
-      "list_own": "Viewed own bookings"
+      "list_own": "Viewed own bookings",
+      "approve": "Approved a booking",
+      "return": "Returned a booking"
     },
     "order": {
       "list_bookable": "Viewed bookable orders",
@@ -225,7 +229,8 @@
       "list_all": "Viewed all orders",
       "create": "Placed order",
       "update": "Changed order",
-      "view_bookings": "Viewed bookings of an order"
+      "view_bookings": "Viewed bookings of an order",
+      "approve_open": "Approved all open bookings of an order"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -284,7 +289,8 @@
     "created": "Order {{code}} created.",
     "saved": "Order {{code}} saved.",
     "empty": "No orders yet.",
-    "loadFailed": "Orders could not be loaded"
+    "loadFailed": "Orders could not be loaded",
+    "approvalSplit": "{{approved}} approved · {{open}} not yet"
   },
   "myOrders": {
     "description": "The orders you are responsible for. Tap an order to check the work booked on it.",
@@ -300,7 +306,24 @@
     "work": "Work done",
     "hours": "Hours",
     "noBookings": "No time has been booked on this order yet.",
-    "loadFailed": "The order could not be loaded"
+    "loadFailed": "The order could not be loaded",
+    "status": "Status",
+    "approve": "Approve",
+    "approveNamed": "Approve booking of {{date}}",
+    "return": "Return",
+    "returnNamed": "Return booking of {{date}}",
+    "approveAll": "Approve all open ({{count}})",
+    "approved": "Booking approved.",
+    "approvedAll_one": "{{count}} booking approved.",
+    "approvedAll_other": "{{count}} bookings approved.",
+    "returned": "Booking returned.",
+    "returnTitle": "Return this booking?",
+    "returnDescription": "{{consultant}} sees your reason and can correct the booking. The hours stay in the budget until then.",
+    "reason": "Reason",
+    "reasonPlaceholder": "e.g. this work belongs on another order",
+    "returnConfirm": "Return booking",
+    "returning": "Returning …",
+    "cancel": "Cancel"
   },
   "password": {
     "title": "Change password",
@@ -350,7 +373,13 @@
     "mineDescription": "Newest first, with the total per day.",
     "dayTotal": "{{booked}} / {{limit}}",
     "timeRange": "{{start}}–{{end}}",
-    "none": "No bookings yet."
+    "none": "No bookings yet.",
+    "status": {
+      "open": "Open",
+      "approved": "Approved",
+      "returned": "Returned"
+    },
+    "returnReason": "Returned: {{reason}}"
   },
   "calendar": {
     "future": "In the future – time is booked once it has been worked",
@@ -370,7 +399,7 @@
     "ORDER_NOT_FOUND": "Booking rejected: this order does not exist.",
     "ORDER_NOT_ASSIGNED": "Booking rejected: you can only book on orders of your own company.",
     "DATE_IN_FUTURE": "Booking rejected: the date is in the future. Book time once the work is done.",
-    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget and bookings.",
+    "NOT_YOUR_ORDER": "Only the project manager of this order can see its budget and check its bookings.",
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again.",
     "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",
@@ -406,6 +435,9 @@
     "END_NOT_AFTER_START": "Booking rejected: the end must be after the start on the same day.",
     "INVALID_BREAK": "Booking rejected: the break must be shorter than the time between start and end.",
     "BOOKING_OVERLAP": "Booking rejected: this time overlaps another of your bookings on this day.",
-    "REST_PERIOD_TOO_SHORT": "Booking rejected: less than 11 hours rest between two working days (ArbZG §5)."
+    "REST_PERIOD_TOO_SHORT": "Booking rejected: less than 11 hours rest between two working days (ArbZG §5).",
+    "BOOKING_NOT_OPEN": "Only an open booking can be approved or returned.",
+    "RETURN_REASON_REQUIRED": "Say why you return this booking, so the consultant can correct it.",
+    "TIME_ENTRY_NOT_FOUND": "This booking does not exist."
   }
 }

@@ -67,8 +67,8 @@ describe("the project manager checks the work on their order", () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual([
-      { id: expect.any(Number), workDate: "2026-10-27", durationMinutes: 450, description: "Login page implementation", consultantName: "Carl Consultant" },
-      { id: expect.any(Number), workDate: "2026-10-26", durationMinutes: 480, description: "Kick-off and requirements workshop", consultantName: "Carl Consultant" },
+      { id: expect.any(Number), workDate: "2026-10-27", durationMinutes: 450, description: "Login page implementation", status: "open", returnReason: null, consultantName: "Carl Consultant" },
+      { id: expect.any(Number), workDate: "2026-10-26", durationMinutes: 480, description: "Kick-off and requirements workshop", status: "open", returnReason: null, consultantName: "Carl Consultant" },
     ])
   })
 

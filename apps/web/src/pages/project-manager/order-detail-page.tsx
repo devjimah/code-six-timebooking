@@ -1,9 +1,11 @@
 // Project manager: one of your orders – its budget and every single booking on it, to check the work
-// (GET /api/orders/:id/budget and /time-entries). On purpose without totals per person and day:
-// the client checks the work, not the consultant's working hours (docs/roles-and-privacy.md).
+// (GET /api/orders/:id/budget and /time-entries), and approve or return it (ADR 0014). On purpose without totals
+// per person and day: the client checks the work, not the consultant's working hours (docs/roles-and-privacy.md).
+import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useParams } from "react-router"
-import { ArrowLeft, CircleAlert, ShieldCheck } from "lucide-react"
+import { ArrowLeft, Check, CheckCheck, CircleAlert, ShieldCheck, Undo2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import { Badge } from "@workspace/ui/components/badge"
@@ -13,8 +15,10 @@ import { Progress } from "@workspace/ui/components/progress"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { formatDate, formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
+import { ApiError, api } from "@/lib/api.ts"
 import type { OrderBooking, OrderBudget } from "@/lib/api-types.ts"
 import { useApi } from "@/lib/use-api.ts"
+import { ReturnBookingDialog } from "@/pages/project-manager/return-booking-dialog.tsx"
 
 export function OrderDetailPage() {
   const { t } = useTranslation()
@@ -23,6 +27,23 @@ export function OrderDetailPage() {
   const bookings = useApi<OrderBooking[]>(`/orders/${orderId}/time-entries`)
   const error = budget.error ?? bookings.error
   const order = budget.data
+  const openCount = bookings.data?.filter((b) => b.status === "open").length ?? 0
+  const [returning, setReturning] = React.useState<OrderBooking | null>(null)
+  const [busy, setBusy] = React.useState(false)
+
+  /** Approve one or all: the server checks that this is your order and that the booking is open. */
+  async function review(path: string, success: (approved: number) => string) {
+    setBusy(true)
+    try {
+      const result = await api<{ approved?: number }>(path, { method: "POST" })
+      toast.success(success(result.approved ?? 1))
+      bookings.reload()
+    } catch (caught) {
+      toast.error(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <>
@@ -83,7 +104,23 @@ export function OrderDetailPage() {
 
       <Card className="gap-0 py-0">
         <CardHeader className="border-b px-4 py-3">
-          <CardTitle className="text-base">{t("myOrders.bookings")}</CardTitle>
+          <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
+            {t("myOrders.bookings")}
+            {openCount > 0 && (
+              <Button
+                size="sm"
+                disabled={busy}
+                onClick={() =>
+                  review(`/orders/${orderId}/time-entries/approve-open`, (count) =>
+                    t("myOrders.approvedAll", { count }),
+                  )
+                }
+              >
+                <CheckCheck aria-hidden />
+                {t("myOrders.approveAll", { count: openCount })}
+              </Button>
+            )}
+          </CardTitle>
           <CardDescription className="flex items-start gap-1.5 text-xs">
             <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             {t("myOrders.privacyNote")}
@@ -97,21 +134,22 @@ export function OrderDetailPage() {
                 {/* On phones, consultant and description move under the date. */}
                 <TableHead className="hidden md:table-cell">{t("myOrders.consultant")}</TableHead>
                 <TableHead className="hidden md:table-cell">{t("myOrders.work")}</TableHead>
-                <TableHead className="pr-4 text-right">{t("myOrders.hours")}</TableHead>
+                <TableHead className="text-right">{t("myOrders.hours")}</TableHead>
+                <TableHead className="pr-4">{t("myOrders.status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {bookings.loading &&
                 Array.from({ length: 3 }, (_, i) => (
                   <TableRow key={i}>
-                    <TableCell className="pl-4" colSpan={4}>
+                    <TableCell className="pl-4" colSpan={5}>
                       <Skeleton className="h-6 w-full" />
                     </TableCell>
                   </TableRow>
                 ))}
               {bookings.data?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-muted-foreground py-8 text-center">
+                  <TableCell colSpan={5} className="text-muted-foreground py-8 text-center">
                     {t("myOrders.noBookings")}
                   </TableCell>
                 </TableRow>
@@ -129,8 +167,43 @@ export function OrderDetailPage() {
                   <TableCell className="text-muted-foreground hidden align-top whitespace-normal md:table-cell">
                     {booking.description}
                   </TableCell>
-                  <TableCell className="pr-4 text-right align-top tabular-nums">
+                  <TableCell className="text-right align-top tabular-nums">
                     {formatHours(booking.durationMinutes)}
+                  </TableCell>
+                  <TableCell className="pr-4 align-top whitespace-normal">
+                    {booking.status === "open" ? (
+                      <div className="flex flex-col gap-1 sm:flex-row">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={busy}
+                          aria-label={t("myOrders.approveNamed", { date: formatDate(booking.workDate) })}
+                          onClick={() => review(`/time-entries/${booking.id}/approve`, () => t("myOrders.approved"))}
+                        >
+                          <Check aria-hidden />
+                          {t("myOrders.approve")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={busy}
+                          aria-label={t("myOrders.returnNamed", { date: formatDate(booking.workDate) })}
+                          onClick={() => setReturning(booking)}
+                        >
+                          <Undo2 aria-hidden />
+                          {t("myOrders.return")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Badge variant={booking.status === "returned" ? "destructive" : "secondary"}>
+                          {t(`booking.status.${booking.status}`)}
+                        </Badge>
+                        {booking.returnReason && (
+                          <span className="text-muted-foreground mt-1 block text-xs">{booking.returnReason}</span>
+                        )}
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -138,6 +211,8 @@ export function OrderDetailPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <ReturnBookingDialog booking={returning} onClose={() => setReturning(null)} onReturned={bookings.reload} />
     </>
   )
 }
