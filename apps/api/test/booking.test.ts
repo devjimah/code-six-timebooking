@@ -147,6 +147,33 @@ describe("rules enforced by the API", () => {
     expect(res.status).toBe(201)
   })
 
+  it("rejects a start less than 11 hours after yesterday's work, and accepts exactly 11 hours (#55)", async () => {
+    expect((await book(booking({ workDate: "2026-10-05", startTime: "13:00", endTime: "22:00" }))).status).toBe(201)
+
+    const res = await book(booking({ workDate: "2026-10-06", startTime: "07:00", endTime: "08:00" }))
+
+    expect(res.status).toBe(422)
+    expect(await res.json()).toEqual({
+      code: "REST_PERIOD_TOO_SHORT",
+      message:
+        "Booking rejected: only 9 h rest after your work ended at 22:00 on Mon 5 Oct 2026. " +
+        "Start at 09:00 at the earliest (min. 11 h rest, German Working Time Act §5).",
+    })
+    expect((await book(booking({ workDate: "2026-10-06", startTime: "09:00", endTime: "10:00" }))).status).toBe(201)
+  })
+
+  it("rejects a late end when the next morning is already booked, on another order (#55)", async () => {
+    // Booked afterwards: Thursday 06:00 is in first, then Wednesday evening on the other order.
+    expect((await book(booking({ workDate: "2026-10-08", startTime: "06:00", endTime: "08:00" }))).status).toBe(201)
+
+    const res = await book(
+      booking({ orderId: orderId["PO-2026-002"], workDate: "2026-10-07", startTime: "18:00", endTime: "21:00" }),
+    )
+
+    expect(res.status).toBe(422)
+    expect((await res.json()).message).toContain("End at 19:00 at the latest")
+  })
+
   it("accepts the free budget exactly, then rejects the next booking on that order", async () => {
     // "SAP data migration": 40 h budget, 4 h used → 36 h free = 3 × 10 h + 6 h
     const sap = orderId["PO-2026-002"]

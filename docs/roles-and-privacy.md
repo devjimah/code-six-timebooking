@@ -69,7 +69,7 @@ We resolve it like this:
   consultants. Purchasing only sees sums per order.
 - The consultant records start, end and break, but the client never sees them – the project manager gets the
   duration only ([ADR 0010](adr/0010-time-entry-granularity.md)). The client checks *what* and *how much*, not *when*.
-- Working-time limits (10 h per day, no Sundays or public holidays, no overlapping bookings) are checked by the server
+- Working-time limits (10 h per day, 11 h rest between working days, no Sundays or public holidays, no overlapping bookings) are checked by the server
   when the consultant books, and the consultant gets the message directly. The client does not need to watch working hours to enforce
   the law, and nobody from the client sees a list of "who worked too much".
 

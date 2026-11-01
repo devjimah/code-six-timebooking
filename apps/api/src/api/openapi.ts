@@ -157,7 +157,7 @@ export const routes: RouteDoc[] = [
     success: { status: 201, description: "Booked", schema: timeEntryResponse },
     errors: {
       400: "Invalid request body",
-      422: "A business rule was broken: INVALID_TIME, END_NOT_AFTER_START, INVALID_BREAK, BOOKING_OVERLAP, DAILY_LIMIT_EXCEEDED, " +
+      422: "A business rule was broken: INVALID_TIME, END_NOT_AFTER_START, INVALID_BREAK, BOOKING_OVERLAP, REST_PERIOD_TOO_SHORT, DAILY_LIMIT_EXCEEDED, " +
         "BUDGET_EXCEEDED, ORDER_NOT_FOUND, ORDER_NOT_ASSIGNED, DATE_IN_FUTURE, SUNDAY_OR_HOLIDAY, OUTSIDE_ORDER_PERIOD",
     },
   },

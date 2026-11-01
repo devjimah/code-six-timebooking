@@ -182,6 +182,15 @@ export function timeEntryRepository(db: Db) {
         .innerJoin(orders, eq(timeEntries.orderId, orders.id))
         .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
     },
+    /** For the rest-period rule: when this person's work started and ended on this date, on any order, or null. */
+    async workingHoursForUserOnDate(userId: number, workDate: string) {
+      // "HH:MM" strings sort like times, so min and max work on text.
+      const [row] = await db
+        .select({ first: sql<string | null>`min(${timeEntries.startTime})`, last: sql<string | null>`max(${timeEntries.endTime})` })
+        .from(timeEntries)
+        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
+      return row?.first && row.last ? { firstStart: row.first, lastEnd: row.last } : null
+    },
     /** First and last booked work date of an order, or null without bookings – for the period editing rule. */
     async bookedDateRange(orderId: number) {
       const [row] = await db

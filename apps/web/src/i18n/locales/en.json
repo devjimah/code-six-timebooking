@@ -405,6 +405,7 @@
     "INVALID_TIME": "Booking rejected: please enter start and end as a time between 00:00 and 23:59.",
     "END_NOT_AFTER_START": "Booking rejected: the end must be after the start on the same day.",
     "INVALID_BREAK": "Booking rejected: the break must be shorter than the time between start and end.",
-    "BOOKING_OVERLAP": "Booking rejected: this time overlaps another of your bookings on this day."
+    "BOOKING_OVERLAP": "Booking rejected: this time overlaps another of your bookings on this day.",
+    "REST_PERIOD_TOO_SHORT": "Booking rejected: less than 11 hours rest between two working days (ArbZG §5)."
   }
 }
