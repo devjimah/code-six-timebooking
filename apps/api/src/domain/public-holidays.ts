@@ -45,8 +45,9 @@ export function nationwideHoliday(date: string): string | null {
 const isoDate = (year: number, month: number, day: number) =>
   `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 
-// Calculated in UTC so a daylight-saving change cannot shift the date.
-function addDays(date: string, days: number): string {
+// "2026-10-27" + 1 → "2026-10-28". Calculated in UTC so a daylight-saving change cannot shift the date.
+// Also used by the rest-period rule to find the day before and after a booking.
+export function addDays(date: string, days: number): string {
   const d = new Date(`${date}T00:00:00Z`)
   d.setUTCDate(d.getUTCDate() + days)
   return d.toISOString().slice(0, 10)

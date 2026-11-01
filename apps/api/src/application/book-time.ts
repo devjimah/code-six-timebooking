@@ -4,10 +4,12 @@
 import { DomainError } from "../domain/errors.js"
 import type { TimeEntry, User } from "../domain/models.js"
 import { assertWithinDailyLimit } from "../domain/rules/daily-limit.js"
+import { addDays } from "../domain/public-holidays.js"
 import { assertNoOverlap } from "../domain/rules/no-overlap.js"
 import { assertAssignedToOrder } from "../domain/rules/order-assignment.js"
 import { assertWithinOrderBudget } from "../domain/rules/order-budget.js"
 import { assertWithinOrderPeriod } from "../domain/rules/order-period.js"
+import { assertRestPeriod } from "../domain/rules/rest-period.js"
 import { assertNotInFuture } from "../domain/rules/work-date.js"
 import { assertWorkingDay } from "../domain/rules/working-day.js"
 import { workedMinutes } from "../domain/rules/working-times.js"
@@ -47,6 +49,17 @@ export async function bookTime(
     startTime: input.startTime,
     endTime: input.endTime,
     sameDayBookings: await entries.slotsForUserOnDate(consultant.id, input.workDate),
+  })
+  const [dayBefore, dayAfter] = await Promise.all([
+    entries.workingHoursForUserOnDate(consultant.id, addDays(input.workDate, -1)),
+    entries.workingHoursForUserOnDate(consultant.id, addDays(input.workDate, 1)),
+  ])
+  assertRestPeriod({
+    workDate: input.workDate,
+    startTime: input.startTime,
+    endTime: input.endTime,
+    previousDayLastEnd: dayBefore?.lastEnd ?? null,
+    nextDayFirstStart: dayAfter?.firstStart ?? null,
   })
   assertWithinDailyLimit({
     workDate: input.workDate,

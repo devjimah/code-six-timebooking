@@ -1,6 +1,6 @@
 // Consultant: book working time on an order of the own company (POST /api/time-entries, issue #12) and see the own
 // bookings (GET /api/time-entries/mine). The form only helps to get it right first time – the server checks every
-// rule again and answers with a reason we translate: 10 h per day, no overlapping times, no Sundays or public
+// rule again and answers with a reason we translate: 10 h per day, 11 h rest, no overlapping times, no Sundays or public
 // holidays, no future dates, inside the order's period, budget left, own company's order.
 import * as React from "react"
 import { useTranslation } from "react-i18next"

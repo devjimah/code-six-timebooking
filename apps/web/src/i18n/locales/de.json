@@ -405,6 +405,7 @@
     "INVALID_TIME": "Buchung abgelehnt: Bitte Beginn und Ende als Uhrzeit zwischen 00:00 und 23:59 angeben.",
     "END_NOT_AFTER_START": "Buchung abgelehnt: Das Ende muss am selben Tag nach dem Beginn liegen.",
     "INVALID_BREAK": "Buchung abgelehnt: Die Pause muss kürzer sein als die Zeit zwischen Beginn und Ende.",
-    "BOOKING_OVERLAP": "Buchung abgelehnt: Diese Zeit überschneidet sich mit einer anderen Ihrer Buchungen an diesem Tag."
+    "BOOKING_OVERLAP": "Buchung abgelehnt: Diese Zeit überschneidet sich mit einer anderen Ihrer Buchungen an diesem Tag.",
+    "REST_PERIOD_TOO_SHORT": "Buchung abgelehnt: Zwischen zwei Arbeitstagen liegen weniger als 11 Stunden Ruhezeit (ArbZG §5)."
   }
 }
