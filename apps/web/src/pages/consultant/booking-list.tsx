@@ -2,8 +2,10 @@
 // Only the consultant sees this: the client sees single bookings per order, never totals per person and day
 // (docs/roles-and-privacy.md).
 import { useTranslation } from "react-i18next"
+import { Pencil, Trash2 } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
 import { Separator } from "@workspace/ui/components/separator"
 import { formatHours, formatWeekday } from "@/i18n/format.ts"
 import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
@@ -15,6 +17,9 @@ type Props = {
   orders: BookableOrder[]
   /** Show only the newest days, e.g. on the home screen */
   maxDays?: number
+  /** With these, bookings that are not approved yet get buttons to correct and delete them (#53) */
+  onEdit?: (entry: TimeEntry) => void
+  onDelete?: (entry: TimeEntry) => void
 }
 
 /** Entries arrive newest first from the API; this keeps that order and groups them by work date. */
@@ -28,7 +33,7 @@ function groupByDay(entries: TimeEntry[]) {
   }))
 }
 
-export function BookingList({ entries, orders, maxDays }: Props) {
+export function BookingList({ entries, orders, maxDays, onEdit, onDelete }: Props) {
   const { t } = useTranslation()
   const days = groupByDay(entries).slice(0, maxDays)
   const codeOf = (orderId: number) => orders.find((o) => o.id === orderId)?.code ?? `#${orderId}`
@@ -70,6 +75,26 @@ export function BookingList({ entries, orders, maxDays }: Props) {
                   <span className="text-muted-foreground block text-xs">
                     {t("booking.timeRange", { start: entry.startTime, end: entry.endTime })}
                   </span>
+                  {entry.status !== "approved" && onEdit && onDelete && (
+                    <span className="mt-1 flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t("booking.editNamed", { date: formatWeekday(entry.workDate) })}
+                        onClick={() => onEdit(entry)}
+                      >
+                        <Pencil aria-hidden />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t("booking.deleteNamed", { date: formatWeekday(entry.workDate) })}
+                        onClick={() => onDelete(entry)}
+                      >
+                        <Trash2 aria-hidden />
+                      </Button>
+                    </span>
+                  )}
                 </span>
               </li>
             ))}

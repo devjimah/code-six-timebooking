@@ -1,6 +1,7 @@
-// Consultants book and see their own time (ticket #12); project managers approve or return it (ticket #50).
+// Consultants book, see and correct their own time (tickets #12, #53); project managers approve or return it (#50).
 import { Router } from "express"
 import { bookTime } from "../application/book-time.js"
+import { correctBooking, deleteBooking } from "../application/correct-booking.js"
 import { approveBooking, returnBooking } from "../application/review-bookings.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
@@ -31,6 +32,24 @@ export function timeEntryRoutes(db: Db) {
   router.get("/mine", requireRole("consultant"), async (req, res) => {
     const entries = await timeEntryRepository(db).findByUser(req.user!.id)
     res.json(entries.map(toTimeEntryResponse))
+  })
+
+  // Whose booking it is and whether it is approved: in the use case. Times and text stay out of the log, as in POST.
+  router.put("/:id", requireRole("consultant"), async (req, res) => {
+    const { id } = timeEntryIdParams.parse(req.params)
+    const input = createTimeEntryRequest.parse(req.body)
+    setAuditContext(res, { targetType: "time_entry", targetId: id, details: { workDate: input.workDate } })
+    const entry = await correctBooking(db, req.user!, id, input)
+    setAuditContext(res, { details: { durationMinutes: entry.durationMinutes } })
+    res.json(toTimeEntryResponse(entry))
+  })
+
+  router.delete("/:id", requireRole("consultant"), async (req, res) => {
+    const { id } = timeEntryIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "time_entry", targetId: id })
+    const entry = await deleteBooking(db, req.user!, id)
+    setAuditContext(res, { details: { workDate: entry.workDate, durationMinutes: entry.durationMinutes } })
+    res.status(204).end()
   })
 
   // Role check here; "is it your order?" in the use case (403 NOT_YOUR_ORDER). The reason is free text: not logged.

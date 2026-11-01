@@ -28,6 +28,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
 | See single bookings of an order (date, hours, description, consultant's name) | own only | ✔ own orders, no daily totals per person | – | – | built |
 | See start time, end time and break of a booking ([ADR 0010](adr/0010-time-entry-granularity.md)) | own only | – | – | – | built |
+| Correct or delete own bookings until they are approved | ✔ own only | – | – | – | built |
 | Approve or return a booking ([ADR 0014](adr/0014-booking-approval.md)) | – | ✔ own orders | – | – | built |
 | See the status of a booking and the reason for a return | own only | ✔ own orders | Σ approved and not approved hours per order | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
@@ -114,6 +115,8 @@ that is convenience, not security.
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
 | `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
+| `PUT /api/time-entries/:id` | consultant | only own bookings; not when approved; booking rules run again; times not logged |
+| `DELETE /api/time-entries/:id` | consultant | only own bookings; not when approved |
 | `POST /api/time-entries/:id/approve` | project manager | only own orders; only open bookings |
 | `POST /api/time-entries/:id/return` | project manager | only own orders; only open bookings; reason required and not logged |
 | `POST /api/orders/:id/time-entries/approve-open` | project manager | only own orders; returned bookings stay |

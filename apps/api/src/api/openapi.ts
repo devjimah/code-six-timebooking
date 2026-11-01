@@ -36,7 +36,7 @@ import {
 } from "./dto.js"
 
 type RouteDoc = {
-  method: "get" | "post" | "put" | "patch"
+  method: "get" | "post" | "put" | "patch" | "delete"
   path: string // OpenAPI style: /api/orders/{id}/budget
   summary: string
   tag: string
@@ -254,6 +254,31 @@ export const routes: RouteDoc[] = [
       400: "The id is not a number",
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
       404: "The order does not exist (ORDER_NOT_FOUND)",
+    },
+  },
+  {
+    method: "put", path: "/api/time-entries/{id}", tag: "Time entries", roles: ["consultant"],
+    summary: "Correct your own booking until it is approved; the booking rules run again and it is open again",
+    params: timeEntryIdParams,
+    body: createTimeEntryRequest,
+    success: { status: 200, description: "Corrected", schema: timeEntryResponse },
+    errors: {
+      400: "The id is not a number, or the body is malformed",
+      403: "Not a consultant (FORBIDDEN), or not your booking (NOT_YOUR_BOOKING)",
+      404: "The booking does not exist (TIME_ENTRY_NOT_FOUND)",
+      422: "The booking is approved (BOOKING_APPROVED), or a booking rule was broken, as when booking",
+    },
+  },
+  {
+    method: "delete", path: "/api/time-entries/{id}", tag: "Time entries", roles: ["consultant"],
+    summary: "Delete your own booking until it is approved",
+    params: timeEntryIdParams,
+    success: { status: 204, description: "Deleted" },
+    errors: {
+      400: "The id is not a number",
+      403: "Not a consultant (FORBIDDEN), or not your booking (NOT_YOUR_BOOKING)",
+      404: "The booking does not exist (TIME_ENTRY_NOT_FOUND)",
+      422: "The booking is approved (BOOKING_APPROVED)",
     },
   },
   {

@@ -1,6 +1,6 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
-import { and, asc, desc, eq, inArray, lt, notInArray, or, sql } from "drizzle-orm"
+import { and, asc, desc, eq, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm"
 import { READ_METHODS } from "../domain/audit-retention.js"
 import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
@@ -149,6 +149,8 @@ export function orderRepository(db: Db) {
 }
 
 export function timeEntryRepository(db: Db) {
+  // The rule queries take exceptId: when a booking is corrected, its own old version must not count.
+  const notThis = (exceptId?: number) => (exceptId === undefined ? undefined : ne(timeEntries.id, exceptId))
   return {
     /** New bookings are always open. */
     async create(data: Omit<NewOf<TimeEntry>, "status" | "returnReason">) {
@@ -158,6 +160,13 @@ export function timeEntryRepository(db: Db) {
     async findById(id: number) {
       const [row] = await db.select().from(timeEntries).where(eq(timeEntries.id, id))
       return row ? toTimeEntry(row) : null
+    },
+    async update(id: number, data: Partial<NewOf<TimeEntry>>) {
+      const [row] = await db.update(timeEntries).set(data).where(eq(timeEntries.id, id)).returning()
+      return toTimeEntry(row!)
+    },
+    async delete(id: number) {
+      await db.delete(timeEntries).where(eq(timeEntries.id, id))
     },
     async setReview(id: number, data: Pick<TimeEntry, "status" | "returnReason">) {
       const [row] = await db.update(timeEntries).set(data).where(eq(timeEntries.id, id)).returning()
@@ -186,28 +195,28 @@ export function timeEntryRepository(db: Db) {
       return Number(row?.n ?? 0)
     },
     /** For the 10-hour rule: everything this person booked on this date, on any order. */
-    async sumMinutesForUserOnDate(userId: number, workDate: string) {
+    async sumMinutesForUserOnDate(userId: number, workDate: string, exceptId?: number) {
       const [row] = await db
         .select({ total: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)` })
         .from(timeEntries)
-        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
+        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate), notThis(exceptId)))
       return Number(row?.total ?? 0)
     },
     /** For the overlap rule: this person's bookings on this date, on any order, with the order's code. */
-    async slotsForUserOnDate(userId: number, workDate: string) {
+    async slotsForUserOnDate(userId: number, workDate: string, exceptId?: number) {
       return db
         .select({ startTime: timeEntries.startTime, endTime: timeEntries.endTime, orderCode: orders.code })
         .from(timeEntries)
         .innerJoin(orders, eq(timeEntries.orderId, orders.id))
-        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
+        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate), notThis(exceptId)))
     },
     /** For the rest-period rule: when this person's work started and ended on this date, on any order, or null. */
-    async workingHoursForUserOnDate(userId: number, workDate: string) {
+    async workingHoursForUserOnDate(userId: number, workDate: string, exceptId?: number) {
       // "HH:MM" strings sort like times, so min and max work on text.
       const [row] = await db
         .select({ first: sql<string | null>`min(${timeEntries.startTime})`, last: sql<string | null>`max(${timeEntries.endTime})` })
         .from(timeEntries)
-        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
+        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate), notThis(exceptId)))
       return row?.first && row.last ? { firstStart: row.first, lastEnd: row.last } : null
     },
     /** First and last booked work date of an order, or null without bookings – for the period editing rule. */
@@ -219,11 +228,11 @@ export function timeEntryRepository(db: Db) {
       return row?.first && row.last ? { first: row.first, last: row.last } : null
     },
     /** For the budget rule: everything booked on this order, by anyone (ADR 0008: computed, not stored). */
-    async sumMinutesForOrder(orderId: number) {
+    async sumMinutesForOrder(orderId: number, exceptId?: number) {
       const [row] = await db
         .select({ total: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)` })
         .from(timeEntries)
-        .where(eq(timeEntries.orderId, orderId))
+        .where(and(eq(timeEntries.orderId, orderId), notThis(exceptId)))
       return Number(row?.total ?? 0)
     },
     /** Booked minutes per order in one query, instead of one query per order. Orders without bookings are missing. */

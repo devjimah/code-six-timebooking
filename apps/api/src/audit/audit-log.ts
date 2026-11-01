@@ -30,6 +30,8 @@ export const ACTIONS: Record<string, string> = {
   "PATCH /api/suppliers/:id": "supplier.update",
   "POST /api/time-entries": "time_entry.create",
   "GET /api/time-entries/mine": "time_entry.list_own",
+  "PUT /api/time-entries/:id": "time_entry.update",
+  "DELETE /api/time-entries/:id": "time_entry.delete",
   "POST /api/time-entries/:id/approve": "time_entry.approve",
   "POST /api/time-entries/:id/return": "time_entry.return",
   "POST /api/orders/:id/time-entries/approve-open": "order.approve_open",

@@ -220,7 +220,9 @@
       "create": "Booked time",
       "list_own": "Viewed own bookings",
       "approve": "Approved a booking",
-      "return": "Returned a booking"
+      "return": "Returned a booking",
+      "update": "Corrected a booking",
+      "delete": "Deleted a booking"
     },
     "order": {
       "list_bookable": "Viewed bookable orders",
@@ -379,7 +381,18 @@
       "approved": "Approved",
       "returned": "Returned"
     },
-    "returnReason": "Returned: {{reason}}"
+    "returnReason": "Returned: {{reason}}",
+    "editTitle": "Correct booking",
+    "editDescription": "All booking rules are checked again. It then goes back to your project manager as open.",
+    "saveCorrection": "Save correction",
+    "corrected": "Booking corrected: {{hours}} on {{code}}.",
+    "cancelEdit": "Cancel",
+    "editNamed": "Correct booking of {{date}}",
+    "deleteNamed": "Delete booking of {{date}}",
+    "deleted": "Booking deleted.",
+    "deleteTitle": "Delete this booking?",
+    "deleteDescription": "{{hours}} on {{date}} will be removed. This cannot be undone.",
+    "deleteConfirm": "Delete"
   },
   "calendar": {
     "future": "In the future – time is booked once it has been worked",
@@ -438,6 +451,8 @@
     "REST_PERIOD_TOO_SHORT": "Booking rejected: less than 11 hours rest between two working days (ArbZG §5).",
     "BOOKING_NOT_OPEN": "Only an open booking can be approved or returned.",
     "RETURN_REASON_REQUIRED": "Say why you return this booking, so the consultant can correct it.",
-    "TIME_ENTRY_NOT_FOUND": "This booking does not exist."
+    "TIME_ENTRY_NOT_FOUND": "This booking does not exist.",
+    "BOOKING_APPROVED": "This booking is approved and can no longer be changed or deleted.",
+    "NOT_YOUR_BOOKING": "You can only change your own bookings."
   }
 }
