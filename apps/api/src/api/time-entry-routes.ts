@@ -13,14 +13,11 @@ export function timeEntryRoutes(db: Db) {
   // Malformed body → 400 (zod). Broken business rule → 422 (DomainError). Both via the error handler.
   router.post("/", requireRole("consultant"), async (req, res) => {
     const input = createTimeEntryRequest.parse(req.body)
-    // The target is the order whose budget the booking uses. The description is free text and stays out of the log.
-    setAuditContext(res, {
-      targetType: "order",
-      targetId: input.orderId,
-      details: { workDate: input.workDate, durationMinutes: input.durationMinutes },
-    })
+    // The target is the order whose budget the booking uses. The description is free text and the times are
+    // personal (ADR 0010), so both stay out of the log; the derived duration is logged once the booking is saved.
+    setAuditContext(res, { targetType: "order", targetId: input.orderId, details: { workDate: input.workDate } })
     const entry = await bookTime(db, req.user!, input)
-    setAuditContext(res, { details: { timeEntryId: entry.id } })
+    setAuditContext(res, { details: { timeEntryId: entry.id, durationMinutes: entry.durationMinutes } })
     res.status(201).json(toTimeEntryResponse(entry))
   })
 

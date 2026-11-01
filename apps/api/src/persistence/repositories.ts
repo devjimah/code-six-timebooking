@@ -34,6 +34,9 @@ const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   userId: r.userId,
   orderId: r.orderId,
   workDate: r.workDate,
+  startTime: r.startTime,
+  endTime: r.endTime,
+  breakMinutes: r.breakMinutes,
   durationMinutes: r.durationMinutes,
   description: r.description,
 })
@@ -170,6 +173,14 @@ export function timeEntryRepository(db: Db) {
         .from(timeEntries)
         .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
       return Number(row?.total ?? 0)
+    },
+    /** For the overlap rule: this person's bookings on this date, on any order, with the order's code. */
+    async slotsForUserOnDate(userId: number, workDate: string) {
+      return db
+        .select({ startTime: timeEntries.startTime, endTime: timeEntries.endTime, orderCode: orders.code })
+        .from(timeEntries)
+        .innerJoin(orders, eq(timeEntries.orderId, orders.id))
+        .where(and(eq(timeEntries.userId, userId), eq(timeEntries.workDate, workDate)))
     },
     /** First and last booked work date of an order, or null without bookings – for the period editing rule. */
     async bookedDateRange(orderId: number) {

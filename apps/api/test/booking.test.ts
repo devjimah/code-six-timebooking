@@ -1,7 +1,8 @@
 // Ticket #12: a consultant books time on an order through the API, and every rule is enforced on the server.
 // Seed data used here (src/persistence/seed.ts), consultant Carl of Acme Consulting:
-// - 26 Oct: 8 h and 27 Oct: 7.5 h on "Customer portal relaunch" (120 h budget)
-// - 28 Oct: 4 h on "SAP data migration" (40 h budget, so 36 h free)
+// - 26 Oct: 8 h (08:30–17:00, 30 min break) and 27 Oct: 7.5 h (09:00–17:00, 30 min break) on "Customer portal relaunch" (120 h budget)
+// - 28 Oct: 4 h (09:00–13:00) on "SAP data migration" (40 h budget, so 36 h free)
+// Test bookings on those days start at 17:00, after the seeded ones.
 // - "Mobile app security audit" belongs to another supplier (Nordic Dev)
 import { mkdtempSync, rmSync } from "node:fs"
 import type { Server } from "node:http"
@@ -64,18 +65,23 @@ const book = (body: object, cookie: string | null = consultant) =>
 const booking = (overrides: object = {}) => ({
   orderId: orderId["PO-2026-001"],
   workDate: "2026-10-20",
-  durationMinutes: 210,
+  startTime: "09:00",
+  endTime: "12:30",
+  breakMinutes: 0,
   description: "Legacy data reconciliation",
   ...overrides,
 })
 
 describe("booking time", () => {
-  it("books 3.5 h on an order of the consultant's company and returns it", async () => {
+  it("books 09:00–12:30 on an order of the consultant's company as 3.5 h and returns it", async () => {
     const res = await book(booking())
     const entry = await res.json()
 
     expect(res.status).toBe(201)
-    expect(entry).toMatchObject({ workDate: "2026-10-20", durationMinutes: 210, description: "Legacy data reconciliation" })
+    expect(entry).toMatchObject({
+      workDate: "2026-10-20", startTime: "09:00", endTime: "12:30", breakMinutes: 0, durationMinutes: 210,
+      description: "Legacy data reconciliation",
+    })
 
     const mine = await (await fetch(`${baseUrl}/api/time-entries/mine`, { headers: { Cookie: consultant } })).json()
     expect(mine).toContainEqual(entry)
@@ -83,16 +89,31 @@ describe("booking time", () => {
 
   it("accepts a booking that fills the day to exactly 10 hours", async () => {
     // 8 h already booked on 26 Oct
-    const res = await book(booking({ workDate: "2026-10-26", durationMinutes: 120 }))
+    const res = await book(booking({ workDate: "2026-10-26", startTime: "17:00", endTime: "19:00" }))
 
     expect(res.status).toBe(201)
+  })
+
+  it("takes the break off the duration", async () => {
+    const res = await book(booking({ workDate: "2026-10-21", startTime: "08:00", endTime: "16:45", breakMinutes: 45 }))
+
+    expect(res.status).toBe(201)
+    expect((await res.json()).durationMinutes).toBe(480)
+  })
+
+  it("treats a missing break as no break", async () => {
+    const { breakMinutes: _, ...withoutBreak } = booking({ workDate: "2026-10-22", startTime: "10:00", endTime: "11:00" })
+    const res = await book(withoutBreak)
+
+    expect(res.status).toBe(201)
+    expect(await res.json()).toMatchObject({ breakMinutes: 0, durationMinutes: 60 })
   })
 })
 
 describe("rules enforced by the API", () => {
   it("rejects a booking over 10 hours on one day with 422 and the hours left", async () => {
     // 7.5 h already booked on Tue 27 Oct
-    const res = await book(booking({ workDate: "2026-10-27", durationMinutes: 180 }))
+    const res = await book(booking({ workDate: "2026-10-27", startTime: "17:00", endTime: "20:00" }))
 
     expect(res.status).toBe(422)
     expect(await res.json()).toEqual({
@@ -103,20 +124,38 @@ describe("rules enforced by the API", () => {
 
   it("counts the 10 hours across all orders of the day", async () => {
     // 7.5 h on the portal order on 27 Oct; 3 h more on another order is still too much
-    const res = await book(booking({ orderId: orderId["PO-2026-002"], workDate: "2026-10-27", durationMinutes: 180 }))
+    const res = await book(booking({ orderId: orderId["PO-2026-002"], workDate: "2026-10-27", startTime: "17:00", endTime: "20:00" }))
 
     expect((await res.json()).code).toBe("DAILY_LIMIT_EXCEEDED")
+  })
+
+  it("rejects a booking that overlaps the consultant's booking on another order, and names it (#54)", async () => {
+    // 27 Oct: 09:00–17:00 already booked on PO-2026-001
+    const res = await book(booking({ orderId: orderId["PO-2026-002"], workDate: "2026-10-27", startTime: "16:00", endTime: "17:30" }))
+
+    expect(res.status).toBe(422)
+    expect(await res.json()).toEqual({
+      code: "BOOKING_OVERLAP",
+      message: "Booking rejected: 16:00–17:30 overlaps your booking 09:00–17:00 on PO-2026-001.",
+    })
+  })
+
+  it("accepts a booking that starts when the previous one ends", async () => {
+    // 28 Oct: 09:00–13:00 already booked on PO-2026-002
+    const res = await book(booking({ workDate: "2026-10-28", startTime: "13:00", endTime: "14:00" }))
+
+    expect(res.status).toBe(201)
   })
 
   it("accepts the free budget exactly, then rejects the next booking on that order", async () => {
     // "SAP data migration": 40 h budget, 4 h used → 36 h free = 3 × 10 h + 6 h
     const sap = orderId["PO-2026-002"]
     for (const workDate of ["2026-10-12", "2026-10-13", "2026-10-14"]) {
-      expect((await book(booking({ orderId: sap, workDate, durationMinutes: 600 }))).status).toBe(201)
+      expect((await book(booking({ orderId: sap, workDate, startTime: "08:00", endTime: "18:00" }))).status).toBe(201)
     }
-    expect((await book(booking({ orderId: sap, workDate: "2026-10-15", durationMinutes: 360 }))).status).toBe(201)
+    expect((await book(booking({ orderId: sap, workDate: "2026-10-15", startTime: "08:00", endTime: "14:00" }))).status).toBe(201)
 
-    const res = await book(booking({ orderId: sap, workDate: "2026-10-16", durationMinutes: 15 }))
+    const res = await book(booking({ orderId: sap, workDate: "2026-10-16", startTime: "08:00", endTime: "08:15" }))
 
     expect(res.status).toBe(422)
     expect(await res.json()).toEqual({
@@ -164,11 +203,36 @@ describe("rules enforced by the API", () => {
     expect((await res.json()).code).toBe("OUTSIDE_ORDER_PERIOD")
   })
 
-  it("rejects a negative duration", async () => {
-    const res = await book(booking({ durationMinutes: -60 }))
+  it("rejects an end before the start, which would otherwise free up budget", async () => {
+    const res = await book(booking({ startTime: "12:30", endTime: "09:00" }))
 
     expect(res.status).toBe(422)
-    expect((await res.json()).code).toBe("INVALID_DURATION")
+    expect(await res.json()).toEqual({
+      code: "END_NOT_AFTER_START",
+      message: "Booking rejected: the end (09:00) must be after the start (12:30) on the same day.",
+    })
+  })
+
+  it("rejects a break as long as the working time", async () => {
+    const res = await book(booking({ startTime: "09:00", endTime: "10:00", breakMinutes: 60 }))
+
+    expect(res.status).toBe(422)
+    expect((await res.json()).code).toBe("INVALID_BREAK")
+  })
+
+  it("rejects a time that is not HH:MM", async () => {
+    const res = await book(booking({ startTime: "9 am" }))
+
+    expect(res.status).toBe(422)
+    expect((await res.json()).code).toBe("INVALID_TIME")
+  })
+
+  it("rejects a duration instead of times with 400", async () => {
+    const { startTime: _s, endTime: _e, ...withoutTimes } = booking({ durationMinutes: 60 })
+    const res = await book(withoutTimes)
+
+    expect(res.status).toBe(400)
+    expect((await res.json()).message).toContain("startTime")
   })
 
   it("rejects a description shorter than 10 characters with 400", async () => {

@@ -45,9 +45,10 @@ export async function seed(db: Db): Promise<boolean> {
   })
 
   const entries = timeEntryRepository(db)
-  await entries.create({ userId: consultant.id, orderId: portal.id, workDate: "2026-10-26", durationMinutes: 480, description: "Kick-off and requirements workshop" })
-  await entries.create({ userId: consultant.id, orderId: portal.id, workDate: "2026-10-27", durationMinutes: 450, description: "Login page implementation" })
-  await entries.create({ userId: consultant.id, orderId: migration.id, workDate: "2026-10-28", durationMinutes: 240, description: "Analyse source data" })
+  // durationMinutes = end − start − break (ADR 0010)
+  await entries.create({ userId: consultant.id, orderId: portal.id, workDate: "2026-10-26", startTime: "08:30", endTime: "17:00", breakMinutes: 30, durationMinutes: 480, description: "Kick-off and requirements workshop" })
+  await entries.create({ userId: consultant.id, orderId: portal.id, workDate: "2026-10-27", startTime: "09:00", endTime: "17:00", breakMinutes: 30, durationMinutes: 450, description: "Login page implementation" })
+  await entries.create({ userId: consultant.id, orderId: migration.id, workDate: "2026-10-28", startTime: "09:00", endTime: "13:00", breakMinutes: 0, durationMinutes: 240, description: "Analyse source data" })
 
   return true
 }

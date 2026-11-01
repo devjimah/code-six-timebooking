@@ -38,6 +38,9 @@ describe("persistence", () => {
       userId: consultant!.id,
       orderId: order!.id,
       workDate: "2026-10-30",
+      startTime: "13:00",
+      endTime: "14:30",
+      breakMinutes: 0,
       durationMinutes: 90,
       description: "Restart test",
     })

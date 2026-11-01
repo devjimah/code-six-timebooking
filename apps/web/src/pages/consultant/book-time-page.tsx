@@ -1,7 +1,7 @@
 // Consultant: book working time on an order of the own company (POST /api/time-entries, issue #12) and see the own
 // bookings (GET /api/time-entries/mine). The form only helps to get it right first time – the server checks every
-// rule again and answers with a reason we translate: 10 h per day, no Sundays or public holidays, no future dates,
-// inside the order's period, budget left, own company's order.
+// rule again and answers with a reason we translate: 10 h per day, no overlapping times, no Sundays or public
+// holidays, no future dates, inside the order's period, budget left, own company's order.
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { CircleAlert, Clock } from "lucide-react"
@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldLegend } from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
 import { Progress } from "@workspace/ui/components/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -18,13 +19,15 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
 import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
-import { todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { findOverlap, previewWorkedMinutes, suggestedStart, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
 import { BookingList, DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
 
-const HOURS = Array.from({ length: 11 }, (_, h) => String(h)) // 0 … 10
-const MINUTES = ["0", "15", "30", "45"]
+const BREAKS = ["0", "15", "30", "45", "60"] // minutes
+// After a booking, the times and the text start again; order and date stay for the next booking of the day,
+// which then starts where this one ended.
+const EMPTY_TIMES = { startTime: "09:00", endTime: "", breakMinutes: "0", description: "" }
 const DESCRIPTION_MIN = 10 // same limits as createTimeEntryRequest in the API
 const DESCRIPTION_MAX = 500
 
@@ -34,7 +37,7 @@ export function BookTimePage() {
   const entries = useApi<TimeEntry[]>("/time-entries/mine")
   const today = todayInCompanyTimeZone()
 
-  const [form, setForm] = React.useState({ orderId: "", workDate: today, hours: "0", minutes: "0", description: "" })
+  const [form, setForm] = React.useState({ orderId: "", workDate: today, ...EMPTY_TIMES })
   const [error, setError] = React.useState<string | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
   const update = (changes: Partial<typeof form>) => setForm((current) => ({ ...current, ...changes }))
@@ -43,11 +46,17 @@ export function BookTimePage() {
   if (orders.data?.length === 1 && form.orderId === "") update({ orderId: String(orders.data[0]!.id) })
 
   const order = orders.data?.find((o) => String(o.id) === form.orderId)
-  const durationMinutes = Number(form.hours) * 60 + Number(form.minutes)
-  const bookedThatDay = (entries.data ?? [])
-    .filter((e) => e.workDate === form.workDate)
-    .reduce((sum, e) => sum + e.durationMinutes, 0)
+  const durationMinutes = previewWorkedMinutes(form.startTime, form.endTime, Number(form.breakMinutes))
+  const entriesOn = (workDate: string) => (entries.data ?? []).filter((e) => e.workDate === workDate)
+  const bookedThatDay = entriesOn(form.workDate).reduce((sum, e) => sum + e.durationMinutes, 0)
   const overDailyLimit = bookedThatDay + durationMinutes > DAILY_LIMIT_MINUTES
+  const clash = findOverlap(form.startTime, form.endTime, entriesOn(form.workDate))
+  // Why "Book" stays disabled: both times are there, but nothing is worked in between.
+  const timesInvalid = form.endTime !== "" && durationMinutes === 0
+
+  // A new day starts where the last booking of that day ended – unless the times are already filled in.
+  const chooseDate = (workDate: string) =>
+    update(form.endTime === "" ? { workDate, startTime: suggestedStart(entriesOn(workDate)) } : { workDate })
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -55,18 +64,19 @@ export function BookTimePage() {
     setError(null)
     setSubmitting(true)
     try {
-      await api<TimeEntry>("/time-entries", {
+      const created = await api<TimeEntry>("/time-entries", {
         method: "POST",
         body: JSON.stringify({
           orderId: order.id,
           workDate: form.workDate,
-          durationMinutes,
+          startTime: form.startTime,
+          endTime: form.endTime,
+          breakMinutes: Number(form.breakMinutes),
           description: form.description,
         }),
       })
       toast.success(t("booking.saved", { hours: formatHours(durationMinutes), code: order.code }))
-      // Keep order and date: the next booking is often for the same day.
-      update({ hours: "0", minutes: "0", description: "" })
+      update({ ...EMPTY_TIMES, startTime: created.endTime })
       entries.reload()
     } catch (caught) {
       setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
@@ -124,44 +134,76 @@ export function BookTimePage() {
                     </FieldDescription>
                   )}
                 </Field>
-                {/* Duration before the date: the calendar then shows the days where this duration would clash. */}
+                {/* Times before the date: the calendar then shows the days where this much time would clash. */}
                 <FieldSet>
-                  <FieldLegend variant="label">{t("booking.duration")}</FieldLegend>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Select value={form.hours} onValueChange={(hours) => update({ hours })}>
-                      <SelectTrigger className="w-full" aria-label={t("booking.hours")}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {HOURS.map((h) => (
-                          <SelectItem key={h} value={h}>
-                            {t("booking.hoursValue", { count: Number(h) })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={form.minutes} onValueChange={(minutes) => update({ minutes })}>
-                      <SelectTrigger className="w-full" aria-label={t("booking.minutes")}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MINUTES.map((m) => (
-                          <SelectItem key={m} value={m}>
-                            {t("booking.minutesValue", { count: Number(m) })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <FieldLegend variant="label">{t("booking.workingTime")}</FieldLegend>
+                  {/* Phones: start and end side by side, break below – three time fields do not fit in 390 px. */}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <Field>
+                      <FieldLabel htmlFor="booking-start">{t("booking.start")}</FieldLabel>
+                      <Input
+                        id="booking-start"
+                        type="time"
+                        step={900}
+                        required
+                        value={form.startTime}
+                        onChange={(e) => update({ startTime: e.target.value })}
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="booking-end">{t("booking.end")}</FieldLabel>
+                      <Input
+                        id="booking-end"
+                        type="time"
+                        step={900}
+                        required
+                        value={form.endTime}
+                        onChange={(e) => update({ endTime: e.target.value })}
+                      />
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="booking-break">{t("booking.break")}</FieldLabel>
+                      <Select value={form.breakMinutes} onValueChange={(breakMinutes) => update({ breakMinutes })}>
+                        <SelectTrigger id="booking-break" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BREAKS.map((m) => (
+                            <SelectItem key={m} value={m}>
+                              {t("booking.breakValue", { count: Number(m) })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
                   </div>
+                  <FieldDescription className="tabular-nums">
+                    {t("booking.worked", { hours: formatHours(durationMinutes) })}
+                  </FieldDescription>
+                  {/* The same checks as the server, before pressing "Book"; the server still decides. */}
+                  {clash && (
+                    <FieldDescription className="text-destructive">
+                      {t("booking.overlap", {
+                        start: clash.startTime,
+                        end: clash.endTime,
+                        code: orders.data?.find((o) => o.id === clash.orderId)?.code ?? "",
+                      })}
+                    </FieldDescription>
+                  )}
+                  {timesInvalid && (
+                    <FieldDescription className="text-destructive">{t("booking.timesInvalid")}</FieldDescription>
+                  )}
                 </FieldSet>
                 <FieldSet>
                   <FieldLegend variant="label">{t("booking.date")}</FieldLegend>
                   <BookingCalendar
                     value={form.workDate}
-                    onChange={(workDate) => update({ workDate })}
+                    onChange={chooseDate}
                     order={order}
                     today={today}
                     entries={entries.data ?? []}
+                    startTime={form.startTime}
+                    endTime={form.endTime}
                     durationMinutes={durationMinutes}
                   />
                   <ul className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">

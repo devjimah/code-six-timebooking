@@ -88,7 +88,7 @@ export const auditEvents = sqliteTable("audit_events", {
   userAgent: text("user_agent"),
 })
 
-// One booking: exactly one user, one order, a date, a duration and a description.
+// One booking: exactly one user, one order, a date, start and end time, a duration and a description.
 export const timeEntries = sqliteTable("time_entries", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id")
@@ -98,6 +98,11 @@ export const timeEntries = sqliteTable("time_entries", {
     .notNull()
     .references(() => orders.id),
   workDate: text("work_date").notNull(), // ISO date "YYYY-MM-DD"
+  // Times on the work date, company time zone, "HH:MM". Only the consultant sees them (ADR 0010).
+  startTime: text("start_time").notNull(),
+  endTime: text("end_time").notNull(),
+  breakMinutes: integer("break_minutes").notNull(),
+  // Derived: end − start − break. Stored so budget and daily sums stay simple SQL sums.
   durationMinutes: integer("duration_minutes").notNull(),
   description: text("description").notNull(),
   ...timestamps,

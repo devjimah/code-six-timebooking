@@ -2,9 +2,9 @@
 // where a booking would be refused:
 // - greyed out: days the server never accepts – in the future, outside the order's period, Sundays, public holidays;
 // - hours under the day number: what is already booked that day;
-// - red: the chosen duration would push that day over the 10-hour limit.
-// Bookings store a duration, not start and end times (issue #20), so a clash inside a day cannot be detected;
-// the daily limit is the conflict we can show. The server checks every rule again when booking.
+// - red: the chosen start and end overlap a booking of that day (#54), or the worked time would push that day
+//   over the 10-hour limit.
+// The server checks every rule again when booking.
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 import { de, enGB } from "react-day-picker/locale"
@@ -12,6 +12,7 @@ import { de, enGB } from "react-day-picker/locale"
 import { Calendar, CalendarDayButton } from "@workspace/ui/components/calendar"
 import { formatHours } from "@/i18n/format.ts"
 import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
+import { findOverlap } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
 
@@ -23,7 +24,9 @@ type Props = {
   order: BookableOrder | undefined
   today: string
   entries: TimeEntry[]
-  /** The duration chosen in the form; days where it would exceed the daily limit turn red */
+  /** The times chosen in the form; days where they overlap a booking or exceed the daily limit turn red */
+  startTime: string
+  endTime: string
   durationMinutes: number
 }
 
@@ -41,6 +44,8 @@ export function BookingCalendar({
   order,
   today,
   entries,
+  startTime,
+  endTime,
   durationMinutes,
 }: Props) {
   const { t, i18n } = useTranslation()
@@ -50,10 +55,9 @@ export function BookingCalendar({
     `/public-holidays?year=${month.getFullYear()}`
   )
 
-  const bookedByDay = React.useMemo(() => {
-    const map = new Map<string, number>()
-    for (const e of entries)
-      map.set(e.workDate, (map.get(e.workDate) ?? 0) + e.durationMinutes)
+  const entriesByDay = React.useMemo(() => {
+    const map = new Map<string, TimeEntry[]>()
+    for (const e of entries) map.set(e.workDate, [...(map.get(e.workDate) ?? []), e])
     return map
   }, [entries])
   const holidayName = (iso: string) =>
@@ -70,15 +74,20 @@ export function BookingCalendar({
     const holiday = holidayName(iso)
     return holiday ? t("calendar.holiday", { name: holiday }) : null
   }
-  const booked = (date: Date) => bookedByDay.get(toIso(date)) ?? 0
+  const dayEntries = (date: Date) => entriesByDay.get(toIso(date)) ?? []
+  const booked = (date: Date) =>
+    dayEntries(date).reduce((sum, e) => sum + e.durationMinutes, 0)
+  const overlap = (date: Date) =>
+    findOverlap(startTime, endTime, dayEntries(date))
+  const overLimit = (date: Date) =>
+    booked(date) > 0 && booked(date) + durationMinutes > DAILY_LIMIT_MINUTES
   const conflict = (date: Date) =>
     blockedReason(date) === null &&
-    booked(date) > 0 &&
-    booked(date) + durationMinutes > DAILY_LIMIT_MINUTES
+    (overlap(date) !== undefined || overLimit(date))
 
   return (
     <DayInfo.Provider
-      value={{ blockedReason, booked, conflict, durationMinutes }}
+      value={{ blockedReason, booked, overlap, conflict, durationMinutes }}
     >
       <Calendar
         mode="single"
@@ -106,6 +115,7 @@ export function BookingCalendar({
 type DayInfoValue = {
   blockedReason: (date: Date) => string | null
   booked: (date: Date) => number
+  overlap: (date: Date) => TimeEntry | undefined
   conflict: (date: Date) => boolean
   durationMinutes: number
 }
@@ -123,9 +133,12 @@ function BookingDayButton({
   const info = React.useContext(DayInfo)!
   const reason = info.blockedReason(props.day.date)
   const minutes = info.booked(props.day.date)
+  const clash = info.overlap(props.day.date)
   const title =
     reason ??
-    (info.conflict(props.day.date)
+    (clash && info.conflict(props.day.date)
+      ? t("calendar.overlap", { start: clash.startTime, end: clash.endTime })
+      : info.conflict(props.day.date)
       ? t("calendar.conflict", {
           booked: formatHours(minutes),
           total: formatHours(minutes + info.durationMinutes),

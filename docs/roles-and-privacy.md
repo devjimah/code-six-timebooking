@@ -27,6 +27,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See own bookings, with own totals per day, week and month | ✔ | – | – | – | built |
 | See orders one may book on (code, title, supplier) | ✔ own company, no money | – | – | – | built |
 | See single bookings of an order (date, hours, description, consultant's name) | own only | ✔ own orders, no daily totals per person | – | – | built |
+| See start time, end time and break of a booking ([ADR 0010](adr/0010-time-entry-granularity.md)) | own only | – | – | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
@@ -48,12 +49,13 @@ every route with a role check answers 403 `PASSWORD_CHANGE_REQUIRED`.
 |---|---|---|---|
 | Name, business email, role, supplier company | Sign-in, permissions, showing who booked | the person, admin; project manager sees the name on bookings of own orders | as long as the account exists. Accounts are deactivated, never deleted, while bookings refer to them; deactivated people cannot sign in and their open sessions end at once |
 | Password hash (bcrypt), "must change password" flag, session version | Sign-in; after an admin chose the password, the person replaces it; a password change ends all open sessions | nobody reads the hash, the server only compares; the admin sees whether a password is still the one they set | as long as the account exists |
-| Bookings: date, duration, description, consultant | Proof of work for the order, budget, invoice check | the consultant; project manager of the order (per booking); purchasing only as Σ per order | proposal: 10 years for bookings that back an invoice (German tax law, §147 AO); the client's data protection officer confirms before production |
+| Bookings: date, duration, description, consultant | Proof of work for the order, budget, invoice check | the consultant; project manager of the order (per booking); purchasing only as Σ per order |
+| Bookings: start time, end time, break | The server checks the Working Time Act: no overlap, 11 hours rest, breaks ([ADR 0010](adr/0010-time-entry-granularity.md)) | the consultant only; nobody on the client side | same as the booking it belongs to | proposal: 10 years for bookings that back an invoice (German tax law, §147 AO); the client's data protection officer confirms before production |
 | Audit events: user, time, action, target, key facts, IP address, browser, email tried at sign-in | Security and traceability of bookings and account changes ([ADR 0012](adr/0012-audit-log.md)) | admin only | read events 90 days, all other events 365 days; deleted automatically by a daily job |
 
-Data minimisation: no private addresses, birth dates, photos or start/end times of the working day. Bookings store a
-duration, not when the day started or ended. The audit log never stores passwords, query strings or booking
-descriptions.
+Data minimisation: no private addresses, birth dates or photos. Bookings store start and end times only because the
+working-time rules need them, and only the consultant sees them; every client role gets the duration. The audit
+log never stores passwords, query strings, booking descriptions or booking times.
 
 ## Conflicts and how we resolve them
 
@@ -65,8 +67,10 @@ We resolve it like this:
   approve the work before an invoice is paid.
 - The product shows **no daily or weekly totals per person**, no working-time patterns and no comparison between
   consultants. Purchasing only sees sums per order.
-- Working-time limits (10 h per day, no Sundays or public holidays) are checked by the server when the consultant
-  books, and the consultant gets the message directly. The client does not need to watch working hours to enforce
+- The consultant records start, end and break, but the client never sees them – the project manager gets the
+  duration only ([ADR 0010](adr/0010-time-entry-granularity.md)). The client checks *what* and *how much*, not *when*.
+- Working-time limits (10 h per day, no Sundays or public holidays, no overlapping bookings) are checked by the server
+  when the consultant books, and the consultant gets the message directly. The client does not need to watch working hours to enforce
   the law, and nobody from the client sees a list of "who worked too much".
 
 **Security traceability vs. monitoring staff.** The audit log records every action, which could be used to watch
@@ -99,8 +103,8 @@ that is convenience, not security.
 
 | Route | Allowed for | Extra check |
 |---|---|---|
-| `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules |
-| `GET /api/time-entries/mine` | consultant | only own entries |
+| `POST /api/time-entries` | consultant | order belongs to own supplier; booking rules; times not logged |
+| `GET /api/time-entries/mine` | consultant | only own entries – the only route that returns start, end and break |
 | `GET /api/public-holidays?year=` | consultant | – (the holidays the booking rule uses, for the calendar) |
 | `GET /api/orders/bookable` | consultant | only own supplier's orders, no money; the period, so the form offers only valid dates |
 | `GET /api/orders/managed` | project manager | only own orders |
@@ -108,7 +112,7 @@ that is convenience, not security.
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
 | `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
-| `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person |
+| `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `PUT /api/users/:id` | admin | role changes only without dependent bookings/orders; not own role |
 | `POST /api/users/:id/deactivate`, `.../reactivate` | admin | not yourself; not a project manager with orders |

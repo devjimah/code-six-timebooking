@@ -324,14 +324,16 @@
     "order": "Bestellung",
     "chooseOrder": "Bestellung wählen",
     "period": "Zeitraum: {{start}} – {{end}}",
+    "workingTime": "Arbeitszeit",
+    "start": "Beginn",
+    "end": "Ende",
+    "break": "Pause",
+    "breakValue_one": "{{count}} Min.",
+    "breakValue_other": "{{count}} Min.",
+    "worked": "Gearbeitet: {{hours}}",
+    "overlap": "Überschneidet sich mit Ihrer Buchung {{start}}–{{end}} auf {{code}} an diesem Tag.",
+    "timesInvalid": "Das Ende muss nach dem Beginn liegen und die Pause kürzer sein als die Zeit dazwischen.",
     "date": "Datum",
-    "duration": "Dauer",
-    "hours": "Stunden",
-    "minutes": "Minuten",
-    "hoursValue_one": "{{count}} Stunde",
-    "hoursValue_other": "{{count}} Stunden",
-    "minutesValue_one": "{{count}} Minute",
-    "minutesValue_other": "{{count}} Minuten",
     "dayProgress": "Gebuchte Zeit an diesem Tag",
     "alreadyBooked": "An diesem Tag schon gebucht: {{booked}} von höchstens {{limit}}.",
     "overLimit": "Zu viel: An diesem Tag sind schon {{booked}} gebucht, erlaubt sind höchstens 10 Stunden.",
@@ -347,6 +349,7 @@
     "mine": "Meine Buchungen",
     "mineDescription": "Neueste zuerst, mit der Summe je Tag.",
     "dayTotal": "{{booked}} / {{limit}}",
+    "timeRange": "{{start}}–{{end}}",
     "none": "Noch keine Buchungen."
   },
   "calendar": {
@@ -356,14 +359,14 @@
     "holiday": "Feiertag ({{name}}) – keine Arbeit an Sonn- und Feiertagen (ArbZG §9)",
     "booked": "Schon gebucht: {{booked}}",
     "conflict": "Konflikt: schon {{booked}} gebucht, mit dieser Buchung {{total}} – mehr als 10 Stunden",
-    "legendConflict": "Mit dieser Dauer über 10 Stunden",
+    "overlap": "Konflikt: Diese Zeiten überschneiden sich mit Ihrer Buchung {{start}}–{{end}}",
+    "legendConflict": "Mit diesen Zeiten überschneidend oder über 10 Stunden",
     "legendBlocked": "Nicht buchbar",
     "legendHours": "Zahl unter dem Tag = schon gebucht"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
     "BUDGET_EXCEEDED": "Buchung abgelehnt: Das freie Budget dieser Bestellung reicht nicht aus.",
-    "INVALID_DURATION": "Buchung abgelehnt: Die Dauer muss eine positive Anzahl ganzer Minuten sein.",
     "ORDER_NOT_FOUND": "Buchung abgelehnt: Diese Bestellung gibt es nicht.",
     "ORDER_NOT_ASSIGNED": "Buchung abgelehnt: Sie können nur auf Bestellungen Ihres eigenen Unternehmens buchen.",
     "DATE_IN_FUTURE": "Buchung abgelehnt: Das Datum liegt in der Zukunft. Buchen Sie Zeit, nachdem die Arbeit erledigt ist.",
@@ -398,6 +401,10 @@
     "PASSWORD_CHANGE_REQUIRED": "Wählen Sie zuerst ein eigenes Passwort.",
     "CURRENT_PASSWORD_WRONG": "Das aktuelle Passwort ist falsch.",
     "NEW_PASSWORD_SAME_AS_CURRENT": "Wählen Sie ein neues Passwort, das sich vom bisherigen unterscheidet.",
-    "CANNOT_RESET_OWN_PASSWORD": "Ihr eigenes Passwort setzen Sie nicht zurück, sondern ändern es in Ihrem Profil."
+    "CANNOT_RESET_OWN_PASSWORD": "Ihr eigenes Passwort setzen Sie nicht zurück, sondern ändern es in Ihrem Profil.",
+    "INVALID_TIME": "Buchung abgelehnt: Bitte Beginn und Ende als Uhrzeit zwischen 00:00 und 23:59 angeben.",
+    "END_NOT_AFTER_START": "Buchung abgelehnt: Das Ende muss am selben Tag nach dem Beginn liegen.",
+    "INVALID_BREAK": "Buchung abgelehnt: Die Pause muss kürzer sein als die Zeit zwischen Beginn und Ende.",
+    "BOOKING_OVERLAP": "Buchung abgelehnt: Diese Zeit überschneidet sich mit einer anderen Ihrer Buchungen an diesem Tag."
   }
 }

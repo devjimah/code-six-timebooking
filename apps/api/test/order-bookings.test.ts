@@ -79,6 +79,13 @@ describe("the project manager checks the work on their order", () => {
     expect(text).not.toContain("userId")
     expect(text).not.toMatch(/total/i)
   })
+
+  it("contains no start time, end time or break – only the consultant sees those (ADR 0010)", async () => {
+    const text = await (await bookingsOf(portalId, cookies.pm)).text()
+
+    expect(text).not.toMatch(/startTime|endTime|breakMinutes/)
+    expect(text).not.toContain("08:30") // the seeded start on 26 Oct
+  })
 })
 
 describe("nobody else sees these bookings", () => {

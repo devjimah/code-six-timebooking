@@ -38,7 +38,10 @@ export interface TimeEntry {
   userId: number
   orderId: number
   workDate: string // "YYYY-MM-DD"
-  durationMinutes: number
+  startTime: string // "HH:MM" on the work date, company time zone
+  endTime: string // "HH:MM", after startTime on the same day
+  breakMinutes: number
+  durationMinutes: number // end − start − break
   description: string
 }
 
