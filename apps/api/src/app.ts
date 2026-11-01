@@ -12,6 +12,7 @@ import { projectManagerRoutes } from "./api/project-manager-routes.js"
 import { publicHolidayRoutes } from "./api/public-holiday-routes.js"
 import { supplierRoutes } from "./api/supplier-routes.js"
 import { timeEntryRoutes } from "./api/time-entry-routes.js"
+import { unavailableDayRoutes } from "./api/unavailable-day-routes.js"
 import { userRoutes } from "./api/user-routes.js"
 import type { Db } from "./persistence/db.js"
 
@@ -48,6 +49,7 @@ export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0
   app.use("/api/users", rememberMountPath, userRoutes(db))
   app.use("/api/suppliers", rememberMountPath, supplierRoutes(db))
   app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db))
+  app.use("/api/unavailable-days", rememberMountPath, unavailableDayRoutes(db))
   app.use("/api/orders", rememberMountPath, orderRoutes(db, purchasingLeadTimeWeeks))
   app.use("/api/project-managers", rememberMountPath, projectManagerRoutes(db))
   app.use("/api/public-holidays", rememberMountPath, publicHolidayRoutes())

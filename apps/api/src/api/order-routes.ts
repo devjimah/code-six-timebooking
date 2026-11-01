@@ -6,6 +6,7 @@ import { listOrderBookings } from "../application/list-order-bookings.js"
 import { createOrder, listAllOrders, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
 import { approveOpenBookings } from "../application/review-bookings.js"
+import { listOrderUnavailableDays } from "../application/unavailable-days.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
@@ -70,6 +71,13 @@ export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
     const { id } = orderIdParams.parse(req.params)
     setAuditContext(res, { targetType: "order", targetId: id })
     res.json(await listOrderBookings(db, req.user!, id))
+  })
+
+  // GET /api/orders/:id/unavailable-days – upcoming days of the consultants on the project manager's own order (#10).
+  router.get("/:id/unavailable-days", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
+    res.json(await listOrderUnavailableDays(db, req.user!, id))
   })
 
   // POST /api/orders/:id/time-entries/approve-open – "approve all" on the project manager's own order (ticket #50).

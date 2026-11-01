@@ -31,6 +31,8 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Correct or delete own bookings until they are approved | ✔ own only | – | – | – | built |
 | Approve or return a booking ([ADR 0014](adr/0014-booking-approval.md)) | – | ✔ own orders | – | – | built |
 | See the status of a booking and the reason for a return | own only | ✔ own orders | Σ approved and not approved hours per order | – | built |
+| Mark and remove own unavailable days, without a reason ([ADR 0016](adr/0016-unavailable-days.md)) | ✔ own only | – | – | – | built |
+| See upcoming unavailable days of consultants who booked on an order in the last 4 weeks | own only | ✔ own orders, date and name | only the effect on the forecast | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
 | See how long a budget lasts and when to order more ([ADR 0015](adr/0015-budget-forecast.md)) | – | ✔ own orders | ✔ all orders | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
@@ -55,6 +57,7 @@ every route with a role check answers 403 `PASSWORD_CHANGE_REQUIRED`.
 | Password hash (bcrypt), "must change password" flag, session version | Sign-in; after an admin chose the password, the person replaces it; a password change ends all open sessions | nobody reads the hash, the server only compares; the admin sees whether a password is still the one they set | as long as the account exists |
 | Bookings: date, duration, description, consultant, status, reason for a return | Proof of work for the order, budget, invoice check | the consultant; project manager of the order (per booking); purchasing only as Σ per order | proposal: 10 years for bookings that back an invoice (German tax law, §147 AO); the client's data protection officer confirms before production |
 | Bookings: start time, end time, break | The server checks the Working Time Act: no overlap, 11 hours rest, breaks ([ADR 0010](adr/0010-time-entry-granularity.md)) | the consultant only; nobody on the client side | same as the booking it belongs to |
+| Unavailable days: consultant, date, no reason | Planning without asking; the forecast counts them ([ADR 0016](adr/0016-unavailable-days.md)) | the consultant; project manager of an order they recently booked on, upcoming days only | as long as the account exists. Proposal: delete a day once it has passed; the client's data protection officer confirms before production |
 | Audit events: user, time, action, target, key facts, IP address, browser, email tried at sign-in | Security and traceability of bookings and account changes ([ADR 0012](adr/0012-audit-log.md)) | admin only | read events 90 days, all other events 365 days; deleted automatically by a daily job |
 
 Data minimisation: no private addresses, birth dates or photos. Bookings store start and end times only because the
@@ -121,6 +124,9 @@ that is convenience, not security.
 | `POST /api/time-entries/:id/approve` | project manager | only own orders; only open bookings |
 | `POST /api/time-entries/:id/return` | project manager | only own orders; only open bookings; reason required and not logged |
 | `POST /api/orders/:id/time-entries/approve-open` | project manager | only own orders; returned bookings stay |
+| `GET /api/unavailable-days/mine` | consultant | only own days |
+| `PUT /api/unavailable-days/:date`, `DELETE …` | consultant | only own days; no reason field; a day with bookings cannot be marked |
+| `GET /api/orders/:id/unavailable-days` | project manager | only own orders; upcoming days of consultants who booked in the last 4 weeks; date and name only |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `PUT /api/users/:id` | admin | role changes only without dependent bookings/orders; not own role |

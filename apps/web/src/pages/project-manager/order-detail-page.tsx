@@ -16,7 +16,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { formatDate, formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import type { OrderBooking, OrderBudgetDetail } from "@/lib/api-types.ts"
+import type { OrderBooking, OrderBudgetDetail, OrderUnavailableDay } from "@/lib/api-types.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BudgetForecastCard } from "@/pages/project-manager/budget-forecast-card.tsx"
 import { ReturnBookingDialog } from "@/pages/project-manager/return-booking-dialog.tsx"
@@ -26,6 +26,7 @@ export function OrderDetailPage() {
   const { orderId } = useParams()
   const budget = useApi<OrderBudgetDetail>(`/orders/${orderId}/budget`)
   const bookings = useApi<OrderBooking[]>(`/orders/${orderId}/time-entries`)
+  const unavailable = useApi<OrderUnavailableDay[]>(`/orders/${orderId}/unavailable-days`)
   const error = budget.error ?? bookings.error
   const order = budget.data
   const openCount = bookings.data?.filter((b) => b.status === "open").length ?? 0
@@ -103,6 +104,26 @@ export function OrderDetailPage() {
         />
       )}
       {order && <BudgetForecastCard forecast={order.forecast} endDate={order.forecast.orderEndDate} />}
+
+      {/* Planning without asking: that someone is away, never why (ADR 0016). */}
+      {unavailable.data && unavailable.data.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("unavailable.upcoming")}</CardTitle>
+            <CardDescription>{t("unavailable.upcomingDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="grid gap-1 text-sm">
+              {unavailable.data.map((day) => (
+                <li key={`${day.date}-${day.consultantName}`} className="flex justify-between gap-3">
+                  <span className="tabular-nums">{formatDate(day.date)}</span>
+                  <span>{day.consultantName}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="gap-0 py-0">
         <CardHeader className="border-b px-4 py-3">

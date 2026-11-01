@@ -33,6 +33,6 @@ is `PURCHASING_LEAD_TIME_WEEKS` (4 weeks, as in the challenge's example). The ca
 - The challenge's worked example is a unit test: at the same pace the budget is used up in week 50.
 - A team that works Monday to Friday gets a date that is close but not exact, because the weekly pace is spread over
   six days. The end date can fall on a Saturday.
-- Only nationwide public holidays count, not those of a single state. The forecast does not yet know about
-  vacations ([#10](https://github.com/devjimah/code-six-timebooking/issues/10)).
+- Only nationwide public holidays count, not those of a single state. Unavailable days count since
+  [ADR 0016](0016-unavailable-days.md).
 - With no bookings in the last 4 weeks there is no forecast, and the screen says so instead of guessing.

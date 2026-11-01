@@ -196,7 +196,8 @@
       "hourlyRateCents": "Hourly rate",
       "startDate": "Start",
       "endDate": "End",
-      "approved": "Approved"
+      "approved": "Approved",
+      "date": "Date"
     }
   },
   "auditActions": {
@@ -236,7 +237,8 @@
       "create": "Placed order",
       "update": "Changed order",
       "view_bookings": "Viewed bookings of an order",
-      "approve_open": "Approved all open bookings of an order"
+      "approve_open": "Approved all open bookings of an order",
+      "view_unavailable": "Viewed unavailable days of an order"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -246,6 +248,11 @@
     },
     "calendar": {
       "list_holidays": "Viewed public holidays"
+    },
+    "unavailable_day": {
+      "list_own": "Viewed own unavailable days",
+      "mark": "Marked a day as unavailable",
+      "remove": "Removed an unavailable day"
     }
   },
   "suppliers": {
@@ -408,7 +415,8 @@
     "overlap": "Conflict: these times overlap your booking {{start}}–{{end}}",
     "legendConflict": "Overlaps a booking or over 10 hours with these times",
     "legendBlocked": "Not bookable",
-    "legendHours": "Number under the day = already booked"
+    "legendHours": "Number under the day = already booked",
+    "unavailable": "Marked as unavailable – remove the mark first if you worked that day"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Booking rejected: more than 10 hours of work per day are not allowed (ArbZG §3).",
@@ -457,7 +465,9 @@
     "RETURN_REASON_REQUIRED": "Say why you return this booking, so the consultant can correct it.",
     "TIME_ENTRY_NOT_FOUND": "This booking does not exist.",
     "BOOKING_APPROVED": "This booking is approved and can no longer be changed or deleted.",
-    "NOT_YOUR_BOOKING": "You can only change your own bookings."
+    "NOT_YOUR_BOOKING": "You can only change your own bookings.",
+    "DAY_MARKED_UNAVAILABLE": "Booking rejected: you marked this day as unavailable. Remove the mark first if you worked that day.",
+    "DAY_HAS_BOOKINGS": "You already booked time on this day. Delete the booking first if you were not available."
   },
   "forecast": {
     "title": "How long the budget lasts",
@@ -469,5 +479,15 @@
     "lasts": "At this pace the budget lasts until the order ends on {{end}}.",
     "noPace": "Nothing was booked in the last 4 weeks, so there is no pace to forecast from.",
     "ended": "This order ended on {{end}}."
+  },
+  "unavailable": {
+    "title": "Days I am unavailable",
+    "description": "Your project manager can plan without asking. You never say why; vacation or sickness stays with your employer.",
+    "date": "Date",
+    "mark": "Mark",
+    "none": "No days marked.",
+    "remove": "Remove {{date}}",
+    "upcoming": "Upcoming unavailable days",
+    "upcomingDescription": "Consultants on this order. The forecast counts these days; the reason stays with their employer."
   }
 }

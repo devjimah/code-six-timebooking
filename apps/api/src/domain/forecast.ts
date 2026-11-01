@@ -1,6 +1,7 @@
 // How long will the budget last at the current pace? (ticket #51, ADR 0015, the challenge's "look ahead")
 // Pace = hours booked in the last 4 weeks, per week. The remaining budget is then used up day by day, on working
-// days only: Sundays and public holidays use no budget, the same calendar as the booking rule.
+// days only: Sundays and public holidays use no budget, the same calendar as the booking rule. A day on which part
+// of the team is unavailable uses less (ticket #10, ADR 0016).
 import { addDays } from "./public-holidays.js"
 import { isWorkingDay } from "./rules/working-day.js"
 
@@ -29,8 +30,9 @@ export function forecastBudget(input: {
   minutesInPaceWindow: number // booked on this order in the last PACE_WINDOW_DAYS days, up to today
   today: string // "YYYY-MM-DD"
   leadTimeWeeks: number
+  capacityOn?: (date: string) => number // share of the team available that day, 0 to 1; everyone if left out
 }): BudgetForecast {
-  const { order, today } = input
+  const { order, today, capacityOn = () => 1 } = input
   const pace = paceMinutesPerWeek(input.minutesInPaceWindow, order.startDate, today)
   const forecast = {
     paceMinutesPerWeek: pace,
@@ -44,12 +46,14 @@ export function forecastBudget(input: {
   const remaining = order.budgetHours * 60 - input.bookedMinutes
   if (remaining > 0 && pace === 0) return { ...forecast, state: "no_pace" }
 
+  // What a coming day uses of the budget: nothing on Sundays and holidays, less when part of the team is away.
   const perWorkingDay = pace / WORKING_DAYS_PER_WEEK
-  const runsOutOn = remaining <= 0 ? today : dayBudgetRunsOut(remaining, perWorkingDay, today, order.endDate)
+  const usedOn = (date: string) => (isWorkingDay(date) ? perWorkingDay * capacityOn(date) : 0)
+  const runsOutOn = remaining <= 0 ? today : dayBudgetRunsOut(remaining, usedOn, today, order.endDate)
   // Used up on the order's last day means it lasted exactly.
   if (runsOutOn === null || runsOutOn >= order.endDate) return { ...forecast, state: "lasts", runsOutOn }
 
-  const neededUntilEnd = perWorkingDay * countWorkingDays(addDays(today, 1), order.endDate)
+  const neededUntilEnd = sumUntil(usedOn, addDays(today, 1), order.endDate)
   return {
     ...forecast,
     state: "runs_out_early",
@@ -67,20 +71,20 @@ function paceMinutesPerWeek(minutes: number, startDate: string, today: string): 
   return Math.round((minutes / days) * 7)
 }
 
-function dayBudgetRunsOut(remaining: number, perWorkingDay: number, today: string, orderEnd: string): string | null {
+function dayBudgetRunsOut(remaining: number, usedOn: (date: string) => number, today: string, orderEnd: string): string | null {
   const lastDay = addDays(orderEnd, MAX_DAYS_AFTER_ORDER_END)
   let left = remaining
   for (let day = addDays(today, 1); day <= lastDay; day = addDays(day, 1)) {
-    if (isWorkingDay(day)) left -= perWorkingDay
+    left -= usedOn(day)
     if (left <= 0) return day
   }
   return null
 }
 
-function countWorkingDays(from: string, to: string): number {
-  let count = 0
-  for (let day = from; day <= to; day = addDays(day, 1)) if (isWorkingDay(day)) count++
-  return count
+function sumUntil(usedOn: (date: string) => number, from: string, to: string): number {
+  let sum = 0
+  for (let day = from; day <= to; day = addDays(day, 1)) sum += usedOn(day)
+  return sum
 }
 
 const daysBetween = (from: string, to: string) =>

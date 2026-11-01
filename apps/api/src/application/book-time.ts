@@ -11,10 +11,11 @@ import { assertWithinOrderBudget } from "../domain/rules/order-budget.js"
 import { assertWithinOrderPeriod } from "../domain/rules/order-period.js"
 import { assertRestPeriod } from "../domain/rules/rest-period.js"
 import { assertNotInFuture } from "../domain/rules/work-date.js"
+import { assertNotMarkedUnavailable } from "../domain/rules/unavailable-day.js"
 import { assertWorkingDay } from "../domain/rules/working-day.js"
 import { workedMinutes } from "../domain/rules/working-times.js"
 import type { Db } from "../persistence/db.js"
-import { orderRepository, timeEntryRepository } from "../persistence/repositories.js"
+import { orderRepository, timeEntryRepository, unavailableDayRepository } from "../persistence/repositories.js"
 import { todayInCompanyTimeZone } from "./clock.js"
 
 export type BookTimeInput = {
@@ -61,6 +62,10 @@ export async function checkBookingRules(
   assertAssignedToOrder({ user: consultant, order })
   assertWithinOrderPeriod({ order, workDate: input.workDate })
 
+  assertNotMarkedUnavailable({
+    workDate: input.workDate,
+    markedUnavailable: await unavailableDayRepository(db).isMarked(consultant.id, input.workDate),
+  })
   const entries = timeEntryRepository(db)
   assertNoOverlap({
     startTime: input.startTime,
