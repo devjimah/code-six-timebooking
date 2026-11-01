@@ -14,17 +14,18 @@ import {
   orderIdParams,
   orderRequest,
   toBookableOrderResponse,
+  toOrderBudgetDetailResponse,
   toOrderBudgetResponse,
   toOrderOverviewResponse,
   toOrderResponse,
 } from "./dto.js"
 
-export function orderRoutes(db: Db) {
+export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
   const router = Router()
 
   // GET /api/orders – purchasing sees every order with its budget (Σ per order, no single bookings).
   router.get("/", requireRole("purchasing"), async (_req, res) => {
-    res.json((await listAllOrders(db)).map(toOrderOverviewResponse))
+    res.json((await listAllOrders(db, purchasingLeadTimeWeeks)).map(toOrderOverviewResponse))
   })
 
   // POST /api/orders – purchasing places an order with a supplier.
@@ -60,8 +61,8 @@ export function orderRoutes(db: Db) {
   router.get("/:id/budget", requireRole("project_manager"), async (req, res) => {
     const { id } = orderIdParams.parse(req.params)
     setAuditContext(res, { targetType: "order", targetId: id })
-    const { order, budget } = await getOrderBudget(db, req.user!, id)
-    res.json(toOrderBudgetResponse(order, budget))
+    const { order, budget, forecast } = await getOrderBudget(db, req.user!, id, purchasingLeadTimeWeeks)
+    res.json(toOrderBudgetDetailResponse(order, budget, forecast))
   })
 
   // GET /api/orders/:id/time-entries – single bookings of the project manager's own order (same ownership check).

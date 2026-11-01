@@ -71,7 +71,20 @@ export type AuditEvent = {
 }
 
 // GET /api/orders (orderOverviewResponse): one order with its budget, for purchasing
+// How long the budget lasts at the current pace (budgetForecastResponse, ADR 0015)
+export type BudgetForecast = {
+  state: "no_pace" | "ended" | "lasts" | "runs_out_early"
+  paceHoursPerWeek: number
+  runsOutOn: string | null // "YYYY-MM-DD"
+  missingHours: number
+  missingPersonDays: number
+  orderMoreBy: string | null // may already lie in the past
+  leadTimeWeeks: number
+  orderEndDate: string
+}
+
 export type OrderOverview = {
+  forecast: BudgetForecast
   orderId: number
   code: string
   title: string
@@ -100,6 +113,9 @@ export type OrderBudget = Pick<
   | "orderId" | "code" | "title" | "budgetHours" | "bookedHours" | "remainingHours"
   | "budgetCents" | "bookedCents" | "remainingCents" | "usedPercent" | "overBudget"
 >
+
+// GET /api/orders/:id/budget (orderBudgetDetailResponse): one order, with its forecast
+export type OrderBudgetDetail = OrderBudget & { forecast: BudgetForecast }
 
 // GET /api/orders/:id/time-entries: one booking, with the consultant's name only
 export type OrderBooking = {

@@ -62,7 +62,11 @@
       "endingSoon": "Endet bald",
       "endingSoonDescription": "Laufende Bestellungen, deren Zeitraum in den nächsten {{days}} Tagen endet.",
       "noneEnding": "Keine Bestellung endet bald.",
-      "allDescription": "Alle Bestellungen mit Budget und Zeitraum, die zuerst endenden oben."
+      "allDescription": "Alle Bestellungen mit Budget und Zeitraum, die zuerst endenden oben.",
+      "runningOutEarly": "Budget endet vor der Bestellung",
+      "runningOutEarlyDescription": "Beim Tempo der letzten 4 Wochen. Sonn- und Feiertage verbrauchen kein Budget.",
+      "noneRunningOut": "Beim aktuellen Tempo reicht jedes Budget bis zum Ende der Bestellung.",
+      "usedUpOn": "Aufgebraucht am {{date}}."
     },
     "admin": {
       "intro": "Konten und Sicherheit auf einen Blick. Geschäftsdaten wie Buchungen und Budgets sehen Admins nicht.",
@@ -454,5 +458,16 @@
     "TIME_ENTRY_NOT_FOUND": "Diese Buchung gibt es nicht.",
     "BOOKING_APPROVED": "Diese Buchung ist freigegeben und kann nicht mehr geändert oder gelöscht werden.",
     "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern."
+  },
+  "forecast": {
+    "title": "Wie lange das Budget reicht",
+    "pace": "Aktuelles Tempo: {{hours}} pro Woche, aus den letzten 4 Wochen",
+    "runsOut": "Bei diesem Tempo ist das Budget am {{date}} aufgebraucht, vor dem Ende der Bestellung am {{end}}.",
+    "missing": "Bis dahin fehlen etwa {{hours}} ({{days}} Personentage).",
+    "orderBy": "Bis {{date}} nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
+    "orderNow": "Jetzt nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
+    "lasts": "Bei diesem Tempo reicht das Budget bis zum Ende der Bestellung am {{end}}.",
+    "noPace": "In den letzten 4 Wochen wurde nichts gebucht, daher gibt es kein Tempo für eine Prognose.",
+    "ended": "Diese Bestellung endete am {{end}}."
   }
 }

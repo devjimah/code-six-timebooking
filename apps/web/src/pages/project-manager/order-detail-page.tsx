@@ -16,14 +16,15 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { formatDate, formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import type { OrderBooking, OrderBudget } from "@/lib/api-types.ts"
+import type { OrderBooking, OrderBudgetDetail } from "@/lib/api-types.ts"
 import { useApi } from "@/lib/use-api.ts"
+import { BudgetForecastCard } from "@/pages/project-manager/budget-forecast-card.tsx"
 import { ReturnBookingDialog } from "@/pages/project-manager/return-booking-dialog.tsx"
 
 export function OrderDetailPage() {
   const { t } = useTranslation()
   const { orderId } = useParams()
-  const budget = useApi<OrderBudget>(`/orders/${orderId}/budget`)
+  const budget = useApi<OrderBudgetDetail>(`/orders/${orderId}/budget`)
   const bookings = useApi<OrderBooking[]>(`/orders/${orderId}/time-entries`)
   const error = budget.error ?? bookings.error
   const order = budget.data
@@ -101,6 +102,7 @@ export function OrderDetailPage() {
           aria-label={t("orders.usedOf", { percent: order.usedPercent, code: order.code })}
         />
       )}
+      {order && <BudgetForecastCard forecast={order.forecast} endDate={order.forecast.orderEndDate} />}
 
       <Card className="gap-0 py-0">
         <CardHeader className="border-b px-4 py-3">

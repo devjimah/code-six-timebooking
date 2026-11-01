@@ -3,6 +3,7 @@
 // Response shapes are zod schemas too: the TypeScript types and the OpenAPI docs (openapi.ts, ADR 0009) come from them.
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
+import type { BudgetForecast } from "../domain/forecast.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
 const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
@@ -294,8 +295,42 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
   overBudget: budget.overBudget,
 })
 
+// How long the budget lasts at the current pace (ticket #51, ADR 0015). Dates are "YYYY-MM-DD".
+export const budgetForecastResponse = z.object({
+  state: z.enum(["no_pace", "ended", "lasts", "runs_out_early"]),
+  paceHoursPerWeek: z.number().meta({ description: "Booked per week over the last 4 weeks" }),
+  runsOutOn: z.string().nullable().meta({ description: "When the budget is used up at this pace" }),
+  missingHours: z.number().meta({ description: "What the budget lacks until the order ends" }),
+  missingPersonDays: z.number(),
+  orderMoreBy: z.string().nullable().meta({ description: "Runs-out date minus the purchasing lead time" }),
+  leadTimeWeeks: z.number().int(),
+  orderEndDate: z.string(),
+})
+const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.infer<typeof budgetForecastResponse> => ({
+  state: forecast.state,
+  paceHoursPerWeek: hours(forecast.paceMinutesPerWeek),
+  runsOutOn: forecast.runsOutOn,
+  missingHours: hours(forecast.missingMinutes),
+  missingPersonDays: personDays(forecast.missingMinutes),
+  orderMoreBy: forecast.orderMoreBy,
+  leadTimeWeeks: forecast.leadTimeWeeks,
+  orderEndDate: order.endDate,
+})
+
+// GET /api/orders/:id/budget – one order, with its forecast. The list of own orders stays without one.
+export const orderBudgetDetailResponse = orderBudgetResponse.extend({ forecast: budgetForecastResponse })
+export const toOrderBudgetDetailResponse = (
+  order: Order,
+  budget: OrderBudget,
+  forecast: BudgetForecast,
+): z.infer<typeof orderBudgetDetailResponse> => ({
+  ...toOrderBudgetResponse(order, budget),
+  forecast: toBudgetForecastResponse(order, forecast),
+})
+
 // GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
 export const orderOverviewResponse = orderBudgetResponse.extend({
+  forecast: budgetForecastResponse,
   approvedHours: z.number().meta({ description: "Booked hours the project manager has approved" }),
   notApprovedHours: z.number().meta({ description: "Booked hours still open or returned" }),
   supplierId: z.number().int(),
@@ -310,11 +345,13 @@ export const orderOverviewResponse = orderBudgetResponse.extend({
 export const toOrderOverviewResponse = (row: {
   order: Order
   budget: OrderBudget
+  forecast: BudgetForecast
   approvedMinutes: number
   supplierName: string
   projectManagerName: string
 }): z.infer<typeof orderOverviewResponse> => ({
   ...toOrderBudgetResponse(row.order, row.budget),
+  forecast: toBudgetForecastResponse(row.order, row.forecast),
   approvedHours: hours(row.approvedMinutes),
   notApprovedHours: hours(row.budget.bookedMinutes - row.approvedMinutes),
   supplierId: row.order.supplierId,
