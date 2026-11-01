@@ -1,6 +1,6 @@
 // Use case "a consultant books time on an order" (ticket #12, ADR 0007).
 // It loads what the rules need, asks every rule, and only then saves. The rules themselves live in
-// src/domain/rules; this file contains no rule logic of its own.
+// src/domain/rules; this file contains no rule logic of its own. A correction runs the same checks (#53).
 import { DomainError } from "../domain/errors.js"
 import type { TimeEntry, User } from "../domain/models.js"
 import { assertWithinDailyLimit } from "../domain/rules/daily-limit.js"
@@ -32,6 +32,23 @@ export async function bookTime(
   input: BookTimeInput,
   today = todayInCompanyTimeZone(),
 ): Promise<TimeEntry> {
+  const durationMinutes = await checkBookingRules(db, consultant, input, today)
+  // Known gap (ADR 0006): two bookings saved at the same moment could both pass the checks.
+  // Acceptable for the demo; production wraps check and insert in one transaction.
+  return timeEntryRepository(db).create({ userId: consultant.id, ...input, durationMinutes })
+}
+
+/**
+ * Asks every booking rule and returns the derived duration. exceptId leaves out a booking's own old version
+ * when it is being corrected, so it cannot clash with itself or count twice.
+ */
+export async function checkBookingRules(
+  db: Db,
+  consultant: User,
+  input: BookTimeInput,
+  today: string,
+  exceptId?: number,
+): Promise<number> {
   // Cheap checks first: they need no database. The duration is derived from the times (ADR 0010).
   const durationMinutes = workedMinutes(input)
   assertNotInFuture({ workDate: input.workDate, today })
@@ -48,11 +65,11 @@ export async function bookTime(
   assertNoOverlap({
     startTime: input.startTime,
     endTime: input.endTime,
-    sameDayBookings: await entries.slotsForUserOnDate(consultant.id, input.workDate),
+    sameDayBookings: await entries.slotsForUserOnDate(consultant.id, input.workDate, exceptId),
   })
   const [dayBefore, dayAfter] = await Promise.all([
-    entries.workingHoursForUserOnDate(consultant.id, addDays(input.workDate, -1)),
-    entries.workingHoursForUserOnDate(consultant.id, addDays(input.workDate, 1)),
+    entries.workingHoursForUserOnDate(consultant.id, addDays(input.workDate, -1), exceptId),
+    entries.workingHoursForUserOnDate(consultant.id, addDays(input.workDate, 1), exceptId),
   ])
   assertRestPeriod({
     workDate: input.workDate,
@@ -63,16 +80,14 @@ export async function bookTime(
   })
   assertWithinDailyLimit({
     workDate: input.workDate,
-    alreadyBookedMinutes: await entries.sumMinutesForUserOnDate(consultant.id, input.workDate),
+    alreadyBookedMinutes: await entries.sumMinutesForUserOnDate(consultant.id, input.workDate, exceptId),
     newMinutes: durationMinutes,
   })
   assertWithinOrderBudget({
     order,
-    alreadyBookedMinutes: await entries.sumMinutesForOrder(order.id),
+    alreadyBookedMinutes: await entries.sumMinutesForOrder(order.id, exceptId),
     newMinutes: durationMinutes,
   })
 
-  // Known gap (ADR 0006): two bookings saved at the same moment could both pass the checks.
-  // Acceptable for the demo; production wraps check and insert in one transaction.
-  return entries.create({ userId: consultant.id, ...input, durationMinutes })
+  return durationMinutes
 }

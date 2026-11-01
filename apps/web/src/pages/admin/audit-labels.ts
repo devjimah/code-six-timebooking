@@ -21,6 +21,8 @@ export const ACTION_LABELS = {
   "supplier.update": "auditActions.supplier.update",
   "time_entry.create": "auditActions.time_entry.create",
   "time_entry.list_own": "auditActions.time_entry.list_own",
+  "time_entry.update": "auditActions.time_entry.update",
+  "time_entry.delete": "auditActions.time_entry.delete",
   "time_entry.approve": "auditActions.time_entry.approve",
   "time_entry.return": "auditActions.time_entry.return",
   "order.approve_open": "auditActions.order.approve_open",

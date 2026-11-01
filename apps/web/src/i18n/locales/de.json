@@ -220,7 +220,9 @@
       "create": "Zeit gebucht",
       "list_own": "Eigene Buchungen angesehen",
       "approve": "Buchung freigegeben",
-      "return": "Buchung zurückgegeben"
+      "return": "Buchung zurückgegeben",
+      "update": "Buchung korrigiert",
+      "delete": "Buchung gelöscht"
     },
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
@@ -379,7 +381,18 @@
       "approved": "Freigegeben",
       "returned": "Zurückgegeben"
     },
-    "returnReason": "Zurückgegeben: {{reason}}"
+    "returnReason": "Zurückgegeben: {{reason}}",
+    "editTitle": "Buchung korrigieren",
+    "editDescription": "Alle Buchungsregeln werden erneut geprüft. Danach liegt die Buchung wieder offen bei Ihrer Projektleitung.",
+    "saveCorrection": "Korrektur speichern",
+    "corrected": "Buchung korrigiert: {{hours}} auf {{code}}.",
+    "cancelEdit": "Abbrechen",
+    "editNamed": "Buchung vom {{date}} korrigieren",
+    "deleteNamed": "Buchung vom {{date}} löschen",
+    "deleted": "Buchung gelöscht.",
+    "deleteTitle": "Diese Buchung löschen?",
+    "deleteDescription": "{{hours}} am {{date}} werden entfernt. Das kann nicht rückgängig gemacht werden.",
+    "deleteConfirm": "Löschen"
   },
   "calendar": {
     "future": "In der Zukunft – Zeit wird erst gebucht, wenn sie gearbeitet ist",
@@ -438,6 +451,8 @@
     "REST_PERIOD_TOO_SHORT": "Buchung abgelehnt: Zwischen zwei Arbeitstagen liegen weniger als 11 Stunden Ruhezeit (ArbZG §5).",
     "BOOKING_NOT_OPEN": "Nur eine offene Buchung kann freigegeben oder zurückgegeben werden.",
     "RETURN_REASON_REQUIRED": "Bitte begründen Sie die Rückgabe, damit die Buchung korrigiert werden kann.",
-    "TIME_ENTRY_NOT_FOUND": "Diese Buchung gibt es nicht."
+    "TIME_ENTRY_NOT_FOUND": "Diese Buchung gibt es nicht.",
+    "BOOKING_APPROVED": "Diese Buchung ist freigegeben und kann nicht mehr geändert oder gelöscht werden.",
+    "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern."
   }
 }

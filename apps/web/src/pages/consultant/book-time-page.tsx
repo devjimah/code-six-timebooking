@@ -1,5 +1,5 @@
-// Consultant: book working time on an order of the own company (POST /api/time-entries, issue #12) and see the own
-// bookings (GET /api/time-entries/mine). The form only helps to get it right first time – the server checks every
+// Consultant: book working time on an order of the own company (POST /api/time-entries, issue #12), see the own
+// bookings (GET /api/time-entries/mine), and correct or delete them until approved (issue #53). The form only helps to get it right first time – the server checks every
 // rule again and answers with a reason we translate: 10 h per day, 11 h rest, no overlapping times, no Sundays or public
 // holidays, no future dates, inside the order's period, budget left, own company's order.
 import * as React from "react"
@@ -8,6 +8,16 @@ import { CircleAlert, Clock } from "lucide-react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldLegend } from "@workspace/ui/components/field"
@@ -40,6 +50,8 @@ export function BookTimePage() {
   const [form, setForm] = React.useState({ orderId: "", workDate: today, ...EMPTY_TIMES })
   const [error, setError] = React.useState<string | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
+  const [editing, setEditing] = React.useState<TimeEntry | null>(null)
+  const [deleting, setDeleting] = React.useState<TimeEntry | null>(null)
   const update = (changes: Partial<typeof form>) => setForm((current) => ({ ...current, ...changes }))
 
   // With only one order there is nothing to choose: pick it.
@@ -47,7 +59,9 @@ export function BookTimePage() {
 
   const order = orders.data?.find((o) => String(o.id) === form.orderId)
   const durationMinutes = previewWorkedMinutes(form.startTime, form.endTime, Number(form.breakMinutes))
-  const entriesOn = (workDate: string) => (entries.data ?? []).filter((e) => e.workDate === workDate)
+  // A booking being corrected must not clash with its own old version, here as on the server.
+  const otherEntries = (entries.data ?? []).filter((e) => e.id !== editing?.id)
+  const entriesOn = (workDate: string) => otherEntries.filter((e) => e.workDate === workDate)
   const bookedThatDay = entriesOn(form.workDate).reduce((sum, e) => sum + e.durationMinutes, 0)
   const overDailyLimit = bookedThatDay + durationMinutes > DAILY_LIMIT_MINUTES
   const clash = findOverlap(form.startTime, form.endTime, entriesOn(form.workDate))
@@ -58,14 +72,46 @@ export function BookTimePage() {
   const chooseDate = (workDate: string) =>
     update(form.endTime === "" ? { workDate, startTime: suggestedStart(entriesOn(workDate)) } : { workDate })
 
+  function startEditing(entry: TimeEntry) {
+    setEditing(entry)
+    setError(null)
+    setForm({
+      orderId: String(entry.orderId),
+      workDate: entry.workDate,
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+      breakMinutes: String(entry.breakMinutes),
+      description: entry.description,
+    })
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  function stopEditing() {
+    setEditing(null)
+    setError(null)
+    update(EMPTY_TIMES)
+  }
+
+  async function confirmDelete() {
+    if (!deleting) return
+    try {
+      await api(`/time-entries/${deleting.id}`, { method: "DELETE" })
+      toast.success(t("booking.deleted"))
+      if (editing?.id === deleting.id) stopEditing()
+      entries.reload()
+    } catch (caught) {
+      toast.error(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!order) return
     setError(null)
     setSubmitting(true)
     try {
-      const created = await api<TimeEntry>("/time-entries", {
-        method: "POST",
+      const saved = await api<TimeEntry>(editing ? `/time-entries/${editing.id}` : "/time-entries", {
+        method: editing ? "PUT" : "POST",
         body: JSON.stringify({
           orderId: order.id,
           workDate: form.workDate,
@@ -75,8 +121,11 @@ export function BookTimePage() {
           description: form.description,
         }),
       })
-      toast.success(t("booking.saved", { hours: formatHours(durationMinutes), code: order.code }))
-      update({ ...EMPTY_TIMES, startTime: created.endTime })
+      toast.success(
+        t(editing ? "booking.corrected" : "booking.saved", { hours: formatHours(durationMinutes), code: order.code }),
+      )
+      setEditing(null)
+      update({ ...EMPTY_TIMES, startTime: saved.endTime })
       entries.reload()
     } catch (caught) {
       setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
@@ -91,8 +140,12 @@ export function BookTimePage() {
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
       <Card>
         <CardHeader>
-          <CardTitle>{t("booking.title")}</CardTitle>
-          <CardDescription>{t("booking.description")}</CardDescription>
+          <CardTitle>{t(editing ? "booking.editTitle" : "booking.title")}</CardTitle>
+          <CardDescription>
+            {editing?.returnReason
+              ? t("booking.returnReason", { reason: editing.returnReason })
+              : t(editing ? "booking.editDescription" : "booking.description")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loadError && (
@@ -196,12 +249,14 @@ export function BookTimePage() {
                 </FieldSet>
                 <FieldSet>
                   <FieldLegend variant="label">{t("booking.date")}</FieldLegend>
+                  {/* A new key when editing starts or ends, so the calendar opens at the booking's month. */}
                   <BookingCalendar
+                    key={editing?.id ?? "new"}
                     value={form.workDate}
                     onChange={chooseDate}
                     order={order}
                     today={today}
-                    entries={entries.data ?? []}
+                    entries={otherEntries}
                     startTime={form.startTime}
                     endTime={form.endTime}
                     durationMinutes={durationMinutes}
@@ -251,8 +306,13 @@ export function BookTimePage() {
                 </Field>
                 <Button type="submit" disabled={submitting || !order || durationMinutes === 0}>
                   <Clock aria-hidden />
-                  {submitting ? t("booking.saving") : t("booking.submit")}
+                  {submitting ? t("booking.saving") : t(editing ? "booking.saveCorrection" : "booking.submit")}
                 </Button>
+                {editing && (
+                  <Button type="button" variant="outline" onClick={stopEditing}>
+                    {t("booking.cancelEdit")}
+                  </Button>
+                )}
               </FieldGroup>
             </form>
           )}
@@ -272,10 +332,34 @@ export function BookTimePage() {
               ))}
             </div>
           ) : (
-            <BookingList entries={entries.data ?? []} orders={orders.data ?? []} />
+            <BookingList
+              entries={entries.data ?? []}
+              orders={orders.data ?? []}
+              onEdit={startEditing}
+              onDelete={setDeleting}
+            />
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("booking.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleting &&
+                t("booking.deleteDescription", {
+                  date: formatWeekday(deleting.workDate),
+                  hours: formatHours(deleting.durationMinutes),
+                })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("booking.cancelEdit")}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>{t("booking.deleteConfirm")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
