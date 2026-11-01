@@ -57,6 +57,13 @@
       "when": 1793569910628,
       "tag": "0007_booking_review",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1793571412710,
+      "tag": "0008_unavailable_days",
+      "breakpoints": true
     }
   ]
 }

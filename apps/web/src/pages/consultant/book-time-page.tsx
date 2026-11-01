@@ -28,11 +28,12 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
+import type { BookableOrder, TimeEntry, UnavailableDay } from "@/lib/api-types.ts"
 import { findOverlap, previewWorkedMinutes, suggestedStart, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
 import { BookingList, DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
+import { UnavailableDaysCard } from "@/pages/consultant/unavailable-days-card.tsx"
 
 const BREAKS = ["0", "15", "30", "45", "60"] // minutes
 // After a booking, the times and the text start again; order and date stay for the next booking of the day,
@@ -45,6 +46,7 @@ export function BookTimePage() {
   const { t } = useTranslation()
   const orders = useApi<BookableOrder[]>("/orders/bookable")
   const entries = useApi<TimeEntry[]>("/time-entries/mine")
+  const unavailable = useApi<UnavailableDay[]>("/unavailable-days/mine")
   const today = todayInCompanyTimeZone()
 
   const [form, setForm] = React.useState({ orderId: "", workDate: today, ...EMPTY_TIMES })
@@ -257,6 +259,7 @@ export function BookTimePage() {
                     order={order}
                     today={today}
                     entries={otherEntries}
+                    unavailableDays={unavailable.data ?? []}
                     startTime={form.startTime}
                     endTime={form.endTime}
                     durationMinutes={durationMinutes}
@@ -319,28 +322,32 @@ export function BookTimePage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("booking.mine")}</CardTitle>
-          <CardDescription>{t("booking.mineDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {entries.loading ? (
-            <div className="grid gap-3">
-              {Array.from({ length: 3 }, (_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : (
-            <BookingList
-              entries={entries.data ?? []}
-              orders={orders.data ?? []}
-              onEdit={startEditing}
-              onDelete={setDeleting}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid items-start gap-4">
+        <UnavailableDaysCard days={unavailable.data ?? []} onChange={unavailable.reload} />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("booking.mine")}</CardTitle>
+            <CardDescription>{t("booking.mineDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {entries.loading ? (
+              <div className="grid gap-3">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <BookingList
+                entries={entries.data ?? []}
+                orders={orders.data ?? []}
+                onEdit={startEditing}
+                onDelete={setDeleting}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <AlertDialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
         <AlertDialogContent>

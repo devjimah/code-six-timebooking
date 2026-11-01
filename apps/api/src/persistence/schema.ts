@@ -2,7 +2,7 @@
 // These are NOT domain objects: the rest of the app should talk to repositories,
 // which map these rows to domain types in src/domain/.
 import { sql } from "drizzle-orm"
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core"
 
 // Roles are a fixed list, so we store them as text with a CHECK-like enum
 // instead of a separate table. Who may do what: docs/roles-and-privacy.md.
@@ -114,3 +114,17 @@ export const timeEntries = sqliteTable("time_entries", {
   ...timestamps,
 })
 
+// A day a consultant is not available (ADR 0016). No reason on purpose: sick days are health data, and managing a
+// supplier's absences is the employer's job.
+export const unavailableDays = sqliteTable(
+  "unavailable_days",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    date: text("date").notNull(), // ISO date "YYYY-MM-DD"
+    ...timestamps,
+  },
+  (table) => [unique().on(table.userId, table.date)],
+)

@@ -196,7 +196,8 @@
       "hourlyRateCents": "Stundensatz",
       "startDate": "Beginn",
       "endDate": "Ende",
-      "approved": "Freigegeben"
+      "approved": "Freigegeben",
+      "date": "Datum"
     }
   },
   "auditActions": {
@@ -236,7 +237,8 @@
       "create": "Bestellung angelegt",
       "update": "Bestellung geändert",
       "view_bookings": "Buchungen einer Bestellung angesehen",
-      "approve_open": "Alle offenen Buchungen einer Bestellung freigegeben"
+      "approve_open": "Alle offenen Buchungen einer Bestellung freigegeben",
+      "view_unavailable": "Nicht verfügbare Tage einer Bestellung angesehen"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -246,6 +248,11 @@
     },
     "calendar": {
       "list_holidays": "Feiertage abgerufen"
+    },
+    "unavailable_day": {
+      "list_own": "Eigene nicht verfügbare Tage angesehen",
+      "mark": "Tag als nicht verfügbar markiert",
+      "remove": "Nicht verfügbaren Tag entfernt"
     }
   },
   "suppliers": {
@@ -408,7 +415,8 @@
     "overlap": "Konflikt: Diese Zeiten überschneiden sich mit Ihrer Buchung {{start}}–{{end}}",
     "legendConflict": "Mit diesen Zeiten überschneidend oder über 10 Stunden",
     "legendBlocked": "Nicht buchbar",
-    "legendHours": "Zahl unter dem Tag = schon gebucht"
+    "legendHours": "Zahl unter dem Tag = schon gebucht",
+    "unavailable": "Als nicht verfügbar markiert – entfernen Sie zuerst die Markierung, wenn Sie an diesem Tag gearbeitet haben"
   },
   "errors": {
     "DAILY_LIMIT_EXCEEDED": "Buchung abgelehnt: Mehr als 10 Stunden Arbeitszeit pro Tag sind nicht erlaubt (ArbZG §3).",
@@ -457,7 +465,9 @@
     "RETURN_REASON_REQUIRED": "Bitte begründen Sie die Rückgabe, damit die Buchung korrigiert werden kann.",
     "TIME_ENTRY_NOT_FOUND": "Diese Buchung gibt es nicht.",
     "BOOKING_APPROVED": "Diese Buchung ist freigegeben und kann nicht mehr geändert oder gelöscht werden.",
-    "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern."
+    "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern.",
+    "DAY_MARKED_UNAVAILABLE": "Buchung abgelehnt: Sie haben diesen Tag als nicht verfügbar markiert. Entfernen Sie zuerst die Markierung, wenn Sie an diesem Tag gearbeitet haben.",
+    "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
@@ -469,5 +479,15 @@
     "lasts": "Bei diesem Tempo reicht das Budget bis zum Ende der Bestellung am {{end}}.",
     "noPace": "In den letzten 4 Wochen wurde nichts gebucht, daher gibt es kein Tempo für eine Prognose.",
     "ended": "Diese Bestellung endete am {{end}}."
+  },
+  "unavailable": {
+    "title": "Tage, an denen ich nicht verfügbar bin",
+    "description": "Ihre Projektleitung kann planen, ohne nachzufragen. Einen Grund nennen Sie nie; Urlaub oder Krankheit bleiben bei Ihrem Arbeitgeber.",
+    "date": "Datum",
+    "mark": "Markieren",
+    "none": "Keine Tage markiert.",
+    "remove": "{{date}} entfernen",
+    "upcoming": "Kommende nicht verfügbare Tage",
+    "upcomingDescription": "Berater auf dieser Bestellung. Die Prognose berücksichtigt diese Tage; der Grund bleibt beim Arbeitgeber."
   }
 }

@@ -26,6 +26,10 @@ export const ACTION_LABELS = {
   "time_entry.approve": "auditActions.time_entry.approve",
   "time_entry.return": "auditActions.time_entry.return",
   "order.approve_open": "auditActions.order.approve_open",
+  "order.view_unavailable": "auditActions.order.view_unavailable",
+  "unavailable_day.list_own": "auditActions.unavailable_day.list_own",
+  "unavailable_day.mark": "auditActions.unavailable_day.mark",
+  "unavailable_day.remove": "auditActions.unavailable_day.remove",
   "order.list_all": "auditActions.order.list_all",
   "order.create": "auditActions.order.create",
   "order.update": "auditActions.order.update",
@@ -72,6 +76,7 @@ const DETAIL_LABELS = {
   durationMinutes: "audit.details.durationMinutes",
   timeEntryId: "audit.details.timeEntryId",
   approved: "audit.details.approved",
+  date: "audit.details.date",
   code: "audit.details.code",
   projectManagerId: "audit.details.projectManagerId",
   budgetHours: "audit.details.budgetHours",
@@ -86,7 +91,7 @@ export function detailEntry(t: TFunction, key: string, value: string | number | 
   const label = labelKey ? t(labelKey) : key
   if (value === null) return [label, "–"]
   if (key === "durationMinutes" && typeof value === "number") return [label, formatHours(value)]
-  if ((key === "workDate" || key === "startDate" || key === "endDate") && typeof value === "string") {
+  if ((key === "workDate" || key === "startDate" || key === "endDate" || key === "date") && typeof value === "string") {
     return [label, formatDate(value)]
   }
   if (key === "budgetHours" && typeof value === "number") return [label, formatHours(value * 60)]

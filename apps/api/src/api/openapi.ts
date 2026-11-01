@@ -30,6 +30,9 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  orderUnavailableDayResponse,
+  unavailableDayParams,
+  unavailableDayResponse,
   bookingReviewResponse,
   returnBookingRequest,
   timeEntryIdParams,
@@ -162,7 +165,7 @@ export const routes: RouteDoc[] = [
     success: { status: 201, description: "Booked", schema: timeEntryResponse },
     errors: {
       400: "Invalid request body",
-      422: "A business rule was broken: INVALID_TIME, END_NOT_AFTER_START, INVALID_BREAK, BOOKING_OVERLAP, REST_PERIOD_TOO_SHORT, DAILY_LIMIT_EXCEEDED, " +
+      422: "A business rule was broken: INVALID_TIME, END_NOT_AFTER_START, INVALID_BREAK, BOOKING_OVERLAP, REST_PERIOD_TOO_SHORT, DAY_MARKED_UNAVAILABLE, DAILY_LIMIT_EXCEEDED, " +
         "BUDGET_EXCEEDED, ORDER_NOT_FOUND, ORDER_NOT_ASSIGNED, DATE_IN_FUTURE, SUNDAY_OR_HOLIDAY, OUTSIDE_ORDER_PERIOD",
     },
   },
@@ -306,6 +309,36 @@ export const routes: RouteDoc[] = [
       404: "The booking does not exist (TIME_ENTRY_NOT_FOUND)",
       422: "The booking is not open (BOOKING_NOT_OPEN), or the reason is empty (RETURN_REASON_REQUIRED)",
     },
+  },
+  {
+    method: "get", path: "/api/orders/{id}/unavailable-days", tag: "Orders", roles: ["project_manager"],
+    summary: "Upcoming unavailable days of the consultants who booked on your order in the last 4 weeks, without a reason",
+    params: orderIdParams,
+    success: { status: 200, description: "Days, soonest first", schema: z.array(orderUnavailableDayResponse) },
+    errors: {
+      400: "The id is not a number",
+      403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
+      404: "The order does not exist (ORDER_NOT_FOUND)",
+    },
+  },
+  {
+    method: "get", path: "/api/unavailable-days/mine", tag: "Unavailable days", roles: ["consultant"],
+    summary: "Your own unavailable days, soonest first",
+    success: { status: 200, description: "Your days", schema: z.array(unavailableDayResponse) },
+  },
+  {
+    method: "put", path: "/api/unavailable-days/{date}", tag: "Unavailable days", roles: ["consultant"],
+    summary: "Mark a day as unavailable, without a reason; marking it twice changes nothing",
+    params: unavailableDayParams,
+    success: { status: 204, description: "Marked" },
+    errors: { 400: "Not a date", 422: "You have bookings on that day (DAY_HAS_BOOKINGS)" },
+  },
+  {
+    method: "delete", path: "/api/unavailable-days/{date}", tag: "Unavailable days", roles: ["consultant"],
+    summary: "Remove the mark from a day",
+    params: unavailableDayParams,
+    success: { status: 204, description: "Removed" },
+    errors: { 400: "Not a date" },
   },
   {
     method: "get", path: "/api/audit-events", tag: "Audit log", summary: "Latest recorded actions, newest first",

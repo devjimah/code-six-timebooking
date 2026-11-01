@@ -29,6 +29,11 @@ export type BookableOrder = {
   endDate: string
 }
 
+// GET /api/unavailable-days/mine (ADR 0016). No reason, on purpose.
+export type UnavailableDay = { date: string } // "YYYY-MM-DD"
+// GET /api/orders/:id/unavailable-days
+export type OrderUnavailableDay = UnavailableDay & { consultantName: string }
+
 // Check and approve (ADR 0014)
 export type BookingStatus = "open" | "approved" | "returned"
 

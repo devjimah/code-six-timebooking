@@ -249,6 +249,12 @@ export const orderBookingResponse = z.object({
   consultantName: z.string(),
 })
 
+// /api/unavailable-days/:date (ADR 0016): the date arrives as text in the URL. There is no reason field.
+export const unavailableDayParams = z.object({ date: z.iso.date() })
+export const unavailableDayResponse = z.object({ date: z.string().meta({ example: "2026-12-21" }) })
+// GET /api/orders/:id/unavailable-days: the date and the name, for planning.
+export const orderUnavailableDayResponse = unavailableDayResponse.extend({ consultantName: z.string() })
+
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
 export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
 

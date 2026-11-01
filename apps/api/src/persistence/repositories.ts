@@ -4,7 +4,7 @@ import { and, asc, desc, eq, gte, inArray, lt, ne, notInArray, or, sql } from "d
 import { READ_METHODS } from "../domain/audit-retention.js"
 import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
-import { auditEvents, orders, suppliers, timeEntries, users } from "./schema.js"
+import { auditEvents, orders, suppliers, timeEntries, unavailableDays, users } from "./schema.js"
 
 type NewOf<T> = Omit<T, "id">
 
@@ -245,6 +245,17 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
+    /** Who booked on each order from this date on: the team the forecast and the project manager look at. */
+    async consultantsPerOrderSince(orderIds: number[], fromDate: string) {
+      const team = new Map<number, number[]>()
+      if (orderIds.length === 0) return team
+      const rows = await db
+        .selectDistinct({ orderId: timeEntries.orderId, userId: timeEntries.userId })
+        .from(timeEntries)
+        .where(and(inArray(timeEntries.orderId, orderIds), gte(timeEntries.workDate, fromDate)))
+      for (const r of rows) team.set(r.orderId, [...(team.get(r.orderId) ?? []), r.userId])
+      return team
+    },
     /** Minutes booked from this date on, per order, for the forecast's pace. Orders without bookings are missing. */
     async minutesPerOrderSince(orderIds: number[], fromDate: string) {
       if (orderIds.length === 0) return new Map<number, number>()
@@ -282,6 +293,53 @@ export function timeEntryRepository(db: Db) {
         .where(eq(timeEntries.orderId, orderId))
         .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
       return rows
+    },
+  }
+}
+
+export function unavailableDayRepository(db: Db) {
+  return {
+    /** Marking a day twice changes nothing. */
+    async mark(userId: number, date: string) {
+      await db.insert(unavailableDays).values({ userId, date }).onConflictDoNothing()
+    },
+    async remove(userId: number, date: string) {
+      await db.delete(unavailableDays).where(and(eq(unavailableDays.userId, userId), eq(unavailableDays.date, date)))
+    },
+    async isMarked(userId: number, date: string) {
+      const [row] = await db
+        .select({ id: unavailableDays.id })
+        .from(unavailableDays)
+        .where(and(eq(unavailableDays.userId, userId), eq(unavailableDays.date, date)))
+      return row !== undefined
+    },
+    async findByUser(userId: number) {
+      return db
+        .select({ date: unavailableDays.date })
+        .from(unavailableDays)
+        .where(eq(unavailableDays.userId, userId))
+        .orderBy(asc(unavailableDays.date))
+    },
+    /** For the project manager: the date and the name, nothing else. */
+    async findForUsersFrom(userIds: number[], fromDate: string) {
+      if (userIds.length === 0) return []
+      return db
+        .select({ date: unavailableDays.date, consultantName: users.name })
+        .from(unavailableDays)
+        .innerJoin(users, eq(unavailableDays.userId, users.id))
+        .where(and(inArray(unavailableDays.userId, userIds), gte(unavailableDays.date, fromDate)))
+        .orderBy(asc(unavailableDays.date), asc(users.name))
+    },
+    /** For the forecast: date → who is away. */
+    async findUserIdsPerDateFrom(userIds: number[], fromDate: string) {
+      const away = new Map<string, Set<number>>()
+      if (userIds.length === 0) return away
+      const rows = await db
+        .select({ date: unavailableDays.date, userId: unavailableDays.userId })
+        .from(unavailableDays)
+        .where(and(inArray(unavailableDays.userId, userIds), gte(unavailableDays.date, fromDate)))
+      for (const r of rows) away.set(r.date, (away.get(r.date) ?? new Set()).add(r.userId))
+      return away
     },
   }
 }

@@ -1,6 +1,7 @@
 // The date picker of the booking form: a month calendar (shadcn Calendar) that shows, before anyone presses "Book",
 // where a booking would be refused:
-// - greyed out: days the server never accepts – in the future, outside the order's period, Sundays, public holidays;
+// - greyed out: days the server never accepts – in the future, outside the order's period, Sundays, public holidays,
+//   days the consultant marked as unavailable;
 // - hours under the day number: what is already booked that day;
 // - red: the chosen start and end overlap a booking of that day (#54), or the worked time would push that day
 //   over the 10-hour limit.
@@ -11,7 +12,7 @@ import { de, enGB } from "react-day-picker/locale"
 
 import { Calendar, CalendarDayButton } from "@workspace/ui/components/calendar"
 import { formatHours } from "@/i18n/format.ts"
-import type { BookableOrder, TimeEntry } from "@/lib/api-types.ts"
+import type { BookableOrder, TimeEntry, UnavailableDay } from "@/lib/api-types.ts"
 import { findOverlap } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
@@ -24,6 +25,7 @@ type Props = {
   order: BookableOrder | undefined
   today: string
   entries: TimeEntry[]
+  unavailableDays: UnavailableDay[]
   /** The times chosen in the form; days where they overlap a booking or exceed the daily limit turn red */
   startTime: string
   endTime: string
@@ -44,6 +46,7 @@ export function BookingCalendar({
   order,
   today,
   entries,
+  unavailableDays,
   startTime,
   endTime,
   durationMinutes,
@@ -71,6 +74,7 @@ export function BookingCalendar({
     if (order && (iso < order.startDate || iso > order.endDate))
       return t("calendar.outsidePeriod")
     if (date.getDay() === 0) return t("calendar.sunday")
+    if (unavailableDays.some((d) => d.date === iso)) return t("calendar.unavailable")
     const holiday = holidayName(iso)
     return holiday ? t("calendar.holiday", { name: holiday }) : null
   }

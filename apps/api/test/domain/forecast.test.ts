@@ -39,6 +39,33 @@ describe("the challenge's worked example", () => {
   })
 })
 
+describe("planned absences (#10)", () => {
+  // The same example; half the team is away for two weeks in October (12 working days at half pace = 6 days lost).
+  const withVacation = forecast({
+    order: { startDate: "2026-07-01", endDate: "2027-02-05", budgetHours: 140 * 8 },
+    bookedMinutes: 84 * 8 * HOUR,
+    minutesInPaceWindow: 4 * 6 * 8 * HOUR,
+    capacityOn: (date) => (date >= "2026-10-12" && date <= "2026-10-24" ? 0.5 : 1),
+  })
+
+  it("moves the end of the budget back about a week, to week 51", () => {
+    expect(withVacation.runsOutOn).toBe("2026-12-16") // Wednesday of week 51
+  })
+
+  it("needs less until the project ends, so less is missing", () => {
+    expect(withVacation.missingMinutes).toBe(41 * 8 * HOUR)
+  })
+
+  it("uses no budget on a day when everyone is away", () => {
+    const result = forecast({
+      order: { startDate: "2026-07-01", endDate: "2027-01-31", budgetHours: 8 },
+      capacityOn: (date) => (date === "2026-10-06" ? 0 : 1),
+    })
+
+    expect(result.runsOutOn).toBe("2026-10-07")
+  })
+})
+
 describe("the budget's end date", () => {
   it("skips Sundays: 6 working days from Monday end on the next Monday", () => {
     const result = forecast({ order: { startDate: "2026-07-01", endDate: "2027-01-31", budgetHours: 48 } })
