@@ -86,6 +86,8 @@ curl -b pm.txt http://localhost:3001/api/orders/1/budget
 npm test          # all tests of all workspaces (Turbo runs Vitest in apps/api)
 ```
 
+GitHub Actions runs typecheck, lint, these tests and the build on every pull request and on pushes to master ([ci.yml](.github/workflows/ci.yml)).
+
 ## Demo users
 
 All demo users have the password `demo1234` (demo data only). Demo data is only created in an empty database: if a demo user is missing after an update, run `npm run db:reset -w api`.
