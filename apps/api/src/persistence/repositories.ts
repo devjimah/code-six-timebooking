@@ -2,6 +2,7 @@
 // Each one maps a database row (persistence entity) to a domain object.
 import { and, asc, desc, eq, gte, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm"
 import { READ_METHODS } from "../domain/audit-retention.js"
+import { addDays } from "../domain/public-holidays.js"
 import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
 import { auditEvents, orders, suppliers, timeEntries, unavailableDays, users } from "./schema.js"
@@ -375,11 +376,14 @@ export function auditEventRepository(db: Db) {
       await db.insert(auditEvents).values({ ...data, details: details === null ? null : JSON.stringify(details) })
     },
     /** Newest first. Every filter is optional. */
-    async findLatest({ limit, actorUserId, outcome, action }: AuditEventFilter) {
+    async findLatest({ limit, actorUserId, outcome, action, from, to }: AuditEventFilter) {
       const conditions = [
         actorUserId === undefined ? undefined : eq(auditEvents.actorUserId, actorUserId),
         outcome === undefined ? undefined : eq(auditEvents.outcome, outcome),
         action === undefined ? undefined : eq(auditEvents.action, action),
+        // Timestamps are ISO strings, which sort like dates. "to" is the last day included, so compare with the next.
+        from === undefined ? undefined : gte(auditEvents.occurredAt, from),
+        to === undefined ? undefined : lt(auditEvents.occurredAt, addDays(to, 1)),
       ]
       const rows = await db
         .select()
@@ -404,4 +408,4 @@ export function auditEventRepository(db: Db) {
   }
 }
 
-export type AuditEventFilter = { limit: number; actorUserId?: number; outcome?: AuditOutcome; action?: string }
+export type AuditEventFilter = { limit: number; actorUserId?: number; outcome?: AuditOutcome; action?: string; from?: string; to?: string }

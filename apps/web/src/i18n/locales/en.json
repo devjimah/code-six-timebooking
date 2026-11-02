@@ -215,7 +215,7 @@
       "runningOutEarly": "Budget runs out before the order ends",
       "runningOutEarlyDescription": "At the pace of the last 4 weeks. Sundays and public holidays use no budget.",
       "noneRunningOut": "At the current pace, every budget lasts until its order ends.",
-      "usedUpOn": "Used up on {{date}}."
+      "usedUpOn": "Used up on {{date}}, about {{hours}} short."
     },
     "admin": {
       "intro": "Accounts and security at a glance. Admins see no business data such as bookings or budgets.",
@@ -347,7 +347,9 @@
       "endDate": "End",
       "approved": "Approved",
       "date": "Date"
-    }
+    },
+    "from": "From",
+    "to": "To"
   },
   "auditActions": {
     "auth": {
@@ -622,9 +624,9 @@
   "forecast": {
     "title": "How long the budget lasts",
     "pace": "Current pace: {{hours}} ({{days}} PD) per week, from the last 4 weeks",
-    "runsOut": "At this pace the budget is used up on {{date}}, before the order ends on {{end}}.",
+    "runsOut": "At this pace the budget is used up on {{date}} (week {{week}}), before the order ends on {{end}}.",
     "missing": "About {{hours}} ({{days}} person-days) are missing until then.",
-    "orderBy": "Order more by {{date}}: purchasing needs {{weeks}} weeks.",
+    "orderBy": "Order more by {{date}} (week {{week}}): purchasing needs {{weeks}} weeks.",
     "orderNow": "Order more now: purchasing needs {{weeks}} weeks.",
     "lasts": "At this pace the budget lasts until the order ends on {{end}}.",
     "noPace": "Nothing was booked in the last 4 weeks, so there is no pace to forecast from.",

@@ -88,6 +88,8 @@ export const auditEventsQuery = z.object({
   userId: z.coerce.number().int().positive().optional(),
   outcome: z.enum(["success", "rejected", "denied", "error"]).optional(),
   action: z.string().max(64).optional().meta({ example: "time_entry.create" }),
+  from: z.iso.date().optional().meta({ description: "First day, in UTC like the stored timestamps" }),
+  to: z.iso.date().optional().meta({ description: "Last day, included" }),
 })
 
 export const auditEventResponse = z.object({

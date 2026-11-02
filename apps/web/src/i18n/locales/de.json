@@ -215,7 +215,7 @@
       "runningOutEarly": "Budget endet vor der Bestellung",
       "runningOutEarlyDescription": "Beim Tempo der letzten 4 Wochen. Sonn- und Feiertage verbrauchen kein Budget.",
       "noneRunningOut": "Beim aktuellen Tempo reicht jedes Budget bis zum Ende der Bestellung.",
-      "usedUpOn": "Aufgebraucht am {{date}}."
+      "usedUpOn": "Aufgebraucht am {{date}}, etwa {{hours}} zu wenig."
     },
     "admin": {
       "intro": "Konten und Sicherheit auf einen Blick. Geschäftsdaten wie Buchungen und Budgets sehen Admins nicht.",
@@ -347,7 +347,9 @@
       "endDate": "Ende",
       "approved": "Freigegeben",
       "date": "Datum"
-    }
+    },
+    "from": "Von",
+    "to": "Bis"
   },
   "auditActions": {
     "auth": {
@@ -622,9 +624,9 @@
   "forecast": {
     "title": "Wie lange das Budget reicht",
     "pace": "Aktuelles Tempo: {{hours}} ({{days}} PT) pro Woche, aus den letzten 4 Wochen",
-    "runsOut": "Bei diesem Tempo ist das Budget am {{date}} aufgebraucht, vor dem Ende der Bestellung am {{end}}.",
+    "runsOut": "Bei diesem Tempo ist das Budget am {{date}} (KW {{week}}) aufgebraucht, vor dem Ende der Bestellung am {{end}}.",
     "missing": "Bis dahin fehlen etwa {{hours}} ({{days}} Personentage).",
-    "orderBy": "Bis {{date}} nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
+    "orderBy": "Bis {{date}} (KW {{week}}) nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
     "orderNow": "Jetzt nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
     "lasts": "Bei diesem Tempo reicht das Budget bis zum Ende der Bestellung am {{end}}.",
     "noPace": "In den letzten 4 Wochen wurde nichts gebucht, daher gibt es kein Tempo für eine Prognose.",

@@ -7,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { formatDate, formatHours, formatNumber } from "@/i18n/format.ts"
 import type { BudgetForecast } from "@/lib/api-types.ts"
-import { todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { calendarWeek, todayInCompanyTimeZone } from "@/lib/dates.ts"
 
 type Props = {
   forecast: BudgetForecast
@@ -34,7 +34,7 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
         {forecast.state === "runs_out_early" && forecast.runsOutOn ? (
           <Alert variant="destructive">
             <TriangleAlert aria-hidden />
-            <AlertTitle>{t("forecast.runsOut", { date: formatDate(forecast.runsOutOn), end })}</AlertTitle>
+            <AlertTitle>{t("forecast.runsOut", { date: formatDate(forecast.runsOutOn), week: calendarWeek(forecast.runsOutOn), end })}</AlertTitle>
             <AlertDescription>
               <p>
                 {t("forecast.missing", {
@@ -46,7 +46,11 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
                 <p>
                   {late
                     ? t("forecast.orderNow", { weeks: forecast.leadTimeWeeks })
-                    : t("forecast.orderBy", { date: formatDate(forecast.orderMoreBy), weeks: forecast.leadTimeWeeks })}
+                    : t("forecast.orderBy", {
+                        date: formatDate(forecast.orderMoreBy),
+                        week: calendarWeek(forecast.orderMoreBy),
+                        weeks: forecast.leadTimeWeeks,
+                      })}
                 </p>
               )}
             </AlertDescription>

@@ -64,7 +64,7 @@ describe("OpenAPI document", () => {
     const audit = (document.paths["/api/audit-events"]!.get as any).parameters
 
     expect(budget).toEqual([expect.objectContaining({ name: "id", in: "path", required: true })])
-    expect(audit.map((p: { name: string }) => p.name)).toEqual(["limit", "userId", "outcome", "action"])
+    expect(audit.map((p: { name: string }) => p.name)).toEqual(["limit", "userId", "outcome", "action", "from", "to"])
   })
 })
 
