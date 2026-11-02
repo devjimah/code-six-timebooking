@@ -438,7 +438,8 @@ export const routes: RouteDoc[] = [
     errors: { 400: "Not a date" },
   },
   {
-    method: "get", path: "/api/notifications", tag: "Notifications", roles: [],
+    method: "get", path: "/api/notifications", tag: "Notifications",
+    roles: ["consultant", "project_manager", "purchasing", "supplier_manager", "admin"],
     summary: "What needs your attention, depending on your role. Computed each time, never stored",
     success: { status: 200, description: "Your notifications", schema: z.array(notificationResponse) },
   },

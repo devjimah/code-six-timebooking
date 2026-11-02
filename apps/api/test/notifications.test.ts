@@ -102,6 +102,26 @@ describe("notifications per role", () => {
     await orderRepository(db).update(order.id, { closedAt: null })
   })
 
+  it("waits until someone has replaced a password an admin chose", async () => {
+    const created = await fetch(`${baseUrl}/api/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: cookie.admin! },
+      body: JSON.stringify({ email: "forced@demo.local", name: "Forced", role: "purchasing", password: "initial-pass-123" }),
+    })
+    expect(created.status).toBe(201)
+    const login = await fetch(`${baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "forced@demo.local", password: "initial-pass-123" }),
+    })
+    const session = login.headers.getSetCookie()[0]!.split(";")[0]!
+
+    const res = await fetch(`${baseUrl}/api/notifications`, { headers: { Cookie: session } })
+
+    expect(res.status).toBe(403)
+    expect((await res.json()).code).toBe("PASSWORD_CHANGE_REQUIRED")
+  })
+
   it("needs a session", async () => {
     expect((await fetch(`${baseUrl}/api/notifications`)).status).toBe(401)
   })
