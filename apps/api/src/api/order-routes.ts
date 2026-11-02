@@ -5,13 +5,19 @@ import { getOrderBudget } from "../application/get-order-budget.js"
 import { listOrderBookings } from "../application/list-order-bookings.js"
 import { createOrder, listAllOrders, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
+import { checkOrderInvoice, getProofOfWork } from "../application/proof-of-work.js"
 import { approveOpenBookings } from "../application/review-bookings.js"
 import { listOrderUnavailableDays } from "../application/unavailable-days.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
+import { proofOfWorkCsv, proofOfWorkFileName } from "./proof-of-work-csv.js"
 import {
   type OrderRequest,
+  invoiceCheckQuery,
+  proofOfWorkQuery,
+  toInvoiceCheckResponse,
+  toProofOfWorkResponse,
   orderIdParams,
   orderRequest,
   toBookableOrderResponse,
@@ -71,6 +77,30 @@ export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
     const { id } = orderIdParams.parse(req.params)
     setAuditContext(res, { targetType: "order", targetId: id })
     res.json(await listOrderBookings(db, req.user!, id))
+  })
+
+  // One month of the project manager's own order, as data and as a file (ADR 0018).
+  router.get("/:id/proof-of-work", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const { month } = proofOfWorkQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: { month } })
+    res.json(toProofOfWorkResponse(await getProofOfWork(db, req.user!, id, month)))
+  })
+
+  router.get("/:id/proof-of-work.csv", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const { month } = proofOfWorkQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: { month } })
+    const proof = await getProofOfWork(db, req.user!, id, month)
+    res.attachment(proofOfWorkFileName(proof)).type("text/csv").send(proofOfWorkCsv(proof))
+  })
+
+  // Purchasing compares an invoice with the approved hours: sums only, and the amount is neither stored nor logged.
+  router.get("/:id/invoice-check", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const { month, invoicedCents } = invoiceCheckQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: { month } })
+    res.json(toInvoiceCheckResponse(await checkOrderInvoice(db, id, month, invoicedCents)))
   })
 
   // GET /api/orders/:id/unavailable-days – upcoming days of the consultants on the project manager's own order (#10).

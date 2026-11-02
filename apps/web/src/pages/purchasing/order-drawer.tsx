@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
+import { euroToCents } from "@/lib/money.ts"
 import type { OrderOverview, OrderRequest, ProjectManager, Supplier } from "@/lib/api-types.ts"
 
 type Props = {
@@ -69,9 +70,6 @@ const toForm = (order: OrderOverview, decimalComma: boolean): Form => ({
   endDate: order.endDate,
   accountingObject: order.accountingObject ?? "",
 })
-
-/** "95,50" or "95.50" → 9550 cents; NaN if it is not a number. German users type a decimal comma. */
-const euroToCents = (text: string) => Math.round(Number(text.replace(",", ".")) * 100)
 
 export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSaved }: Props) {
   const { t, i18n } = useTranslation()

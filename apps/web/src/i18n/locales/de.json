@@ -256,7 +256,8 @@
     "suppliers": "Dienstleister",
     "orders": "Bestellungen",
     "myOrders": "Meine Bestellungen",
-    "bookTime": "Zeit buchen"
+    "bookTime": "Zeit buchen",
+    "invoiceCheck": "Rechnungsprüfung"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -347,7 +348,8 @@
       "endDate": "Ende",
       "approved": "Freigegeben",
       "date": "Datum",
-      "accountingObject": "Kostenstelle oder PSP-Element"
+      "accountingObject": "Kostenstelle oder PSP-Element",
+      "month": "Monat"
     },
     "from": "Von",
     "to": "Bis"
@@ -390,7 +392,10 @@
       "update": "Bestellung geändert",
       "view_bookings": "Buchungen einer Bestellung angesehen",
       "approve_open": "Alle offenen Buchungen einer Bestellung freigegeben",
-      "view_unavailable": "Nicht verfügbare Tage einer Bestellung angesehen"
+      "view_unavailable": "Nicht verfügbare Tage einer Bestellung angesehen",
+      "view_proof": "Leistungsnachweis angesehen",
+      "export_proof": "Leistungsnachweis heruntergeladen",
+      "check_invoice": "Rechnung geprüft"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -492,7 +497,10 @@
     "returnConfirm": "Buchung zurückgeben",
     "returning": "Wird zurückgegeben …",
     "cancel": "Abbrechen",
-    "personDays": "{{days}} PT"
+    "personDays": "{{days}} PT",
+    "month": "Monat",
+    "allMonths": "Alle Monate",
+    "calendarWeek": "KW {{week}}"
   },
   "password": {
     "title": "Passwort ändern",
@@ -645,5 +653,29 @@
     "remove": "{{date}} entfernen",
     "upcoming": "Kommende nicht verfügbare Tage",
     "upcomingDescription": "Berater auf dieser Bestellung. Die Prognose berücksichtigt diese Tage; der Grund bleibt beim Arbeitgeber."
+  },
+  "proof": {
+    "title": "Leistungsnachweis {{month}}",
+    "description": "Die Stunden dieses Monats, für die Rechnung. Download ohne Beginn und Ende.",
+    "download": "CSV herunterladen",
+    "approved": "Freigegeben",
+    "approvedMoney": "Freigegebener Betrag",
+    "open": "Offen",
+    "returned": "Zurückgegeben"
+  },
+  "invoice": {
+    "title": "Rechnung prüfen",
+    "description": "Vergleichen Sie eine Rechnung mit den Stunden, die die Projektleitung in diesem Monat freigegeben hat. Nur Summen.",
+    "month": "Monat",
+    "amount": "Rechnungsbetrag in €",
+    "notSaved": "Wird nur verglichen, nicht gespeichert.",
+    "check": "Prüfen",
+    "result": {
+      "matches": "Die Rechnung passt zu den freigegebenen Stunden.",
+      "invoice_higher": "Die Rechnung liegt {{difference}} über den freigegebenen Stunden.",
+      "invoice_lower": "Die Rechnung liegt {{difference}} unter den freigegebenen Stunden."
+    },
+    "approved": "Freigegeben: {{hours}} = {{amount}}. Berechnet: {{invoiced}}.",
+    "notApproved": "{{hours}} dieses Monats sind noch offen oder zurückgegeben; die Projektleitung ist also vielleicht noch nicht fertig."
   }
 }

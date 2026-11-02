@@ -1,6 +1,7 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
 import { and, asc, desc, eq, gte, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm"
+import { monthRange } from "../domain/proof-of-work.js"
 import { READ_METHODS } from "../domain/audit-retention.js"
 import { addDays } from "../domain/public-holidays.js"
 import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
@@ -283,8 +284,9 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
-    /** Bookings of one order with the consultant's name, newest work date first. No email, no user id. */
-    async findByOrderWithConsultantName(orderId: number) {
+    /** Bookings of one order, or of one month of it, with the consultant's name, newest work date first. No email, no user id. */
+    async findByOrderWithConsultantName(orderId: number, month?: string) {
+      const range = month === undefined ? undefined : monthRange(month)
       const rows = await db
         .select({
           id: timeEntries.id,
@@ -297,7 +299,13 @@ export function timeEntryRepository(db: Db) {
         })
         .from(timeEntries)
         .innerJoin(users, eq(timeEntries.userId, users.id))
-        .where(eq(timeEntries.orderId, orderId))
+        .where(
+          and(
+            eq(timeEntries.orderId, orderId),
+            range && gte(timeEntries.workDate, range.from),
+            range && lt(timeEntries.workDate, range.to),
+          ),
+        )
         .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
       return rows
     },

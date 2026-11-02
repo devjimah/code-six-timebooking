@@ -12,14 +12,19 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { formatDate, formatEuroCents, formatHours, formatNumber, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
 import type { OrderBooking, OrderBudgetDetail, OrderUnavailableDay } from "@/lib/api-types.ts"
+import { calendarWeek } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BudgetForecastCard } from "@/pages/project-manager/budget-forecast-card.tsx"
+import { ProofOfWorkCard } from "@/pages/project-manager/proof-of-work-card.tsx"
 import { ReturnBookingDialog } from "@/pages/project-manager/return-booking-dialog.tsx"
+
+const ALL_MONTHS = "all"
 
 export function OrderDetailPage() {
   const { t } = useTranslation()
@@ -30,6 +35,11 @@ export function OrderDetailPage() {
   const error = budget.error ?? bookings.error
   const order = budget.data
   const openCount = bookings.data?.filter((b) => b.status === "open").length ?? 0
+  // Filter by month, never by person: the client checks the work, not the consultants' hours.
+  const [month, setMonth] = React.useState(ALL_MONTHS)
+  const months = [...new Set(bookings.data?.map((b) => b.workDate.slice(0, 7)))]
+  const shown = bookings.data?.filter((b) => month === ALL_MONTHS || b.workDate.startsWith(month))
+  const statusKey = bookings.data?.map((b) => b.status).join() ?? ""
   const [returning, setReturning] = React.useState<OrderBooking | null>(null)
   const [busy, setBusy] = React.useState(false)
 
@@ -131,6 +141,31 @@ export function OrderDetailPage() {
         </Card>
       )}
 
+      {months.length > 0 && (
+        <div className="flex items-center gap-2">
+          <label htmlFor="order-month" className="text-sm font-medium">
+            {t("myOrders.month")}
+          </label>
+          <Select value={month} onValueChange={setMonth}>
+            <SelectTrigger id="order-month" className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_MONTHS}>{t("myOrders.allMonths")}</SelectItem>
+              {months.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {/* A new key when a status changes, so the totals follow an approval or a return. */}
+      {month !== ALL_MONTHS && orderId && (
+        <ProofOfWorkCard key={`${month}-${statusKey}`} orderId={orderId} month={month} />
+      )}
+
       <Card className="gap-0 py-0">
         <CardHeader className="border-b px-4 py-3">
           <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
@@ -183,10 +218,13 @@ export function OrderDetailPage() {
                   </TableCell>
                 </TableRow>
               )}
-              {bookings.data?.map((booking) => (
+              {shown?.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell className="pl-4 align-top whitespace-normal">
                     <span className="tabular-nums">{formatDate(booking.workDate)}</span>
+                    <span className="text-muted-foreground block text-xs tabular-nums">
+                      {t("myOrders.calendarWeek", { week: calendarWeek(booking.workDate) })}
+                    </span>
                     <span className="mt-1 grid gap-0.5 md:hidden">
                       <span>{booking.consultantName}</span>
                       <span className="text-muted-foreground text-xs">{booking.description}</span>

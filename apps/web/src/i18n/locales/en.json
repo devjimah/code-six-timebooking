@@ -256,7 +256,8 @@
     "suppliers": "Suppliers",
     "orders": "Orders",
     "myOrders": "My orders",
-    "bookTime": "Book time"
+    "bookTime": "Book time",
+    "invoiceCheck": "Invoice check"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -347,7 +348,8 @@
       "endDate": "End",
       "approved": "Approved",
       "date": "Date",
-      "accountingObject": "Cost centre or project element"
+      "accountingObject": "Cost centre or project element",
+      "month": "Month"
     },
     "from": "From",
     "to": "To"
@@ -390,7 +392,10 @@
       "update": "Changed order",
       "view_bookings": "Viewed bookings of an order",
       "approve_open": "Approved all open bookings of an order",
-      "view_unavailable": "Viewed unavailable days of an order"
+      "view_unavailable": "Viewed unavailable days of an order",
+      "view_proof": "Viewed a proof of work",
+      "export_proof": "Downloaded a proof of work",
+      "check_invoice": "Checked an invoice"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -492,7 +497,10 @@
     "returnConfirm": "Return booking",
     "returning": "Returning …",
     "cancel": "Cancel",
-    "personDays": "{{days}} PD"
+    "personDays": "{{days}} PD",
+    "month": "Month",
+    "allMonths": "All months",
+    "calendarWeek": "Week {{week}}"
   },
   "password": {
     "title": "Change password",
@@ -645,5 +653,29 @@
     "remove": "Remove {{date}}",
     "upcoming": "Upcoming unavailable days",
     "upcomingDescription": "Consultants on this order. The forecast counts these days; the reason stays with their employer."
+  },
+  "proof": {
+    "title": "Proof of work {{month}}",
+    "description": "The hours of this month, for the invoice. Download without start or end times.",
+    "download": "Download CSV",
+    "approved": "Approved",
+    "approvedMoney": "Approved amount",
+    "open": "Open",
+    "returned": "Returned"
+  },
+  "invoice": {
+    "title": "Check an invoice",
+    "description": "Compare an invoice with the hours the project manager approved in that month. Sums only.",
+    "month": "Month",
+    "amount": "Invoice amount in €",
+    "notSaved": "Only compared, not saved.",
+    "check": "Check",
+    "result": {
+      "matches": "The invoice matches the approved hours.",
+      "invoice_higher": "The invoice is {{difference}} higher than the approved hours.",
+      "invoice_lower": "The invoice is {{difference}} lower than the approved hours."
+    },
+    "approved": "Approved: {{hours}} = {{amount}}. Invoiced: {{invoiced}}.",
+    "notApproved": "{{hours}} of this month are still open or returned, so the project manager may not have finished checking."
   }
 }

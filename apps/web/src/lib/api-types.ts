@@ -152,6 +152,33 @@ export type OrderRequest = {
   accountingObject: string | null
 }
 
+// GET /api/orders/:id/proof-of-work (ADR 0018)
+export type ProofOfWork = {
+  orderId: number
+  code: string
+  title: string
+  accountingObject: string | null
+  month: string
+  approvedHours: number
+  openHours: number
+  returnedHours: number
+  approvedCents: number
+  bookings: OrderBooking[]
+}
+
+// GET /api/orders/:id/invoice-check (ADR 0018): sums only
+export type InvoiceCheck = {
+  orderId: number
+  code: string
+  month: string
+  approvedHours: number
+  notApprovedHours: number
+  approvedCents: number
+  invoicedCents: number
+  differenceCents: number
+  result: "matches" | "invoice_higher" | "invoice_lower"
+}
+
 // GET /api/project-managers: names only
 export type ProjectManager = { id: number; name: string }
 

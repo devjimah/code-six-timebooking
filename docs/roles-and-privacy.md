@@ -35,6 +35,8 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See upcoming unavailable days of consultants who booked on an order in the last 4 weeks | own only | ✔ own orders, date and name | only the effect on the forecast | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
 | See how long a budget lasts and when to order more ([ADR 0015](adr/0015-budget-forecast.md)) | – | ✔ own orders | ✔ all orders | – | built |
+| See and download the proof of work of a month, without times ([ADR 0018](adr/0018-proof-of-work-and-invoice-check.md)) | – | ✔ own orders | – | – | built |
+| Check an invoice against the approved hours | – | – | ✔ sums only | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
 | See and set the cost centre or project element of an order | – | see, own orders | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
@@ -128,6 +130,8 @@ that is convenience, not security.
 | `GET /api/unavailable-days/mine` | consultant | only own days |
 | `PUT /api/unavailable-days/:date`, `DELETE …` | consultant | only own days; no reason field; a day with bookings cannot be marked |
 | `GET /api/orders/:id/unavailable-days` | project manager | only own orders; upcoming days of consultants who booked in the last 4 weeks; date and name only |
+| `GET /api/orders/:id/proof-of-work`, `.csv` | project manager | only own orders; no times; a month at a time |
+| `GET /api/orders/:id/invoice-check` | purchasing | sums only; the amount is neither stored nor logged |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `PUT /api/users/:id` | admin | role changes only without dependent bookings/orders; not own role |

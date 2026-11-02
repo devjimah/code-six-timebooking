@@ -43,8 +43,6 @@ erDiagram
 
     SUPPLIER ||--o{ FRAMEWORK_AGREEMENT : "signs"
     FRAMEWORK_AGREEMENT |o--o{ ORDER : "funds"
-    ORDER ||--o{ PROOF_OF_WORK : "is approved per month in"
-    PROOF_OF_WORK |o--o{ TIME_ENTRY : "covers"
 
     SUPPLIER["Supplier (now)"] {
         int id PK
@@ -107,13 +105,6 @@ erDiagram
         string start_date
         string end_date
     }
-    PROOF_OF_WORK["Proof of work (later)"] {
-        int id PK
-        int order_id FK
-        string month "YYYY-MM"
-        string status "open | submitted | approved | rejected"
-        int approved_by FK
-    }
 ```
 
 The audit event shows only its key columns; the full list is in [schema.ts](../apps/api/src/persistence/schema.ts).
@@ -136,9 +127,11 @@ The audit event shows only its key columns; the full list is in [schema.ts](../a
   budget until they are corrected: they were reported as worked.
 - **Unavailable days have no reason on purpose.** Sick days are health data, and managing a supplier's absences is
   the employer's job, so vacation and sickness stay with the supplier ([ADR 0016](adr/0016-unavailable-days.md)).
-- **Not stored:** public holidays (computed from the year), the remaining budget and the forecast (both computed on read).
+- **Proof of work and invoice check are computed, never stored** ([ADR 0018](adr/0018-proof-of-work-and-invoice-check.md)):
+  one order's bookings in one month, and the difference between an invoice and the approved hours × rate.
+- **Not stored:** public holidays (computed from the year), the remaining budget, the forecast, the proof of work and the
+  invoice check (all computed on read).
 - **Next stage, in one sentence each** (proposals, not built):
   - *Framework agreement* – a long-term contract with a supplier whose total budget the orders draw from.
   - *Line items and accounting objects as their own table* – today the order holds one code; a list of valid cost centres
     and order items would need an import from the client's finance system.
-  - *Proof of work* – the monthly list of an order's hours for the invoice, built on the booking statuses we have now.

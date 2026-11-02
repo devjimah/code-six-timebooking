@@ -4,6 +4,7 @@
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { BudgetForecast } from "../domain/forecast.js"
+import type { OrderInvoiceCheck, ProofOfWork } from "../application/proof-of-work.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
 const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
@@ -267,6 +268,38 @@ export const unavailableDayResponse = z.object({ date: z.string().meta({ example
 // GET /api/orders/:id/unavailable-days: the date and the name, for planning.
 export const orderUnavailableDayResponse = unavailableDayResponse.extend({ consultantName: z.string() })
 
+// /api/orders/:id/proof-of-work and /invoice-check (ADR 0018): a calendar month as text.
+const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Use YYYY-MM").meta({ example: "2026-10" })
+export const proofOfWorkQuery = z.object({ month })
+export const invoiceCheckQuery = z.object({
+  month,
+  invoicedCents: z.coerce.number().int().min(0).max(100_000_000_00).meta({ description: "Invoice amount in euro cents" }),
+})
+export const proofOfWorkResponse = z.object({
+  orderId: z.number().int(),
+  code: z.string(),
+  title: z.string(),
+  accountingObject: z.string().nullable(),
+  month: z.string(),
+  approvedHours: z.number(),
+  openHours: z.number(),
+  returnedHours: z.number(),
+  approvedCents: z.number().int(),
+  bookings: z.array(orderBookingResponse),
+})
+// Sums only: purchasing sees no single bookings.
+export const invoiceCheckResponse = z.object({
+  orderId: z.number().int(),
+  code: z.string(),
+  month: z.string(),
+  approvedHours: z.number(),
+  notApprovedHours: z.number().meta({ description: "Open or returned hours in this month" }),
+  approvedCents: z.number().int(),
+  invoicedCents: z.number().int(),
+  differenceCents: z.number().int().meta({ description: "Invoice minus approved; positive means invoiced more than approved" }),
+  result: z.enum(["matches", "invoice_higher", "invoice_lower"]),
+})
+
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
 export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
 
@@ -387,4 +420,29 @@ export const toOrderOverviewResponse = (row: {
   hourlyRateCents: row.order.hourlyRateCents,
   startDate: row.order.startDate,
   endDate: row.order.endDate,
+})
+
+export const toProofOfWorkResponse = ({ order, month, totals, bookings }: ProofOfWork): z.infer<typeof proofOfWorkResponse> => ({
+  orderId: order.id,
+  code: order.code,
+  title: order.title,
+  accountingObject: order.accountingObject,
+  month,
+  approvedHours: hours(totals.approvedMinutes),
+  openHours: hours(totals.openMinutes),
+  returnedHours: hours(totals.returnedMinutes),
+  approvedCents: totals.approvedCents,
+  bookings,
+})
+
+export const toInvoiceCheckResponse = ({ order, month, totals, invoicedCents, check }: OrderInvoiceCheck): z.infer<typeof invoiceCheckResponse> => ({
+  orderId: order.id,
+  code: order.code,
+  month,
+  approvedHours: hours(totals.approvedMinutes),
+  notApprovedHours: hours(totals.openMinutes + totals.returnedMinutes),
+  approvedCents: totals.approvedCents,
+  invoicedCents,
+  differenceCents: check.differenceCents,
+  result: check.result,
 })
