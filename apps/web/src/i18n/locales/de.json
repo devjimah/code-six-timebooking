@@ -433,6 +433,9 @@
       "list": "Rahmenverträge angesehen",
       "create": "Rahmenvertrag angelegt",
       "update": "Rahmenvertrag geändert"
+    },
+    "notification": {
+      "list": "Benachrichtigungen angesehen"
     }
   },
   "suppliers": {
@@ -781,5 +784,17 @@
     "dayTotal": "Tag",
     "none": "Keine Buchungen in diesem Monat.",
     "loadFailed": "Die Buchungen konnten nicht geladen werden"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "description": "Was jetzt Ihre Aufmerksamkeit braucht. Es verschwindet, sobald es erledigt ist.",
+    "none": "Nichts braucht Ihre Aufmerksamkeit.",
+    "open_one": "Benachrichtigungen: {{count}} neu",
+    "open_other": "Benachrichtigungen: {{count}} neu",
+    "returned": "Ihre Buchung vom {{date}} wurde zurückgegeben: {{reason}}",
+    "toCheck_one": "{{code}}: {{count}} Buchung zu prüfen",
+    "toCheck_other": "{{code}}: {{count}} Buchungen zu prüfen",
+    "runsOut": "{{code}}: Das Budget ist am {{date}} aufgebraucht, vor dem Ende der Bestellung",
+    "orderMore": "{{code}}: bis {{date}} nachbestellen"
   }
 }

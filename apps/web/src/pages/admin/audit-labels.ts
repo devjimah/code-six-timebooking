@@ -9,6 +9,7 @@ export const ACTION_LABELS = {
   "auth.login": "auditActions.auth.login",
   "auth.logout": "auditActions.auth.logout",
   "auth.session": "auditActions.auth.session",
+  "notification.list": "auditActions.notification.list",
   "auth.change_password": "auditActions.auth.change_password",
   "user.list": "auditActions.user.list",
   "user.create": "auditActions.user.create",

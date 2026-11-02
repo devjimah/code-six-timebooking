@@ -30,6 +30,7 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  notificationResponse,
   supplierBookingResponse,
   budgetForecastResponse,
   forecastScenarioQuery,
@@ -435,6 +436,11 @@ export const routes: RouteDoc[] = [
     params: unavailableDayParams,
     success: { status: 204, description: "Removed" },
     errors: { 400: "Not a date" },
+  },
+  {
+    method: "get", path: "/api/notifications", tag: "Notifications", roles: [],
+    summary: "What needs your attention, depending on your role. Computed each time, never stored",
+    success: { status: 200, description: "Your notifications", schema: z.array(notificationResponse) },
   },
   {
     method: "get", path: "/api/audit-events", tag: "Audit log", summary: "Latest recorded actions, newest first",

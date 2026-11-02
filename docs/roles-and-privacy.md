@@ -140,6 +140,7 @@ that is convenience, not security.
 | `/api/framework-agreements` | purchasing | an order beyond the total is refused ([ADR 0020](adr/0020-framework-agreements.md)) |
 | `GET /api/orders/:id/forecast-scenario` | project manager | only own orders; a what-if, nothing is saved |
 | `GET /api/supplier/bookings` | supplier manager | only the own supplier, from the account; times but no money |
+| `GET /api/notifications` | every signed-in person | only what the role may already see; computed each time, never stored |
 | `GET /api/orders/:id/proof-of-work`, `.csv` | project manager | only own orders; no times; a month at a time |
 | `GET /api/orders/:id/invoice-check` | purchasing | sums only; the amount is neither stored nor logged |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |

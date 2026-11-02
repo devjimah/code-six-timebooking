@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@workspace/ui/com
 import { useAuth } from "@/auth/auth-context.tsx"
 import { AppSidebar } from "@/components/app-sidebar.tsx"
 import { LanguageSwitcher } from "@/components/language-switcher.tsx"
+import { NotificationBell } from "@/components/notification-bell.tsx"
 import { NAVIGATION, isActivePath } from "@/routes/navigation.ts"
 
 export function AppLayout() {
@@ -24,6 +25,7 @@ export function AppLayout() {
           <SidebarTrigger className="-ml-1" />
           <h1 className="truncate font-medium">{current ? t(current.labelKey) : t("app.title")}</h1>
           <div className="ml-auto">
+            <NotificationBell />
             <LanguageSwitcher />
           </div>
         </header>

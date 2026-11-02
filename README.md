@@ -95,6 +95,8 @@ All demo users have the password `demo1234` (demo data only). Demo data is only 
 | Consultants on the budget example (Nordic Dev) | `anna@demo.local`, `ben@demo.local` | Web app: the bookings on PO-2026-004 and their vacation under **Book time** |
 | Consultant (Acme Consulting, works in Bavaria) | `consultant@demo.local` | Web app: **Home** shows today, this week and this month against the 10-hour day; **Book time** has *Copy last week*, which passes every rule, and a repeat button on each booking; it also has *Days I am unavailable*: mark one, without a reason, and it is greyed out in the calendar, the project manager sees it on the order, and the forecast counts it; **Book time** – choose PO-2026-001 and 09:00 to 12:00 (3 hours): the calendar greys out Sundays, holidays (3 Oct) and future days and marks 26 and 27 Oct red, because 3 more hours would pass 10 h there (hover a day for the reason); book on a free weekday. The server checks every rule again. API: `GET /api/orders/bookable`, `POST /api/time-entries`, `GET /api/time-entries/mine`, `GET /api/public-holidays?year=2026` |
 
+**Notifications:** the bell in the header shows what needs attention, per role: a booking sent back (consultant), bookings to check and budgets running out (project manager), orders to follow up (purchasing). They are computed each time, never stored, so they go away when the cause does.
+
 ## Demo script (5 minutes)
 
 The demo data reproduces the challenge's example *how long will the budget last?* in order **PO-2026-004**: 140 person-days ordered, 84 used, 6 per week, two consultants with vacation ahead and a Christmas shutdown. Its dates count from the day the database was seeded, so run `npm run db:reset -w api` shortly before a demo.

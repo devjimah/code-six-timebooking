@@ -368,6 +368,14 @@ export const supplierBookingResponse = z.object({
   status: bookingStatus,
 })
 
+// GET /api/notifications: what needs attention, per role. Computed each time, never stored.
+export const notificationResponse = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("booking_returned"), timeEntryId: z.number().int(), workDate: z.string(), reason: z.string().nullable() }),
+  z.object({ type: z.literal("bookings_to_check"), orderId: z.number().int(), code: z.string(), count: z.number().int() }),
+  z.object({ type: z.literal("budget_runs_out"), orderId: z.number().int(), code: z.string(), runsOutOn: z.string() }),
+  z.object({ type: z.literal("order_more"), orderId: z.number().int(), code: z.string(), runsOutOn: z.string(), orderMoreBy: z.string().nullable() }),
+])
+
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
 export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
 

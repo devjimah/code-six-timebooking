@@ -18,6 +18,7 @@ export const ACTIONS: Record<string, string> = {
   "POST /api/auth/login": "auth.login",
   "POST /api/auth/logout": "auth.logout",
   "GET /api/auth/me": "auth.session",
+  "GET /api/notifications": "notification.list",
   "POST /api/auth/password": "auth.change_password",
   "GET /api/users": "user.list",
   "POST /api/users": "user.create",

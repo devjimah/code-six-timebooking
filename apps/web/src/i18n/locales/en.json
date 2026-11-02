@@ -433,6 +433,9 @@
       "list": "Viewed framework agreements",
       "create": "Created a framework agreement",
       "update": "Changed a framework agreement"
+    },
+    "notification": {
+      "list": "Viewed notifications"
     }
   },
   "suppliers": {
@@ -781,5 +784,17 @@
     "dayTotal": "Day",
     "none": "No bookings in this month.",
     "loadFailed": "The bookings could not be loaded"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "What needs your attention now. It disappears when it is done.",
+    "none": "Nothing needs your attention.",
+    "open_one": "Notifications: {{count}} new",
+    "open_other": "Notifications: {{count}} new",
+    "returned": "Your booking of {{date}} was sent back: {{reason}}",
+    "toCheck_one": "{{code}}: {{count}} booking to check",
+    "toCheck_other": "{{code}}: {{count}} bookings to check",
+    "runsOut": "{{code}}: the budget runs out on {{date}}, before the order ends",
+    "orderMore": "{{code}}: order more by {{date}}"
   }
 }

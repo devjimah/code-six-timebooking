@@ -294,6 +294,16 @@ export function timeEntryRepository(db: Db) {
         .where(and(eq(timeEntries.orderId, orderId), ne(timeEntries.status, "approved")))
       return Number(row?.total ?? 0)
     },
+    /** How many bookings wait for the project manager, per order. Orders without any are missing. */
+    async openCountPerOrder(orderIds: number[]) {
+      if (orderIds.length === 0) return new Map<number, number>()
+      const rows = await db
+        .select({ orderId: timeEntries.orderId, count: sql<number>`count(*)` })
+        .from(timeEntries)
+        .where(and(inArray(timeEntries.orderId, orderIds), eq(timeEntries.status, "open")))
+        .groupBy(timeEntries.orderId)
+      return new Map(rows.map((r) => [r.orderId, Number(r.count)]))
+    },
     /** Approved minutes per order, for purchasing's overview. Orders without approved bookings are missing. */
     async approvedMinutesPerOrder(orderIds: number[]) {
       if (orderIds.length === 0) return new Map<number, number>()

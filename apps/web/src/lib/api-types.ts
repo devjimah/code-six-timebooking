@@ -235,6 +235,13 @@ export type SupplierBooking = {
   status: BookingStatus
 }
 
+// GET /api/notifications: computed each time, never stored
+export type Notification =
+  | { type: "booking_returned"; timeEntryId: number; workDate: string; reason: string | null }
+  | { type: "bookings_to_check"; orderId: number; code: string; count: number }
+  | { type: "budget_runs_out"; orderId: number; code: string; runsOutOn: string }
+  | { type: "order_more"; orderId: number; code: string; runsOutOn: string; orderMoreBy: string | null }
+
 // GET /api/project-managers: names only
 export type ProjectManager = { id: number; name: string }
 
