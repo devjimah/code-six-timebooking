@@ -53,8 +53,8 @@ erDiagram
         int id PK
         string email UK
         string name
-        string role "consultant | project_manager | purchasing | admin"
-        int supplier_id FK "consultants only"
+        string role "consultant | project_manager | purchasing | admin | supplier_manager"
+        int supplier_id FK "consultants and supplier managers"
         string work_state "consultants only, for public holidays"
         string password_hash
         string deactivated_at "null = active"
@@ -117,16 +117,15 @@ The audit event shows only its key columns; the full list is in [schema.ts](../a
 
 ## Notes
 
-- **One role per user, one table for all.** Consultants, project managers, purchasing and admins are all `users`
-  with a `role` ([ADR 0004](adr/0004-role-model-and-accounts.md)). Only consultants have a `supplier_id`; the
-  client-side roles do not belong to a supplier.
+- **One role per user, one table for all.** Consultants, supplier managers, project managers, purchasing and admins are
+  all `users` with a `role` ([ADR 0004](adr/0004-role-model-and-accounts.md)). Only the supplier side has a `supplier_id`.
 - **Budget is computed, never stored.** Booked = `SUM(duration_minutes)` of the order's time entries; money =
   minutes × hourly rate, in integer euro cents; person-days = hours ÷ 8. Nothing can drift from the bookings
   ([ADR 0008](adr/0008-budget-calculation.md), [budget.ts](../apps/api/src/domain/budget.ts)).
 - **Duration is stored although it is derived.** The server calculates it from start, end and break when booking.
   Storing it keeps the budget and the 10-hour sum a plain SQL `SUM` ([ADR 0010](adr/0010-time-entry-granularity.md)).
-- **Times stay with the consultant.** Start, end and break are returned only to the consultant who booked them;
-  the client side sees durations or sums ([roles-and-privacy.md](roles-and-privacy.md)).
+- **Times stay on the supplier's side.** Start, end and break are returned only to the consultant who booked them and
+  their employer's supplier manager ([ADR 0021](adr/0021-supplier-manager-role.md)); the client side sees durations or sums ([roles-and-privacy.md](roles-and-privacy.md)).
 - **Bookings are never deleted with their user.** A deactivated account keeps its bookings, so the order's budget
   stays correct. The audit log has no foreign key on purpose, so it outlives any account.
 - **Approval is a status on each booking** ([ADR 0014](adr/0014-booking-approval.md)). Returned hours stay in the

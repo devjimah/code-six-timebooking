@@ -31,6 +31,9 @@ export async function seed(db: Db, today = todayInCompanyTimeZone()): Promise<bo
     email: "consultant@demo.local", name: "Carl Consultant", role: "consultant", supplierId: acme.id, workState: "BY", passwordHash,
   })
   void admin
+  await userRepo.create({
+    email: "supplier@demo.local", name: "Sam Suppliermanager", role: "supplier_manager", supplierId: nordic.id, passwordHash,
+  })
   const anna = await userRepo.create({
     email: "anna@demo.local", name: "Anna Analyst", role: "consultant", supplierId: nordic.id, passwordHash,
   })

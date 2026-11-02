@@ -2,7 +2,7 @@
 // No Drizzle imports here – if we swapped SQLite for Postgres, this file would not change.
 // Note: User has no passwordHash; credentials stay inside the persistence/auth layer.
 
-export type Role = "consultant" | "project_manager" | "purchasing" | "admin"
+export type Role = "consultant" | "project_manager" | "purchasing" | "admin" | "supplier_manager"
 
 /** The 16 German states, by their official abbreviations. Public holidays differ between them (ticket #66). */
 export type GermanState =

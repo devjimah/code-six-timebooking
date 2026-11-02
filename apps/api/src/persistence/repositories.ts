@@ -304,6 +304,29 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
+    /** For the supplier manager: one month of a supplier's consultants, with the times, by person and day. No money. */
+    async findBySupplierInMonth(supplierId: number, month: string) {
+      const { from, to } = monthRange(month)
+      return db
+        .select({
+          id: timeEntries.id,
+          userId: timeEntries.userId,
+          consultantName: users.name,
+          orderCode: orders.code,
+          workDate: timeEntries.workDate,
+          startTime: timeEntries.startTime,
+          endTime: timeEntries.endTime,
+          breakMinutes: timeEntries.breakMinutes,
+          durationMinutes: timeEntries.durationMinutes,
+          description: timeEntries.description,
+          status: timeEntries.status,
+        })
+        .from(timeEntries)
+        .innerJoin(users, eq(timeEntries.userId, users.id))
+        .innerJoin(orders, eq(timeEntries.orderId, orders.id))
+        .where(and(eq(users.supplierId, supplierId), gte(timeEntries.workDate, from), lt(timeEntries.workDate, to)))
+        .orderBy(desc(timeEntries.workDate), asc(users.name), asc(timeEntries.startTime))
+    },
     /** Bookings of one order, or of one month of it, with the consultant's name, newest work date first. No email, no user id. */
     async findByOrderWithConsultantName(orderId: number, month?: string) {
       const range = month === undefined ? undefined : monthRange(month)

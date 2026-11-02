@@ -26,6 +26,7 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
     { path: "/purchasing/suppliers", labelKey: "nav.suppliers", icon: Building2 },
   ],
   consultant: [HOME, { path: "/time", labelKey: "nav.bookTime", icon: Clock }],
+  supplier_manager: [HOME],
 }
 
 /** The first screen of a role, shown after sign-in: the role's home. */

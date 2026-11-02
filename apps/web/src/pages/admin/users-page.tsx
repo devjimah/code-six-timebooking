@@ -39,6 +39,7 @@ const ROLE_BADGE: Record<Role, "default" | "secondary" | "outline"> = {
   project_manager: "secondary",
   purchasing: "secondary",
   consultant: "outline",
+  supplier_manager: "outline",
 }
 
 export function UsersPage() {

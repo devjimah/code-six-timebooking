@@ -26,6 +26,7 @@ their orders and what is left, in hours, person-days and euros, without waiting 
 | Project manager | client | See the bookings and the budget of their own orders at once, and which orders are running low. |
 | Consultant | supplier | Book their working time on their company's orders quickly, and know at once if a booking breaks a rule. |
 | Purchasing | client | Place orders with suppliers and see across all orders which budgets run out or end soon, to order more in time. |
+| Supplier manager | supplier | As the employer, check the bookings of their own consultants against working-time law, with times but without any of the client's money. |
 | Admin | client IT | Manage accounts and see who did what (audit log), without seeing bookings, budgets or prices. |
 
 Details and the full permission matrix: [roles-and-privacy.md](roles-and-privacy.md).

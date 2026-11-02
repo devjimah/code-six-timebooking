@@ -8,12 +8,14 @@ import { AdminHome } from "@/pages/admin/admin-home.tsx"
 import { ConsultantHome } from "@/pages/consultant/consultant-home.tsx"
 import { ProjectManagerHome } from "@/pages/project-manager/project-manager-home.tsx"
 import { PurchasingHome } from "@/pages/purchasing/purchasing-home.tsx"
+import { SupplierManagerHome } from "@/pages/supplier-manager/supplier-manager-home.tsx"
 
 const HOMES: Record<Role, () => React.JSX.Element> = {
   admin: AdminHome,
   project_manager: ProjectManagerHome,
   purchasing: PurchasingHome,
   consultant: ConsultantHome,
+  supplier_manager: SupplierManagerHome,
 }
 
 export function HomePage() {

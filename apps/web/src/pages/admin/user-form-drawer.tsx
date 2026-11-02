@@ -35,6 +35,7 @@ type Props = {
   onSaved: () => void
 }
 
+const belongsToSupplier = (role: Role) => role === "consultant" || role === "supplier_manager"
 const NO_STATE = "none"
 const EMPTY_FORM = { name: "", email: "", role: "consultant" as Role, supplierId: "", workState: NO_STATE, password: "" }
 
@@ -77,7 +78,7 @@ export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onS
       name: form.name,
       email: form.email,
       role: form.role,
-      supplierId: form.role === "consultant" && form.supplierId ? Number(form.supplierId) : null,
+      supplierId: belongsToSupplier(form.role) && form.supplierId ? Number(form.supplierId) : null,
       workState: form.role === "consultant" && form.workState !== NO_STATE ? form.workState : null,
     }
     try {
@@ -158,7 +159,7 @@ export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onS
                 existing && <FieldDescription>{t("users.roleChangeHint")}</FieldDescription>
               )}
             </Field>
-            {form.role === "consultant" && (
+            {belongsToSupplier(form.role) && (
               <Field>
                 <FieldLabel htmlFor="user-supplier">{t("profile.company")}</FieldLabel>
                 <Select value={form.supplierId} onValueChange={(supplierId) => update({ supplierId })}>

@@ -20,6 +20,7 @@ export const ACTION_LABELS = {
   "supplier.create": "auditActions.supplier.create",
   "supplier.update": "auditActions.supplier.update",
   "supplier.overview": "auditActions.supplier.overview",
+  "supplier.view_bookings": "auditActions.supplier.view_bookings",
   "framework.list": "auditActions.framework.list",
   "framework.create": "auditActions.framework.create",
   "framework.update": "auditActions.framework.update",

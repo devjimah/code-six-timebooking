@@ -36,7 +36,7 @@
         "label": "from a booking to the updated budget"
       },
       "checks": {
-        "value": "9 checks",
+        "value": "10 checks",
         "label": "on the server before a booking counts"
       },
       "leadTime": {
@@ -44,7 +44,7 @@
         "label": "order-more date ahead of the budget's end"
       },
       "roles": {
-        "value": "4 roles",
+        "value": "5 roles",
         "label": "each seeing only what it needs"
       }
     },
@@ -237,7 +237,8 @@
     "consultant": "Consultant",
     "project_manager": "Project manager",
     "purchasing": "Purchasing",
-    "admin": "Admin"
+    "admin": "Admin",
+    "supplier_manager": "Supplier manager"
   },
   "logout": "Sign out",
   "profile": {
@@ -385,7 +386,8 @@
       "list": "Viewed suppliers",
       "create": "Created supplier",
       "update": "Renamed supplier",
-      "overview": "Viewed the supplier overview"
+      "overview": "Viewed the supplier overview",
+      "view_bookings": "Viewed the bookings of the own company"
     },
     "time_entry": {
       "create": "Booked time",
@@ -630,7 +632,6 @@
     "INVALID_JSON": "The request could not be read.",
     "INTERNAL_ERROR": "Something went wrong on the server. Please try again.",
     "CONSULTANT_NEEDS_SUPPLIER": "A consultant must belong to a supplier. Choose the consultant's company.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Only consultants belong to a supplier. Project managers, purchasing and admins work for the client; leave the supplier empty.",
     "SUPPLIER_NOT_FOUND": "This supplier does not exist.",
     "EMAIL_TAKEN": "An account with this email address already exists.",
     "SUNDAY_OR_HOLIDAY": "Booking rejected: no work on Sundays and public holidays (German Working Time Act §9).",
@@ -678,7 +679,9 @@
     "FRAMEWORK_PERIOD": "The order's period must lie inside the framework agreement.",
     "FRAMEWORK_NOT_FOUND": "This framework agreement does not exist.",
     "FRAMEWORK_CODE_TAKEN": "A framework agreement with this code already exists.",
-    "FRAMEWORK_TOTAL_BELOW_ORDERS": "A framework agreement cannot be lower than its orders."
+    "FRAMEWORK_TOTAL_BELOW_ORDERS": "A framework agreement cannot be lower than its orders.",
+    "SUPPLIER_MANAGER_NEEDS_SUPPLIER": "A supplier manager must belong to a supplier. Choose the company.",
+    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Only consultants and supplier managers belong to a supplier. Leave the supplier empty."
   },
   "forecast": {
     "title": "How long the budget lasts",
@@ -769,5 +772,14 @@
     "title": "Title",
     "totalField": "Total budget in €",
     "saved": "Framework agreement {{code}} saved."
+  },
+  "supplierManager": {
+    "intro": "As the employer, you see the bookings of your own company's consultants, to check working-time law.",
+    "bookings": "Bookings of your consultants",
+    "note": "With start, end and break, because the employer is responsible for working-time law. The client sees durations only.",
+    "times": "Times",
+    "dayTotal": "Day",
+    "none": "No bookings in this month.",
+    "loadFailed": "The bookings could not be loaded"
   }
 }

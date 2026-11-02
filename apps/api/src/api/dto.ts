@@ -9,7 +9,7 @@ import { GERMAN_STATES } from "../domain/public-holidays.js"
 import type { OrderInvoiceCheck, ProofOfWork } from "../application/proof-of-work.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
-const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
+const ROLES = ["consultant", "project_manager", "purchasing", "admin", "supplier_manager"] as const
 
 // Every error response (401, 403, 404, 422 …) has this shape (ADR 0005). The UI translates `code`.
 export const errorResponse = z.object({
@@ -56,7 +56,7 @@ export const createUserRequest = z.object({
   email: z.email().toLowerCase(),
   name: z.string().trim().min(2).max(100),
   role: z.enum(ROLES),
-  // Required for consultants, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
+  // Required for consultants and supplier managers, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
   supplierId: z.number().int().positive().nullable().default(null),
   // Only for consultants; leaving it out means only the nationwide holidays count (ADR 0019).
   workState: z.enum(GERMAN_STATES).nullable().default(null),
@@ -351,6 +351,21 @@ export const supplierOverviewResponse = z.object({
   budgetCents: z.number().int(),
   bookedCents: z.number().int(),
   sharePercent: z.number().meta({ description: "Share of everything ordered" }),
+})
+
+// GET /api/supplier/bookings (ADR 0021): the employer's view, with times, without money
+export const supplierBookingResponse = z.object({
+  id: z.number().int(),
+  userId: z.number().int(),
+  consultantName: z.string(),
+  orderCode: z.string(),
+  workDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  breakMinutes: z.number().int(),
+  durationMinutes: z.number().int(),
+  description: z.string(),
+  status: bookingStatus,
 })
 
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.

@@ -7,7 +7,7 @@ import { GERMAN_STATES } from "../domain/public-holidays.js"
 
 // Roles are a fixed list, so we store them as text with a CHECK-like enum
 // instead of a separate table. Who may do what: docs/roles-and-privacy.md.
-export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin", "supplier_manager"] as const
 
 const timestamps = {
   createdAt: text("created_at")
@@ -28,7 +28,7 @@ export const users = sqliteTable("users", {
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
   role: text("role", { enum: ROLES }).notNull(),
-  // Only consultants belong to a supplier; null for client-side roles.
+  // Consultants and supplier managers belong to a supplier; null for client-side roles.
   supplierId: integer("supplier_id").references(() => suppliers.id),
   // The German state a consultant works in, for the public holidays (ADR 0019); null = only the nationwide ones.
   workState: text("work_state", { enum: GERMAN_STATES }),

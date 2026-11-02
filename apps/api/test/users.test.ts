@@ -124,7 +124,7 @@ describe("account rules", () => {
     const res = await createUser(newConsultant({ email: "x2@acme.example", role: "project_manager" }), admin)
 
     expect(res.status).toBe(422)
-    expect((await res.json()).code).toBe("SUPPLIER_ONLY_FOR_CONSULTANTS")
+    expect((await res.json()).code).toBe("SUPPLIER_ONLY_FOR_SUPPLIER_SIDE")
   })
 
   it("rejects an unknown supplier with 422", async () => {

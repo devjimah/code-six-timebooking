@@ -14,7 +14,7 @@ import { useAuth } from "@/auth/auth-context.tsx"
 import { ApiError } from "@/lib/api.ts"
 
 // Shown only in development (npm run dev), so the jury can sign in without opening the README.
-const DEMO_EMAILS = ["consultant@demo.local", "pm@demo.local", "purchasing@demo.local", "admin@demo.local"]
+const DEMO_EMAILS = ["consultant@demo.local", "pm@demo.local", "purchasing@demo.local", "supplier@demo.local", "admin@demo.local"]
 
 export function LoginPage() {
   const { t } = useTranslation()

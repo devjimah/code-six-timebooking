@@ -1,7 +1,7 @@
 // The shapes the API sends back. They mirror the response DTOs in apps/api/src/api/dto.ts –
 // when a DTO changes there, change it here too.
 
-export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin", "supplier_manager"] as const
 export type Role = (typeof ROLES)[number]
 
 // The 16 German states; public holidays differ between them (ADR 0019).
@@ -218,6 +218,21 @@ export type InvoiceCheck = {
   invoicedCents: number
   differenceCents: number
   result: "matches" | "invoice_higher" | "invoice_lower"
+}
+
+// GET /api/supplier/bookings (ADR 0021)
+export type SupplierBooking = {
+  id: number
+  userId: number
+  consultantName: string
+  orderCode: string
+  workDate: string
+  startTime: string
+  endTime: string
+  breakMinutes: number
+  durationMinutes: number
+  description: string
+  status: BookingStatus
 }
 
 // GET /api/project-managers: names only

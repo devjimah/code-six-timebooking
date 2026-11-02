@@ -30,6 +30,7 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  supplierBookingResponse,
   budgetForecastResponse,
   forecastScenarioQuery,
   frameworkAgreementIdParams,
@@ -108,7 +109,7 @@ export const routes: RouteDoc[] = [
     success: { status: 201, description: "Account created", schema: userResponse },
     errors: {
       400: "Invalid request body",
-      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_CONSULTANTS, SUPPLIER_NOT_FOUND, EMAIL_TAKEN",
+      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_SUPPLIER_SIDE, SUPPLIER_NOT_FOUND, EMAIL_TAKEN",
     },
   },
   {
@@ -121,7 +122,7 @@ export const routes: RouteDoc[] = [
     errors: {
       400: "Invalid id or body",
       404: "USER_NOT_FOUND",
-      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_CONSULTANTS, SUPPLIER_NOT_FOUND, EMAIL_TAKEN, ROLE_IN_USE, " +
+      422: "CONSULTANT_NEEDS_SUPPLIER, SUPPLIER_ONLY_FOR_SUPPLIER_SIDE, SUPPLIER_NOT_FOUND, EMAIL_TAKEN, ROLE_IN_USE, " +
         "CANNOT_CHANGE_OWN_ROLE",
     },
   },
@@ -337,6 +338,13 @@ export const routes: RouteDoc[] = [
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
       404: "The order does not exist (ORDER_NOT_FOUND)",
     },
+  },
+  {
+    method: "get", path: "/api/supplier/bookings", tag: "Suppliers", roles: ["supplier_manager"],
+    summary: "One month of your own company's consultants, with times and without money. Read only",
+    query: proofOfWorkQuery,
+    success: { status: 200, description: "The bookings", schema: z.array(supplierBookingResponse) },
+    errors: { 400: "Invalid month" },
   },
   {
     method: "get", path: "/api/suppliers/overview", tag: "Suppliers", roles: ["purchasing"],

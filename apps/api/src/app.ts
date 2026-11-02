@@ -11,6 +11,7 @@ import { frameworkAgreementRoutes } from "./api/framework-agreement-routes.js"
 import { orderRoutes } from "./api/order-routes.js"
 import { projectManagerRoutes } from "./api/project-manager-routes.js"
 import { publicHolidayRoutes } from "./api/public-holiday-routes.js"
+import { supplierBookingsRoutes } from "./api/supplier-bookings-routes.js"
 import { supplierRoutes } from "./api/supplier-routes.js"
 import { timeEntryRoutes } from "./api/time-entry-routes.js"
 import { unavailableDayRoutes } from "./api/unavailable-day-routes.js"
@@ -48,6 +49,7 @@ export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0
   })
   app.use("/api/auth", rememberMountPath, authRoutes(db, { sessionSecret, secureCookies }))
   app.use("/api/users", rememberMountPath, userRoutes(db))
+  app.use("/api/supplier", rememberMountPath, supplierBookingsRoutes(db))
   app.use("/api/suppliers", rememberMountPath, supplierRoutes(db))
   app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db))
   app.use("/api/framework-agreements", rememberMountPath, frameworkAgreementRoutes(db))

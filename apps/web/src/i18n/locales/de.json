@@ -36,7 +36,7 @@
         "label": "von der Buchung bis zum aktuellen Budget"
       },
       "checks": {
-        "value": "9 Prüfungen",
+        "value": "10 Prüfungen",
         "label": "auf dem Server, bevor eine Buchung zählt"
       },
       "leadTime": {
@@ -44,7 +44,7 @@
         "label": "Nachbestelltermin vor dem Ende des Budgets"
       },
       "roles": {
-        "value": "4 Rollen",
+        "value": "5 Rollen",
         "label": "jede sieht nur, was sie braucht"
       }
     },
@@ -237,7 +237,8 @@
     "consultant": "Berater",
     "project_manager": "Projektleitung",
     "purchasing": "Einkauf",
-    "admin": "Admin"
+    "admin": "Admin",
+    "supplier_manager": "Dienstleister-Leitung"
   },
   "logout": "Abmelden",
   "profile": {
@@ -385,7 +386,8 @@
       "list": "Dienstleister angesehen",
       "create": "Dienstleister angelegt",
       "update": "Dienstleister umbenannt",
-      "overview": "Dienstleister-Übersicht angesehen"
+      "overview": "Dienstleister-Übersicht angesehen",
+      "view_bookings": "Buchungen des eigenen Unternehmens angesehen"
     },
     "time_entry": {
       "create": "Zeit gebucht",
@@ -630,7 +632,6 @@
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleitung, Einkauf und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
     "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
     "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
     "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9).",
@@ -678,7 +679,9 @@
     "FRAMEWORK_PERIOD": "Der Zeitraum der Bestellung muss im Rahmenvertrag liegen.",
     "FRAMEWORK_NOT_FOUND": "Diesen Rahmenvertrag gibt es nicht.",
     "FRAMEWORK_CODE_TAKEN": "Einen Rahmenvertrag mit diesem Code gibt es bereits.",
-    "FRAMEWORK_TOTAL_BELOW_ORDERS": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen."
+    "FRAMEWORK_TOTAL_BELOW_ORDERS": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen.",
+    "SUPPLIER_MANAGER_NEEDS_SUPPLIER": "Eine Dienstleister-Leitung muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen.",
+    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Nur Berater und Dienstleister-Leitungen gehören zu einem Dienstleister. Lassen Sie das Feld leer."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
@@ -769,5 +772,14 @@
     "title": "Titel",
     "totalField": "Gesamtbudget in €",
     "saved": "Rahmenvertrag {{code}} gespeichert."
+  },
+  "supplierManager": {
+    "intro": "Als Arbeitgeber sehen Sie die Buchungen der Berater Ihres Unternehmens, um das Arbeitszeitrecht zu prüfen.",
+    "bookings": "Buchungen Ihrer Berater",
+    "note": "Mit Beginn, Ende und Pause, denn der Arbeitgeber ist für das Arbeitszeitrecht verantwortlich. Der Kunde sieht nur Dauern.",
+    "times": "Zeiten",
+    "dayTotal": "Tag",
+    "none": "Keine Buchungen in diesem Monat.",
+    "loadFailed": "Die Buchungen konnten nicht geladen werden"
   }
 }
