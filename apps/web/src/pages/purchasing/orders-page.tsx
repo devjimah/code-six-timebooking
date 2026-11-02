@@ -110,6 +110,9 @@ export function OrdersPage() {
                   <TableCell className="pl-4 whitespace-normal">
                     <span className="block font-mono text-xs">{order.code}</span>
                     <span className="block font-medium">{order.title}</span>
+                    {order.accountingObject && (
+                      <span className="text-muted-foreground block font-mono text-xs">{order.accountingObject}</span>
+                    )}
                     <span className="text-muted-foreground block text-xs md:hidden">
                       {order.supplierName} · {period(order)}
                     </span>

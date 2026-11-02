@@ -29,6 +29,7 @@ const toOrder = (r: typeof orders.$inferSelect): Order => ({
   hourlyRateCents: r.hourlyRateCents,
   startDate: r.startDate,
   endDate: r.endDate,
+  accountingObject: r.accountingObject,
 })
 const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   id: r.id,
@@ -113,7 +114,8 @@ export function userRepository(db: Db) {
 
 export function orderRepository(db: Db) {
   return {
-    async create(data: NewOf<Order>) {
+    /** The accounting object is optional, as it is for orders placed before it existed. */
+    async create(data: Omit<NewOf<Order>, "accountingObject"> & { accountingObject?: string | null }) {
       const [row] = await db.insert(orders).values(data).returning()
       return toOrder(row!)
     },

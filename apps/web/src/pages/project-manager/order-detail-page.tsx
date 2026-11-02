@@ -58,7 +58,10 @@ export function OrderDetailPage() {
         </Button>
         {order && (
           <div className="min-w-0">
-            <span className="text-muted-foreground block font-mono text-xs">{order.code}</span>
+            <span className="text-muted-foreground block font-mono text-xs">
+              {order.code}
+              {order.accountingObject && ` · ${order.accountingObject}`}
+            </span>
             <h2 className="flex items-center gap-2 font-medium">
               {order.title}
               {order.overBudget && <Badge variant="destructive">{t("orders.overBudget")}</Badge>}

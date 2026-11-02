@@ -101,4 +101,5 @@ const auditFacts = (input: OrderRequest) => ({
   hourlyRateCents: input.hourlyRateCents,
   startDate: input.startDate,
   endDate: input.endDate,
+  accountingObject: input.accountingObject,
 })

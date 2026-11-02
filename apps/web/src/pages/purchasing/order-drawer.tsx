@@ -42,6 +42,7 @@ type Form = {
   hourlyRate: string // euros as typed, "95" or "95,50"
   startDate: string
   endDate: string
+  accountingObject: string
 }
 
 const EMPTY: Form = {
@@ -53,6 +54,7 @@ const EMPTY: Form = {
   hourlyRate: "",
   startDate: "",
   endDate: "",
+  accountingObject: "",
 }
 
 /** `decimalComma`: show "95,00" in German, "95.00" in English – the way people type it in that language. */
@@ -65,6 +67,7 @@ const toForm = (order: OrderOverview, decimalComma: boolean): Form => ({
   hourlyRate: (order.hourlyRateCents / 100).toFixed(2).replace(".", decimalComma ? "," : "."),
   startDate: order.startDate,
   endDate: order.endDate,
+  accountingObject: order.accountingObject ?? "",
 })
 
 /** "95,50" or "95.50" → 9550 cents; NaN if it is not a number. German users type a decimal comma. */
@@ -108,6 +111,7 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
       hourlyRateCents: rateCents,
       startDate: form.startDate,
       endDate: form.endDate,
+      accountingObject: form.accountingObject,
     }
     try {
       const saved = existing
@@ -170,6 +174,18 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
                 />
               </Field>
             </div>
+            <Field>
+              <FieldLabel htmlFor="order-accounting">{t("orders.accountingObject")}</FieldLabel>
+              <Input
+                id="order-accounting"
+                maxLength={40}
+                autoComplete="off"
+                placeholder={t("orders.accountingObjectPlaceholder")}
+                value={form.accountingObject}
+                onChange={(e) => update({ accountingObject: e.target.value })}
+              />
+              <FieldDescription>{t("orders.accountingObjectHint")}</FieldDescription>
+            </Field>
             <Field>
               <FieldLabel htmlFor="order-supplier">{t("orders.supplier")}</FieldLabel>
               <Select value={form.supplierId} onValueChange={(supplierId) => update({ supplierId })} disabled={hasBookings}>

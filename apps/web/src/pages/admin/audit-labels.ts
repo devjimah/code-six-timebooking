@@ -83,6 +83,7 @@ const DETAIL_LABELS = {
   hourlyRateCents: "audit.details.hourlyRateCents",
   startDate: "audit.details.startDate",
   endDate: "audit.details.endDate",
+  accountingObject: "audit.details.accountingObject",
 } as const
 
 /** One detail as [label, value] in the admin's language, e.g. ["Duration", "3,5 h"]. */

@@ -20,6 +20,7 @@ The words used in the code, the API and the UI (German in brackets, as in the ap
 | Budget | What the client ordered: `budget hours × hourly rate`. *Booked* is the sum of all bookings on the order, *remaining* is budget − booked ([ADR 0008](adr/0008-budget-calculation.md)). |
 | Pace and forecast (Tempo, Prognose) | The hours booked on an order per week, over the last 4 weeks, and when the budget runs out at that pace. Computed, never stored ([ADR 0015](adr/0015-budget-forecast.md)). |
 | Unavailable day (nicht verfügbarer Tag) | A date a consultant marks as not available, never saying why. Nobody books on it, and the forecast counts it ([ADR 0016](adr/0016-unavailable-days.md)). |
+| Accounting object (Kostenstelle, PSP-Element) | The cost centre or project element that pays for an order inside the client company. Stored on the order as a code. |
 | Person-day (PD, Personentag) | 8 hours. Budgets are shown in hours and person-days; the database stores hours and minutes. |
 | Public holiday (Feiertag) | A day on which nobody may book. Today: the holidays valid in every German state, computed in code, not stored ([public-holidays.ts](../apps/api/src/domain/public-holidays.ts)). |
 | Working Time Act (ArbZG) | The German law behind several booking rules: at most 10 hours per day, 11 hours rest between working days, no work on Sundays and public holidays. |
@@ -42,7 +43,6 @@ erDiagram
 
     SUPPLIER ||--o{ FRAMEWORK_AGREEMENT : "signs"
     FRAMEWORK_AGREEMENT |o--o{ ORDER : "funds"
-    ACCOUNTING_OBJECT ||--o{ ORDER : "pays for"
     ORDER ||--o{ PROOF_OF_WORK : "is approved per month in"
     PROOF_OF_WORK |o--o{ TIME_ENTRY : "covers"
 
@@ -71,6 +71,7 @@ erDiagram
         int hourly_rate_cents
         string start_date
         string end_date
+        string accounting_object "cost centre or project element, optional"
     }
     TIME_ENTRY["Time entry (now)"] {
         int id PK
@@ -106,11 +107,6 @@ erDiagram
         string start_date
         string end_date
     }
-    ACCOUNTING_OBJECT["Accounting object (later)"] {
-        int id PK
-        string code UK "cost centre or project element"
-        string name
-    }
     PROOF_OF_WORK["Proof of work (later)"] {
         int id PK
         int order_id FK
@@ -143,5 +139,6 @@ The audit event shows only its key columns; the full list is in [schema.ts](../a
 - **Not stored:** public holidays (computed from the year), the remaining budget and the forecast (both computed on read).
 - **Next stage, in one sentence each** (proposals, not built):
   - *Framework agreement* – a long-term contract with a supplier whose total budget the orders draw from.
-  - *Accounting object* – the cost centre or project element that pays for an order.
+  - *Line items and accounting objects as their own table* – today the order holds one code; a list of valid cost centres
+    and order items would need an import from the client's finance system.
   - *Proof of work* – the monthly list of an order's hours for the invoice, built on the booking statuses we have now.

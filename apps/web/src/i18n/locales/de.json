@@ -346,7 +346,8 @@
       "startDate": "Beginn",
       "endDate": "Ende",
       "approved": "Freigegeben",
-      "date": "Datum"
+      "date": "Datum",
+      "accountingObject": "Kostenstelle oder PSP-Element"
     },
     "from": "Von",
     "to": "Bis"
@@ -454,7 +455,10 @@
     "saved": "Bestellung {{code}} gespeichert.",
     "empty": "Noch keine Bestellungen.",
     "loadFailed": "Bestellungen konnten nicht geladen werden",
-    "approvalSplit": "{{approved}} freigegeben · {{open}} noch nicht"
+    "approvalSplit": "{{approved}} freigegeben · {{open}} noch nicht",
+    "accountingObject": "Kostenstelle oder PSP-Element",
+    "accountingObjectPlaceholder": "z. B. CC-4100 oder P-2026-0815.03",
+    "accountingObjectHint": "Wer diese Bestellung im Unternehmen bezahlt. Optional."
   },
   "myOrders": {
     "description": "Die Bestellungen, für die Sie verantwortlich sind. Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen.",

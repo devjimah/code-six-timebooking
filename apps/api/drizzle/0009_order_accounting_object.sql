@@ -1,0 +1,1 @@
+ALTER TABLE `orders` ADD `accounting_object` text;

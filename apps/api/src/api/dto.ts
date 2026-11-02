@@ -222,6 +222,15 @@ export const orderRequest = z.object({
   hourlyRateCents: z.number().int().min(1).max(10_000_00).meta({ description: "Euro cents: 9500 = 95,00 € per hour" }),
   startDate: z.iso.date().meta({ example: "2026-11-01" }),
   endDate: z.iso.date().meta({ example: "2027-03-31" }),
+  // Empty means none. Left out of a request, it is also none.
+  accountingObject: z
+    .string()
+    .trim()
+    .max(40)
+    .nullable()
+    .default(null)
+    .transform((value) => value || null)
+    .meta({ example: "P-2026-0815.03", description: "Cost centre or project element that pays for this order" }),
 })
 export type OrderRequest = z.infer<typeof orderRequest>
 
@@ -235,6 +244,7 @@ export const orderResponse = z.object({
   hourlyRateCents: z.number().int(),
   startDate: z.string(),
   endDate: z.string(),
+  accountingObject: z.string().nullable(),
 })
 export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
 
@@ -328,18 +338,23 @@ const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.inf
 })
 
 // GET /api/orders/:id/budget – one order, with its forecast. The list of own orders stays without one.
-export const orderBudgetDetailResponse = orderBudgetResponse.extend({ forecast: budgetForecastResponse })
+export const orderBudgetDetailResponse = orderBudgetResponse.extend({
+  accountingObject: z.string().nullable(),
+  forecast: budgetForecastResponse,
+})
 export const toOrderBudgetDetailResponse = (
   order: Order,
   budget: OrderBudget,
   forecast: BudgetForecast,
 ): z.infer<typeof orderBudgetDetailResponse> => ({
   ...toOrderBudgetResponse(order, budget),
+  accountingObject: order.accountingObject,
   forecast: toBudgetForecastResponse(order, forecast),
 })
 
 // GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
 export const orderOverviewResponse = orderBudgetResponse.extend({
+  accountingObject: z.string().nullable(),
   forecast: budgetForecastResponse,
   approvedHours: z.number().meta({ description: "Booked hours the project manager has approved" }),
   notApprovedHours: z.number().meta({ description: "Booked hours still open or returned" }),
@@ -361,6 +376,7 @@ export const toOrderOverviewResponse = (row: {
   projectManagerName: string
 }): z.infer<typeof orderOverviewResponse> => ({
   ...toOrderBudgetResponse(row.order, row.budget),
+  accountingObject: row.order.accountingObject,
   forecast: toBudgetForecastResponse(row.order, row.forecast),
   approvedHours: hours(row.approvedMinutes),
   notApprovedHours: hours(row.budget.bookedMinutes - row.approvedMinutes),

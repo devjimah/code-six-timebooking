@@ -90,6 +90,7 @@ export type BudgetForecast = {
 }
 
 export type OrderOverview = {
+  accountingObject: string | null
   forecast: BudgetForecast
   orderId: number
   code: string
@@ -125,7 +126,7 @@ export type OrderBudget = Pick<
 >
 
 // GET /api/orders/:id/budget (orderBudgetDetailResponse): one order, with its forecast
-export type OrderBudgetDetail = OrderBudget & { forecast: BudgetForecast }
+export type OrderBudgetDetail = OrderBudget & { accountingObject: string | null; forecast: BudgetForecast }
 
 // GET /api/orders/:id/time-entries: one booking, with the consultant's name only
 export type OrderBooking = {
@@ -148,6 +149,7 @@ export type OrderRequest = {
   hourlyRateCents: number
   startDate: string
   endDate: string
+  accountingObject: string | null
 }
 
 // GET /api/project-managers: names only

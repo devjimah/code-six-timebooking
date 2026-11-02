@@ -58,6 +58,8 @@ export const orders = sqliteTable("orders", {
   // Migration 0003 gave orders that existed before it the whole year 2026 – only demo data existed then.
   startDate: text("start_date").notNull().default("2026-01-01"),
   endDate: text("end_date").notNull().default("2026-12-31"),
+  // Who pays inside the client company: a cost centre or project element (Kostenstelle, PSP-Element). Optional.
+  accountingObject: text("accounting_object"),
   ...timestamps,
 })
 

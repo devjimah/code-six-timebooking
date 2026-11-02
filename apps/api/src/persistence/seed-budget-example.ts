@@ -37,6 +37,7 @@ export async function seedBudgetExample(
     hourlyRateCents: 9500,
     startDate: [anna.at(-1)!, ben.at(-1)!].sort()[0]!,
     endDate: addDays(today, PROJECT_WEEKS_LEFT * 7),
+    accountingObject: "P-2026-0902.01",
   })
 
   const booking = (userId: number) => (workDate: string, index: number) => ({
