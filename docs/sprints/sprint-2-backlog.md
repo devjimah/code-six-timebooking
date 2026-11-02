@@ -28,9 +28,17 @@ Only when the committed stories are done. Label `stretch` on the board.
 | [#55](https://github.com/devjimah/code-six-timebooking/issues/55) | ArbZG §5: 11 hours rest | S | Only if #20 decides for start and end times |
 | [#56](https://github.com/devjimah/code-six-timebooking/issues/56) | CI: typecheck, lint and tests on every PR | S | – |
 
+## Result (Mon 2 Nov)
+
+All committed and stretch stories are merged, and more from the backlog with them; the list is in the
+[product backlog](../product-backlog.md). The team's review of this sprint is still to be written.
+
 ## Decisions for sprint planning
 
-Each one is a real choice for the team; the issues list the options.
+Each one is a real choice for the team; the issues list the options. All four are decided: start and end times
+([ADR 0010](../adr/0010-time-entry-granularity.md)), unavailable days for all orders ([ADR 0016](../adr/0016-unavailable-days.md)),
+approval per booking plus "approve all", with corrections for returned bookings ([ADR 0014](../adr/0014-booking-approval.md)),
+and a pace from the last 4 weeks with one fixed lead time ([ADR 0015](../adr/0015-budget-forecast.md)).
 
 1. **#20 / ADR 0010:** duration only, or start and end times? ADR 0010 recommends option 3: the consultant records
    times, the client sees totals. The choice decides whether #54 and #55 can be built.
