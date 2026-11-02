@@ -80,6 +80,7 @@ export type AuditEvent = {
 export type BudgetForecast = {
   state: "no_pace" | "ended" | "lasts" | "runs_out_early"
   paceHoursPerWeek: number
+  pacePersonDaysPerWeek: number
   runsOutOn: string | null // "YYYY-MM-DD"
   missingHours: number
   missingPersonDays: number
@@ -102,6 +103,9 @@ export type OrderOverview = {
   endDate: string
   budgetHours: number
   bookedHours: number
+  budgetPersonDays: number
+  bookedPersonDays: number
+  remainingPersonDays: number
   approvedHours?: number // only in GET /api/orders (purchasing)
   notApprovedHours?: number
   remainingHours: number // negative when over budget
@@ -116,6 +120,7 @@ export type OrderOverview = {
 export type OrderBudget = Pick<
   OrderOverview,
   | "orderId" | "code" | "title" | "budgetHours" | "bookedHours" | "remainingHours"
+  | "budgetPersonDays" | "bookedPersonDays" | "remainingPersonDays"
   | "budgetCents" | "bookedCents" | "remainingCents" | "usedPercent" | "overBudget"
 >
 

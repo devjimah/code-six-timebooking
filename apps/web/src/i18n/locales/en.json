@@ -336,7 +336,8 @@
     "reasonPlaceholder": "e.g. this work belongs on another order",
     "returnConfirm": "Return booking",
     "returning": "Returning …",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "personDays": "{{days}} PD"
   },
   "password": {
     "title": "Change password",
@@ -471,7 +472,7 @@
   },
   "forecast": {
     "title": "How long the budget lasts",
-    "pace": "Current pace: {{hours}} per week, from the last 4 weeks",
+    "pace": "Current pace: {{hours}} ({{days}} PD) per week, from the last 4 weeks",
     "runsOut": "At this pace the budget is used up on {{date}}, before the order ends on {{end}}.",
     "missing": "About {{hours}} ({{days}} person-days) are missing until then.",
     "orderBy": "Order more by {{date}}: purchasing needs {{weeks}} weeks.",
