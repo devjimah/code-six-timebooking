@@ -4,7 +4,7 @@
 // holidays, no future dates, inside the order's period, budget left, own company's order.
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { CircleAlert, Clock } from "lucide-react"
+import { CircleAlert, Clock, CopyPlus } from "lucide-react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
@@ -28,7 +28,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import type { BookableOrder, TimeEntry, UnavailableDay } from "@/lib/api-types.ts"
+import type { BookableOrder, CopyLastWeekResult, TimeEntry, UnavailableDay } from "@/lib/api-types.ts"
 import { findOverlap, previewWorkedMinutes, suggestedStart, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
@@ -54,6 +54,7 @@ export function BookTimePage() {
   const [submitting, setSubmitting] = React.useState(false)
   const [editing, setEditing] = React.useState<TimeEntry | null>(null)
   const [deleting, setDeleting] = React.useState<TimeEntry | null>(null)
+  const [copied, setCopied] = React.useState<CopyLastWeekResult | null>(null)
   const update = (changes: Partial<typeof form>) => setForm((current) => ({ ...current, ...changes }))
 
   // With only one order there is nothing to choose: pick it.
@@ -86,6 +87,30 @@ export function BookTimePage() {
       description: entry.description,
     })
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  /** Repeat: a new booking with the same order, times and text, on the date already chosen. */
+  function startRepeating(entry: TimeEntry) {
+    setEditing(null)
+    setError(null)
+    update({
+      orderId: String(entry.orderId),
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+      breakMinutes: String(entry.breakMinutes),
+      description: entry.description,
+    })
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  async function copyWeek() {
+    try {
+      const result = await api<CopyLastWeekResult>("/time-entries/copy-last-week", { method: "POST" })
+      setCopied(result)
+      entries.reload()
+    } catch (caught) {
+      toast.error(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
+    }
   }
 
   function stopEditing() {
@@ -327,10 +352,35 @@ export function BookTimePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("booking.mine")}</CardTitle>
+            <CardTitle className="flex flex-wrap items-center justify-between gap-2">
+              {t("booking.mine")}
+              <Button size="sm" variant="outline" onClick={copyWeek}>
+                <CopyPlus aria-hidden />
+                {t("booking.copyLastWeek")}
+              </Button>
+            </CardTitle>
             <CardDescription>{t("booking.mineDescription")}</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="grid gap-4">
+            {copied && (
+              <Alert variant={copied.refused.length > 0 ? "destructive" : "default"} aria-live="polite">
+                <CopyPlus aria-hidden />
+                <AlertTitle>
+                  {t("booking.copyResult", { copied: copied.created.length, refused: copied.refused.length, notYet: copied.notYet })}
+                </AlertTitle>
+                {copied.refused.length > 0 && (
+                  <AlertDescription>
+                    <ul>
+                      {copied.refused.map((day, index) => (
+                        <li key={`${day.workDate}-${index}`}>
+                          {formatWeekday(day.workDate)}: {translateApiError(day)}
+                        </li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                )}
+              </Alert>
+            )}
             {entries.loading ? (
               <div className="grid gap-3">
                 {Array.from({ length: 3 }, (_, i) => (
@@ -343,6 +393,7 @@ export function BookTimePage() {
                 orders={orders.data ?? []}
                 onEdit={startEditing}
                 onDelete={setDeleting}
+                onRepeat={startRepeating}
               />
             )}
           </CardContent>

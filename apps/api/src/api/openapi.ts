@@ -30,6 +30,7 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  copyLastWeekResponse,
   invoiceCheckQuery,
   invoiceCheckResponse,
   proofOfWorkQuery,
@@ -263,6 +264,11 @@ export const routes: RouteDoc[] = [
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
       404: "The order does not exist (ORDER_NOT_FOUND)",
     },
+  },
+  {
+    method: "post", path: "/api/time-entries/copy-last-week", tag: "Time entries", roles: ["consultant"],
+    summary: "Copy your bookings of last week to this week, up to today. Each one passes the booking rules",
+    success: { status: 200, description: "What was booked and what was refused, with the reason", schema: copyLastWeekResponse },
   },
   {
     method: "put", path: "/api/time-entries/{id}", tag: "Time entries", roles: ["consultant"],

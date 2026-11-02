@@ -349,7 +349,9 @@
       "approved": "Approved",
       "date": "Date",
       "accountingObject": "Cost centre or project element",
-      "month": "Month"
+      "month": "Month",
+      "copied": "Copied",
+      "refused": "Refused"
     },
     "from": "From",
     "to": "To"
@@ -381,7 +383,8 @@
       "approve": "Approved a booking",
       "return": "Returned a booking",
       "update": "Corrected a booking",
-      "delete": "Deleted a booking"
+      "delete": "Deleted a booking",
+      "copy_last_week": "Copied last week"
     },
     "order": {
       "list_bookable": "Viewed bookable orders",
@@ -567,7 +570,10 @@
     "deleted": "Booking deleted.",
     "deleteTitle": "Delete this booking?",
     "deleteDescription": "{{hours}} on {{date}} will be removed. This cannot be undone.",
-    "deleteConfirm": "Delete"
+    "deleteConfirm": "Delete",
+    "copyLastWeek": "Copy last week",
+    "repeatNamed": "Repeat booking of {{date}}",
+    "copyResult": "{{copied}} copied, {{refused}} refused, {{notYet}} still to come."
   },
   "calendar": {
     "future": "In the future – time is booked once it has been worked",

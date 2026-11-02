@@ -1,6 +1,7 @@
 // Consultants book, see and correct their own time (tickets #12, #53); project managers approve or return it (#50).
 import { Router } from "express"
 import { bookTime } from "../application/book-time.js"
+import { copyLastWeek } from "../application/copy-last-week.js"
 import { correctBooking, deleteBooking } from "../application/correct-booking.js"
 import { approveBooking, returnBooking } from "../application/review-bookings.js"
 import { setAuditContext } from "../audit/audit-log.js"
@@ -32,6 +33,13 @@ export function timeEntryRoutes(db: Db) {
   router.get("/mine", requireRole("consultant"), async (req, res) => {
     const entries = await timeEntryRepository(db).findByUser(req.user!.id)
     res.json(entries.map(toTimeEntryResponse))
+  })
+
+  // Before "/:id", so the word is not read as an id. Every copy passes the booking rules; refused days say why.
+  router.post("/copy-last-week", requireRole("consultant"), async (req, res) => {
+    const { created, refused, notYet } = await copyLastWeek(db, req.user!)
+    setAuditContext(res, { details: { copied: created.length, refused: refused.length } })
+    res.json({ created: created.map(toTimeEntryResponse), refused, notYet })
   })
 
   // Whose booking it is and whether it is approved: in the use case. Times and text stay out of the log, as in POST.

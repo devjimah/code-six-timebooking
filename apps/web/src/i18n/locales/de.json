@@ -349,7 +349,9 @@
       "approved": "Freigegeben",
       "date": "Datum",
       "accountingObject": "Kostenstelle oder PSP-Element",
-      "month": "Monat"
+      "month": "Monat",
+      "copied": "Kopiert",
+      "refused": "Abgelehnt"
     },
     "from": "Von",
     "to": "Bis"
@@ -381,7 +383,8 @@
       "approve": "Buchung freigegeben",
       "return": "Buchung zurückgegeben",
       "update": "Buchung korrigiert",
-      "delete": "Buchung gelöscht"
+      "delete": "Buchung gelöscht",
+      "copy_last_week": "Letzte Woche kopiert"
     },
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
@@ -567,7 +570,10 @@
     "deleted": "Buchung gelöscht.",
     "deleteTitle": "Diese Buchung löschen?",
     "deleteDescription": "{{hours}} am {{date}} werden entfernt. Das kann nicht rückgängig gemacht werden.",
-    "deleteConfirm": "Löschen"
+    "deleteConfirm": "Löschen",
+    "copyLastWeek": "Letzte Woche kopieren",
+    "repeatNamed": "Buchung vom {{date}} wiederholen",
+    "copyResult": "{{copied}} kopiert, {{refused}} abgelehnt, {{notYet}} noch nicht fällig."
   },
   "calendar": {
     "future": "In der Zukunft – Zeit wird erst gebucht, wenn sie gearbeitet ist",

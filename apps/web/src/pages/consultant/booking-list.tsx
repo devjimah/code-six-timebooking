@@ -2,7 +2,7 @@
 // Only the consultant sees this: the client sees single bookings per order, never totals per person and day
 // (docs/roles-and-privacy.md).
 import { useTranslation } from "react-i18next"
-import { Pencil, Trash2 } from "lucide-react"
+import { Copy, Pencil, Trash2 } from "lucide-react"
 
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -20,6 +20,8 @@ type Props = {
   /** With these, bookings that are not approved yet get buttons to correct and delete them (#53) */
   onEdit?: (entry: TimeEntry) => void
   onDelete?: (entry: TimeEntry) => void
+  /** With this, any booking can be repeated: the form opens with its order, times and text (#63) */
+  onRepeat?: (entry: TimeEntry) => void
 }
 
 /** Entries arrive newest first from the API; this keeps that order and groups them by work date. */
@@ -33,7 +35,7 @@ function groupByDay(entries: TimeEntry[]) {
   }))
 }
 
-export function BookingList({ entries, orders, maxDays, onEdit, onDelete }: Props) {
+export function BookingList({ entries, orders, maxDays, onEdit, onDelete, onRepeat }: Props) {
   const { t } = useTranslation()
   const days = groupByDay(entries).slice(0, maxDays)
   const codeOf = (orderId: number) => orders.find((o) => o.id === orderId)?.code ?? `#${orderId}`
@@ -75,8 +77,19 @@ export function BookingList({ entries, orders, maxDays, onEdit, onDelete }: Prop
                   <span className="text-muted-foreground block text-xs">
                     {t("booking.timeRange", { start: entry.startTime, end: entry.endTime })}
                   </span>
-                  {entry.status !== "approved" && onEdit && onDelete && (
-                    <span className="mt-1 flex justify-end gap-1">
+                  <span className="mt-1 flex justify-end gap-1">
+                    {onRepeat && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t("booking.repeatNamed", { date: formatWeekday(entry.workDate) })}
+                        onClick={() => onRepeat(entry)}
+                      >
+                        <Copy aria-hidden />
+                      </Button>
+                    )}
+                    {entry.status !== "approved" && onEdit && onDelete && (
+                      <>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -93,8 +106,9 @@ export function BookingList({ entries, orders, maxDays, onEdit, onDelete }: Prop
                       >
                         <Trash2 aria-hidden />
                       </Button>
-                    </span>
-                  )}
+                      </>
+                    )}
+                  </span>
                 </span>
               </li>
             ))}

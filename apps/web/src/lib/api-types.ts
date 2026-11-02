@@ -34,6 +34,13 @@ export type UnavailableDay = { date: string } // "YYYY-MM-DD"
 // GET /api/orders/:id/unavailable-days
 export type OrderUnavailableDay = UnavailableDay & { consultantName: string }
 
+// POST /api/time-entries/copy-last-week
+export type CopyLastWeekResult = {
+  created: TimeEntry[]
+  refused: { workDate: string; code: string; message: string }[]
+  notYet: number
+}
+
 // Check and approve (ADR 0014)
 export type BookingStatus = "open" | "approved" | "returned"
 

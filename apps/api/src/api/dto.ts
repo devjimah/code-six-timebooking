@@ -181,6 +181,13 @@ export const toBookingReviewResponse = (entry: TimeEntry): z.infer<typeof bookin
   returnReason: entry.returnReason,
 })
 
+// POST /api/time-entries/copy-last-week (ticket #63)
+export const copyLastWeekResponse = z.object({
+  created: z.array(timeEntryResponse),
+  refused: z.array(z.object({ workDate: z.string(), code: z.string(), message: z.string() })),
+  notYet: z.number().int().meta({ description: "Days of this week still to come, not copied" }),
+})
+
 // POST /api/orders/:id/time-entries/approve-open
 export const approveOpenResponse = z.object({ approved: z.number().int().meta({ description: "How many were approved" }) })
 
