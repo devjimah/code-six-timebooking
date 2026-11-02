@@ -22,6 +22,7 @@ export const ACTIONS: Record<string, string> = {
   "POST /api/auth/password": "auth.change_password",
   "GET /api/users": "user.list",
   "POST /api/users": "user.create",
+  "POST /api/users/import": "user.import",
   "PUT /api/users/:id": "user.update",
   "POST /api/users/:id/deactivate": "user.deactivate",
   "POST /api/users/:id/reactivate": "user.reactivate",

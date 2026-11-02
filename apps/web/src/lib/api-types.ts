@@ -242,6 +242,12 @@ export type Notification =
   | { type: "budget_runs_out"; orderId: number; code: string; runsOutOn: string }
   | { type: "order_more"; orderId: number; code: string; runsOutOn: string; orderMoreBy: string | null }
 
+// POST /api/users/import
+export type UserImportResult = {
+  created: User[]
+  refused: { line: number; email: string; code: string; message: string }[]
+}
+
 // GET /api/project-managers: names only
 export type ProjectManager = { id: number; name: string }
 

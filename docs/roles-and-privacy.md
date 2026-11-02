@@ -47,6 +47,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Create and edit framework agreements; see what their orders take | – | – | ✔ | – | built |
 | Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
 | Create user accounts | – | – | – | ✔ | built |
+| Import user accounts from a CSV file; each passes the same rules | – | – | – | ✔ | built |
 | Edit and deactivate user accounts (never delete) | – | – | – | ✔ not own role, not self | built |
 | Reset a user's password (the person must then choose their own) | – | – | – | ✔ not own | built |
 | Change own password | ✔ | ✔ | ✔ | ✔ | built |
@@ -141,6 +142,7 @@ that is convenience, not security.
 | `GET /api/orders/:id/forecast-scenario` | project manager | only own orders; a what-if, nothing is saved |
 | `GET /api/supplier/bookings` | supplier manager | only the own supplier, from the account; times but no money |
 | `GET /api/notifications` | every signed-in person | only what the role may already see; computed each time, never stored |
+| `POST /api/users/import` | admin | each account passes the same rules; only counts are logged |
 | `GET /api/orders/:id/proof-of-work`, `.csv` | project manager | only own orders; no times; a month at a time |
 | `GET /api/orders/:id/invoice-check` | purchasing | sums only; the amount is neither stored nor logged |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |

@@ -299,7 +299,18 @@
     "resetHint": "10 to 72 characters.",
     "workState": "Work state",
     "noWorkState": "Nationwide holidays only",
-    "workStateHint": "Public holidays differ between states. Bookings on a holiday of this state are refused."
+    "workStateHint": "Public holidays differ between states. Bookings on a holiday of this state are refused.",
+    "importTitle": "Import from file",
+    "importDescription": "Create many accounts at once, for example when moving from the old tool. Each one passes the same rules as an account made by hand.",
+    "importFile": "CSV file",
+    "importCsv": "Or paste the list",
+    "importHint": "Columns: email, name, role, and optionally supplier and state. The first line names them. Roles: consultant, project_manager, purchasing, admin, supplier_manager.",
+    "importPasswordHint": "The same one for all of them. Each person must replace it at the first sign-in.",
+    "importSubmit": "Import",
+    "importDone_one": "{{count}} account created.",
+    "importDone_other": "{{count}} accounts created.",
+    "importResult": "{{created}} created, {{refused}} refused.",
+    "importLine": "Line {{line}}"
   },
   "audit": {
     "description": "Every action in the API: who, what, on what, with which result and why – newest first. Tap a row for all details.",
@@ -361,7 +372,8 @@
       "frameworkAgreementId": "Framework agreement",
       "totalBudgetCents": "Total budget",
       "extraConsultants": "Extra consultants",
-      "extraWeeks": "Extra weeks"
+      "extraWeeks": "Extra weeks",
+      "created": "Created"
     },
     "from": "From",
     "to": "To"
@@ -380,7 +392,8 @@
       "update": "Changed user",
       "deactivate": "Deactivated user",
       "reactivate": "Reactivated user",
-      "reset_password": "Reset password"
+      "reset_password": "Reset password",
+      "import": "Imported accounts"
     },
     "supplier": {
       "list": "Viewed suppliers",
@@ -684,7 +697,13 @@
     "FRAMEWORK_CODE_TAKEN": "A framework agreement with this code already exists.",
     "FRAMEWORK_TOTAL_BELOW_ORDERS": "A framework agreement cannot be lower than its orders.",
     "SUPPLIER_MANAGER_NEEDS_SUPPLIER": "A supplier manager must belong to a supplier. Choose the company.",
-    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Only consultants and supplier managers belong to a supplier. Leave the supplier empty."
+    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Only consultants and supplier managers belong to a supplier. Leave the supplier empty.",
+    "IMPORT_BAD_HEADER": "The first line must name the columns: email, name, role, and optionally supplier and state.",
+    "IMPORT_TOO_LARGE": "A file can hold at most 500 accounts.",
+    "IMPORT_INVALID_EMAIL": "This is not an email address.",
+    "IMPORT_INVALID_NAME": "A name needs 2 to 100 characters.",
+    "IMPORT_INVALID_ROLE": "This role does not exist.",
+    "IMPORT_INVALID_STATE": "This state does not exist."
   },
   "forecast": {
     "title": "How long the budget lasts",

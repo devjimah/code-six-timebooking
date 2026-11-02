@@ -1,13 +1,14 @@
 // Accounts – admin only (ADR 0004, ticket #5). There is no self-registration on purpose.
 import { Router } from "express"
 import { createUser } from "../application/create-user.js"
+import { importUsers } from "../application/import-users.js"
 import { resetPassword } from "../application/manage-passwords.js"
 import { deactivateUser, reactivateUser, updateUser } from "../application/manage-users.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
 import { userRepository } from "../persistence/repositories.js"
-import { createUserRequest, resetPasswordRequest, toUserResponse, updateUserRequest, userIdParams } from "./dto.js"
+import { createUserRequest, importUsersRequest, resetPasswordRequest, toUserResponse, updateUserRequest, userIdParams } from "./dto.js"
 
 export function userRoutes(db: Db) {
   const router = Router()
@@ -24,6 +25,14 @@ export function userRoutes(db: Db) {
     const user = await createUser(db, { ...account, initialPassword: password })
     setAuditContext(res, { targetType: "user", targetId: user.id })
     res.status(201).json(toUserResponse(user))
+  })
+
+  // POST /api/users/import – accounts from a file, for moving from the old tool. Counts in the log: no addresses, no password.
+  router.post("/import", requireRole("admin"), async (req, res) => {
+    const { csv, password } = importUsersRequest.parse(req.body)
+    const { created, refused } = await importUsers(db, csv, password)
+    setAuditContext(res, { details: { created: created.length, refused: refused.length } })
+    res.json({ created: created.map(toUserResponse), refused })
   })
 
   // PUT /api/users/:id – change name, email, role or company (step 4). No password here.

@@ -30,6 +30,8 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  importUsersRequest,
+  importUsersResponse,
   notificationResponse,
   supplierBookingResponse,
   budgetForecastResponse,
@@ -148,6 +150,13 @@ export const routes: RouteDoc[] = [
     body: resetPasswordRequest,
     success: { status: 200, description: "Password reset", schema: userResponse },
     errors: { 400: "Invalid id or body (password 10–72 characters)", 404: "USER_NOT_FOUND", 422: "CANNOT_RESET_OWN_PASSWORD" },
+  },
+  {
+    method: "post", path: "/api/users/import", tag: "Users", roles: ["admin"],
+    summary: "Create accounts from a CSV file. Each passes the rules of an account made by hand; refused lines say why",
+    body: importUsersRequest,
+    success: { status: 200, description: "What was created and what was refused", schema: importUsersResponse },
+    errors: { 400: "Invalid body", 422: "IMPORT_BAD_HEADER, IMPORT_TOO_LARGE" },
   },
   {
     method: "get", path: "/api/suppliers", tag: "Suppliers",

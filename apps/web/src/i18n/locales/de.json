@@ -299,7 +299,18 @@
     "resetHint": "10 bis 72 Zeichen.",
     "workState": "Bundesland des Arbeitsorts",
     "noWorkState": "Nur bundesweite Feiertage",
-    "workStateHint": "Feiertage unterscheiden sich je Bundesland. Buchungen an einem Feiertag dieses Landes werden abgelehnt."
+    "workStateHint": "Feiertage unterscheiden sich je Bundesland. Buchungen an einem Feiertag dieses Landes werden abgelehnt.",
+    "importTitle": "Aus Datei importieren",
+    "importDescription": "Legen Sie viele Konten auf einmal an, zum Beispiel beim Wechsel vom alten Werkzeug. Jedes durchläuft dieselben Regeln wie ein von Hand angelegtes Konto.",
+    "importFile": "CSV-Datei",
+    "importCsv": "Oder Liste einfügen",
+    "importHint": "Spalten: email, name, role, optional supplier und state. Die erste Zeile benennt sie. Rollen: consultant, project_manager, purchasing, admin, supplier_manager.",
+    "importPasswordHint": "Dasselbe für alle. Jede Person muss es bei der ersten Anmeldung ersetzen.",
+    "importSubmit": "Importieren",
+    "importDone_one": "{{count}} Konto angelegt.",
+    "importDone_other": "{{count}} Konten angelegt.",
+    "importResult": "{{created}} angelegt, {{refused}} abgelehnt.",
+    "importLine": "Zeile {{line}}"
   },
   "audit": {
     "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
@@ -361,7 +372,8 @@
       "frameworkAgreementId": "Rahmenvertrag",
       "totalBudgetCents": "Gesamtbudget",
       "extraConsultants": "Zusätzliche Berater",
-      "extraWeeks": "Zusätzliche Wochen"
+      "extraWeeks": "Zusätzliche Wochen",
+      "created": "Angelegt"
     },
     "from": "Von",
     "to": "Bis"
@@ -380,7 +392,8 @@
       "update": "Benutzer geändert",
       "deactivate": "Benutzer deaktiviert",
       "reactivate": "Benutzer wieder aktiviert",
-      "reset_password": "Passwort zurückgesetzt"
+      "reset_password": "Passwort zurückgesetzt",
+      "import": "Konten importiert"
     },
     "supplier": {
       "list": "Dienstleister angesehen",
@@ -684,7 +697,13 @@
     "FRAMEWORK_CODE_TAKEN": "Einen Rahmenvertrag mit diesem Code gibt es bereits.",
     "FRAMEWORK_TOTAL_BELOW_ORDERS": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen.",
     "SUPPLIER_MANAGER_NEEDS_SUPPLIER": "Eine Dienstleister-Leitung muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen.",
-    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Nur Berater und Dienstleister-Leitungen gehören zu einem Dienstleister. Lassen Sie das Feld leer."
+    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Nur Berater und Dienstleister-Leitungen gehören zu einem Dienstleister. Lassen Sie das Feld leer.",
+    "IMPORT_BAD_HEADER": "Die erste Zeile muss die Spalten benennen: email, name, role, optional supplier und state.",
+    "IMPORT_TOO_LARGE": "Eine Datei darf höchstens 500 Konten enthalten.",
+    "IMPORT_INVALID_EMAIL": "Das ist keine E-Mail-Adresse.",
+    "IMPORT_INVALID_NAME": "Ein Name braucht 2 bis 100 Zeichen.",
+    "IMPORT_INVALID_ROLE": "Diese Rolle gibt es nicht.",
+    "IMPORT_INVALID_STATE": "Dieses Bundesland gibt es nicht."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",

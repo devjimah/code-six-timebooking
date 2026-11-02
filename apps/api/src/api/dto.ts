@@ -63,6 +63,16 @@ export const createUserRequest = z.object({
   password: password.meta({ description: "Initial password; the admin hands it to the person" }),
 })
 
+// POST /api/users/import – admin only: accounts from a CSV file, all with the same initial password.
+export const importUsersRequest = z.object({
+  csv: z.string().max(100_000).meta({ example: "email;name;role;supplier;state" }),
+  password: password.meta({ description: "Initial password for all of them; each person must replace it" }),
+})
+export const importUsersResponse = z.object({
+  created: z.array(userResponse),
+  refused: z.array(z.object({ line: z.number().int(), email: z.string(), code: z.string(), message: z.string() })),
+})
+
 // PUT /api/users/:id – admin only. Same fields as creating an account, without the password.
 export const updateUserRequest = createUserRequest.omit({ password: true })
 export const userIdParams = z.object({ id: z.coerce.number().int().positive() })
