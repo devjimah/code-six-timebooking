@@ -33,4 +33,6 @@ hosted in a German or EU region.
   containers, not by changing the code.
 - Switching SQLite → PostgreSQL means a new driver and regenerated migrations; we must avoid SQLite-only SQL.
 - One database per tenant makes data deletion and on-premise export simple, but costs more than shared tables.
-- Next: a `compose.yaml` for api + web (scoring block E), then a PostgreSQL profile in it.
+- [`compose.yaml`](../../compose.yaml) starts the API and the web app with one command (scoring block E). nginx serves
+  the web app and forwards `/api`, so only one port is published; the SQLite file lives in a named volume. CI starts it
+  on every pull request. Next: a PostgreSQL profile in it.

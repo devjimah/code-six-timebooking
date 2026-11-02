@@ -1,0 +1,13 @@
+# Keeps the image small and the local database and secrets out of it.
+.git
+.github
+.claude
+.agents
+.turbo
+docs
+**/node_modules
+**/dist
+**/.turbo
+**/data
+**/*.db
+**/.env
