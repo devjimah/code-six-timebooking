@@ -1,20 +1,6 @@
-<!-- ===== TEMPLATE NOTE: delete this block once your team has started ===== -->
-> **Article26 Hackathon 2026 · Team template**
->
-> This repository is your starting point. It contains **no code and no required technology**, only guidance:
->
-> 1. **Start here:** read the [Build Guide](docs/guide.md) and the [challenge](docs/challenge.md).
-> 2. Fill in [docs/product-vision.md](docs/product-vision.md) together.
-> 3. Keep this README up to date as you build. The technical jury starts your product **from this README alone** ([how they check](docs/scoring.md#run-check-for-the-juror)).
->
-> Using an AI coding agent (GitHub Copilot, Claude Code, Cursor …)? It reads [AGENTS.md](AGENTS.md) and the skills in `.claude/skills/` automatically. In GitHub Copilot Chat (agent mode) or Claude Code, type `/kickoff` to begin, or `/hackathon-review` at any time.
->
-> Looking for an example? The `blueprint` branch contains a small Next.js + PostgreSQL app from an earlier edition. It is one possible approach, not a requirement.
-<!-- ===== END OF TEMPLATE NOTE ===== -->
+# code-six timebooking
 
-# TODO Product name
-
-TODO – one sentence: what the product does and for whom. Link to [product vision](docs/product-vision.md).
+A web app for booking and checking external consultants' working time. Project managers at the client see each order's booked and remaining budget the moment a consultant books, and how long it will last. More in the [product vision](docs/product-vision.md).
 
 ## Prerequisites
 
@@ -112,4 +98,11 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 
 ## Team
 
-TODO – names and GitHub handles.
+| Name | GitHub | Role |
+|---|---|---|
+| Kamaldeen | [@kamaldeenfadatoyo99-code](https://github.com/kamaldeenfadatoyo99-code) | Product Owner |
+| Abdulrashid | [@abdulrashidfadila](https://github.com/abdulrashidfadila) | Scrum Master |
+| Jimah Abraham Zorwi | [@devjimah](https://github.com/devjimah) | Developer |
+| Fazail Osuman | [@fazail-creator](https://github.com/fazail-creator) | Developer |
+| Anwaar Ibrahim | [@ibanwaaar-del](https://github.com/ibanwaaar-del) | Developer |
+| Mansura Bawah | [@MansuraBawah](https://github.com/MansuraBawah) | Developer |
