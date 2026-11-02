@@ -22,12 +22,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
+import { addDays } from "@/lib/dates.ts"
 import { euroToCents } from "@/lib/money.ts"
 import type { OrderOverview, OrderRequest, ProjectManager, Supplier } from "@/lib/api-types.ts"
 
 type Props = {
-  /** null = closed, "new" = place an order, an order = change it */
-  editing: OrderOverview | "new" | null
+  /** null = closed, "new" = place an order, an order = change it, followUpOf = a new order proposed from an existing one */
+  editing: OrderOverview | "new" | { followUpOf: OrderOverview } | null
   suppliers: Supplier[]
   projectManagers: ProjectManager[]
   onClose: () => void
@@ -71,11 +72,28 @@ const toForm = (order: OrderOverview, decimalComma: boolean): Form => ({
   accountingObject: order.accountingObject ?? "",
 })
 
+/**
+ * A proposal from the early warning (ticket #70): the same supplier, project manager, rate and cost centre. It covers
+ * what the budget lacks until the order ends; without a warning, it starts when the old order ends. Purchasing decides.
+ */
+const toFollowUpForm = (order: OrderOverview, decimalComma: boolean): Form => {
+  const runsOut = order.forecast.state === "runs_out_early" ? order.forecast.runsOutOn : null
+  return {
+    ...toForm(order, decimalComma),
+    code: "",
+    budgetHours: runsOut ? String(Math.ceil(order.forecast.missingHours)) : "",
+    startDate: runsOut ?? addDays(order.endDate, 1),
+    endDate: runsOut ? order.endDate : "",
+  }
+}
+
 export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSaved }: Props) {
   const { t, i18n } = useTranslation()
   const isMobile = useIsMobile()
-  const isNew = editing === "new"
-  const existing = editing && editing !== "new" ? editing : null
+  const followUpOf = editing && editing !== "new" && "followUpOf" in editing ? editing.followUpOf : null
+  const existing = editing && editing !== "new" && !("followUpOf" in editing) ? editing : null
+  const isNew = editing !== null && existing === null
+  const isClosed = existing?.closedAt != null
   const hasBookings = (existing?.bookedHours ?? 0) > 0
   const [form, setForm] = React.useState<Form>(EMPTY)
   const [error, setError] = React.useState<string | null>(null)
@@ -85,7 +103,8 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
   const [openedFor, setOpenedFor] = React.useState<typeof editing>(null)
   if (editing !== openedFor) {
     setOpenedFor(editing)
-    setForm(existing ? toForm(existing, i18n.resolvedLanguage === "de") : EMPTY)
+    const decimalComma = i18n.resolvedLanguage === "de"
+    setForm(existing ? toForm(existing, decimalComma) : followUpOf ? toFollowUpForm(followUpOf, decimalComma) : EMPTY)
     setError(null)
   }
 
@@ -94,6 +113,20 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
   const rateCents = euroToCents(form.hourlyRate)
   const hours = Number(form.budgetHours)
   const budgetPreview = Number.isFinite(rateCents) && hours > 0 && rateCents > 0 ? formatEuroCents(hours * rateCents) : null
+
+  /** Close or reopen: the server checks that nothing is still waiting to be approved. */
+  async function changeClosed() {
+    if (!existing) return
+    setError(null)
+    try {
+      await api(`/orders/${existing.orderId}/${isClosed ? "reopen" : "close"}`, { method: "POST" })
+      toast.success(t(isClosed ? "orders.reopened" : "orders.closedNow", { code: existing.code }))
+      onSaved()
+      onClose()
+    } catch (caught) {
+      setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -129,11 +162,19 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
     <Drawer direction={isMobile ? "bottom" : "right"} open={editing !== null} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{existing ? t("orders.edit", { code: existing.code }) : t("orders.new")}</DrawerTitle>
+          <DrawerTitle>
+            {existing
+              ? t("orders.edit", { code: existing.code })
+              : followUpOf
+                ? t("orders.followUpOf", { code: followUpOf.code })
+                : t("orders.new")}
+          </DrawerTitle>
           <DrawerDescription>
             {existing && hasBookings
               ? t("orders.editBooked", { hours: formatHours(existing.bookedHours * 60) })
-              : t("orders.newDescription")}
+              : followUpOf
+                ? t("orders.followUpDescription")
+                : t("orders.newDescription")}
           </DrawerDescription>
         </DrawerHeader>
         {/* The form scrolls on small phones; the footer buttons stay visible below it. */}
@@ -269,9 +310,14 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
           </FieldGroup>
         </form>
         <DrawerFooter>
-          <Button type="submit" form="order-form" disabled={submitting}>
+          <Button type="submit" form="order-form" disabled={submitting || isClosed}>
             {submitting ? t("suppliers.saving") : t(isNew ? "orders.create" : "suppliers.save")}
           </Button>
+          {existing && (
+            <Button variant="outline" onClick={changeClosed}>
+              {t(isClosed ? "orders.reopen" : "orders.close")}
+            </Button>
+          )}
           <DrawerClose asChild>
             <Button variant="outline">{t("users.cancel")}</Button>
           </DrawerClose>

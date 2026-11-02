@@ -38,6 +38,7 @@ export interface Order {
   startDate: string // "YYYY-MM-DD", first day work may be booked
   endDate: string // "YYYY-MM-DD", last day work may be booked
   accountingObject: string | null // cost centre or project element that pays for this order
+  closedAt: string | null // ISO timestamp when purchasing closed it; null = open
 }
 
 /** Check and approve (ADR 0014): open → approved, or open → returned → (corrected) → open. */

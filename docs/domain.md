@@ -71,6 +71,7 @@ erDiagram
         string start_date
         string end_date
         string accounting_object "cost centre or project element, optional"
+        string closed_at "null = open"
     }
     TIME_ENTRY["Time entry (now)"] {
         int id PK

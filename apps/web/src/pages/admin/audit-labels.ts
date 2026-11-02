@@ -37,6 +37,8 @@ export const ACTION_LABELS = {
   "order.list_all": "auditActions.order.list_all",
   "order.create": "auditActions.order.create",
   "order.update": "auditActions.order.update",
+  "order.close": "auditActions.order.close",
+  "order.reopen": "auditActions.order.reopen",
   "user.list_project_managers": "auditActions.user.list_project_managers",
   "calendar.list_holidays": "auditActions.calendar.list_holidays",
   "order.list_bookable": "auditActions.order.list_bookable",

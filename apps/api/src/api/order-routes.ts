@@ -3,7 +3,7 @@
 import { Router } from "express"
 import { getOrderBudget } from "../application/get-order-budget.js"
 import { listOrderBookings } from "../application/list-order-bookings.js"
-import { createOrder, listAllOrders, updateOrder } from "../application/manage-orders.js"
+import { closeOrder, createOrder, listAllOrders, reopenOrder, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
 import { checkOrderInvoice, getProofOfWork } from "../application/proof-of-work.js"
 import { approveOpenBookings } from "../application/review-bookings.js"
@@ -50,6 +50,19 @@ export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
     const input = orderRequest.parse(req.body)
     setAuditContext(res, { targetType: "order", targetId: id, details: auditFacts(input) })
     res.json(toOrderResponse(await updateOrder(db, id, input)))
+  })
+
+  // POST /api/orders/:id/close and /reopen – purchasing says the work is finished (ticket #70). The rule is in the use case.
+  router.post("/:id/close", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
+    res.json(toOrderResponse(await closeOrder(db, id)))
+  })
+
+  router.post("/:id/reopen", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
+    res.json(toOrderResponse(await reopenOrder(db, id)))
   })
 
   // GET /api/orders/bookable – the consultant's own supplier's orders, to pick one when booking time.

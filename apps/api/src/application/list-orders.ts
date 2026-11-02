@@ -8,7 +8,8 @@ import { orderRepository, timeEntryRepository } from "../persistence/repositorie
 /** Consultants see the orders of their own supplier – the same rule bookTime enforces (ORDER_NOT_ASSIGNED). */
 export async function listBookableOrders(db: Db, consultant: User): Promise<{ order: Order; supplierName: string }[]> {
   if (consultant.supplierId === null) return []
-  return orderRepository(db).findBySupplierWithName(consultant.supplierId)
+  const orders = await orderRepository(db).findBySupplierWithName(consultant.supplierId)
+  return orders.filter(({ order }) => order.closedAt === null) // a closed order takes no more bookings
 }
 
 /** Project managers see the orders they are responsible for, each with its budget (ADR 0008: computed on read). */

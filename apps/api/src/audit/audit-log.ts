@@ -46,6 +46,8 @@ export const ACTIONS: Record<string, string> = {
   "GET /api/orders": "order.list_all",
   "POST /api/orders": "order.create",
   "PUT /api/orders/:id": "order.update",
+  "POST /api/orders/:id/close": "order.close",
+  "POST /api/orders/:id/reopen": "order.reopen",
   "GET /api/project-managers": "user.list_project_managers",
   "GET /api/public-holidays": "calendar.list_holidays",
   "GET /api/orders/bookable": "order.list_bookable",

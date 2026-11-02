@@ -63,6 +63,8 @@ export const orders = sqliteTable("orders", {
   endDate: text("end_date").notNull().default("2026-12-31"),
   // Who pays inside the client company: a cost centre or project element (Kostenstelle, PSP-Element). Optional.
   accountingObject: text("accounting_object"),
+  // Set when purchasing closes the order (ticket #70). No more bookings or changes; it is never deleted.
+  closedAt: text("closed_at"),
   ...timestamps,
 })
 

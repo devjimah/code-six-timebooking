@@ -6,6 +6,7 @@ import type { BudgetForecast } from "../domain/forecast.js"
 import type { Order, User } from "../domain/models.js"
 import { assertBudgetNotBelowBooked, assertSupplierUnchangedAfterBookings } from "../domain/rules/order-change.js"
 import { assertUniqueOrderCode, normalizeOrderCode } from "../domain/rules/order-code.js"
+import { assertCanClose, assertOrderOpen } from "../domain/rules/order-closed.js"
 import { assertPeriodCoversBookings, assertValidOrderPeriod } from "../domain/rules/order-period.js"
 import { assertIsProjectManager } from "../domain/rules/project-manager.js"
 import type { Db } from "../persistence/db.js"
@@ -14,7 +15,7 @@ import { todayInCompanyTimeZone } from "./clock.js"
 import { forecastOrders } from "./forecast-orders.js"
 import { NotFoundError } from "./errors.js"
 
-export type OrderInput = Omit<Order, "id">
+export type OrderInput = Omit<Order, "id" | "closedAt">
 
 export type OrderOverview = {
   order: Order
@@ -64,6 +65,7 @@ export async function updateOrder(db: Db, id: number, input: OrderInput): Promis
   if (!current) {
     throw new NotFoundError("ORDER_NOT_FOUND", `Order ${id} does not exist.`)
   }
+  assertOrderOpen(current)
   await assertValidOrder(db, input, id)
 
   // Rules that protect the time already booked on this order (team decisions, step 2).
@@ -74,6 +76,25 @@ export async function updateOrder(db: Db, id: number, input: OrderInput): Promis
   assertPeriodCoversBookings(input, await entries.bookedDateRange(id))
 
   return orders.update(id, { ...input, code: normalizeOrderCode(input.code) })
+}
+
+export async function closeOrder(db: Db, id: number, now = new Date()): Promise<Order> {
+  const orders = orderRepository(db)
+  const order = await orders.findById(id)
+  if (!order) {
+    throw new NotFoundError("ORDER_NOT_FOUND", `Order ${id} does not exist.`)
+  }
+  if (order.closedAt !== null) return order // already closed: nothing to do, keep the first date
+  assertCanClose({ code: order.code, unapprovedMinutes: await timeEntryRepository(db).unapprovedMinutesForOrder(id) })
+  return orders.update(id, { closedAt: now.toISOString() })
+}
+
+export async function reopenOrder(db: Db, id: number): Promise<Order> {
+  const orders = orderRepository(db)
+  if (!(await orders.findById(id))) {
+    throw new NotFoundError("ORDER_NOT_FOUND", `Order ${id} does not exist.`)
+  }
+  return orders.update(id, { closedAt: null })
 }
 
 /** Who can be made responsible for an order: names only, no emails – purchasing needs no more to choose. */

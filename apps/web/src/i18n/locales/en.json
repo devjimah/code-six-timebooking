@@ -401,7 +401,9 @@
       "view_unavailable": "Viewed unavailable days of an order",
       "view_proof": "Viewed a proof of work",
       "export_proof": "Downloaded a proof of work",
-      "check_invoice": "Checked an invoice"
+      "check_invoice": "Checked an invoice",
+      "close": "Closed an order",
+      "reopen": "Reopened an order"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -469,7 +471,16 @@
     "approvalSplit": "{{approved}} approved · {{open}} not yet",
     "accountingObject": "Cost centre or project element",
     "accountingObjectPlaceholder": "e.g. CC-4100 or P-2026-0815.03",
-    "accountingObjectHint": "Who pays for this order inside the company. Optional."
+    "accountingObjectHint": "Who pays for this order inside the company. Optional.",
+    "closed": "Closed",
+    "close": "Close order",
+    "reopen": "Reopen order",
+    "closedNow": "Order {{code}} closed.",
+    "reopened": "Order {{code}} reopened.",
+    "showClosed": "Show closed orders",
+    "hideClosed": "Hide closed orders",
+    "followUpOf": "Follow-up order for {{code}}",
+    "followUpDescription": "A proposal from the existing order, covering what its budget lacks. Change anything before you create it."
   },
   "myOrders": {
     "description": "The orders you are responsible for. Tap an order to check the work booked on it.",
@@ -641,7 +652,9 @@
     "NOT_YOUR_BOOKING": "You can only change your own bookings.",
     "DAY_MARKED_UNAVAILABLE": "Booking rejected: you marked this day as unavailable. Remove the mark first if you worked that day.",
     "DAY_HAS_BOOKINGS": "You already booked time on this day. Delete the booking first if you were not available.",
-    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Only consultants have a work state, for their public holidays. Leave it empty."
+    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Only consultants have a work state, for their public holidays. Leave it empty.",
+    "ORDER_CLOSED": "This order is closed. Purchasing can reopen it.",
+    "ORDER_HAS_UNAPPROVED_BOOKINGS": "This order still has bookings that are open or returned. The project manager must check them first."
   },
   "forecast": {
     "title": "How long the budget lasts",
@@ -652,7 +665,8 @@
     "orderNow": "Order more now: purchasing needs {{weeks}} weeks.",
     "lasts": "At this pace the budget lasts until the order ends on {{end}}.",
     "noPace": "Nothing was booked in the last 4 weeks, so there is no pace to forecast from.",
-    "ended": "This order ended on {{end}}."
+    "ended": "This order ended on {{end}}.",
+    "closed": "This order is closed."
   },
   "unavailable": {
     "title": "Days I am unavailable",

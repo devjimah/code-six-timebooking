@@ -39,6 +39,7 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Check an invoice against the approved hours | – | – | ✔ sums only | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
 | See and set the cost centre or project element of an order | – | see, own orders | ✔ | – | built |
+| Close and reopen an order; propose a follow-up order from an existing one | – | – | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
 | See names of project managers (to assign an order) | – | – | ✔ names only | ✔ (user list) | built |
 | Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
@@ -131,6 +132,7 @@ that is convenience, not security.
 | `GET /api/unavailable-days/mine` | consultant | only own days |
 | `PUT /api/unavailable-days/:date`, `DELETE …` | consultant | only own days; no reason field; a day with bookings cannot be marked |
 | `GET /api/orders/:id/unavailable-days` | project manager | only own orders; upcoming days of consultants who booked in the last 4 weeks; date and name only |
+| `POST /api/orders/:id/close`, `/reopen` | purchasing | closing needs all bookings approved; a closed order takes no bookings or changes |
 | `GET /api/orders/:id/proof-of-work`, `.csv` | project manager | only own orders; no times; a month at a time |
 | `GET /api/orders/:id/invoice-check` | purchasing | sums only; the amount is neither stored nor logged |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |

@@ -75,6 +75,7 @@ export function OrderDetailPage() {
             <h2 className="flex items-center gap-2 font-medium">
               {order.title}
               {order.overBudget && <Badge variant="destructive">{t("orders.overBudget")}</Badge>}
+              {order.closedAt && <Badge variant="secondary">{t("orders.closed")}</Badge>}
             </h2>
           </div>
         )}

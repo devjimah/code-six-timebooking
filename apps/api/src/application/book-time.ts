@@ -8,6 +8,7 @@ import { addDays } from "../domain/public-holidays.js"
 import { assertNoOverlap } from "../domain/rules/no-overlap.js"
 import { assertAssignedToOrder } from "../domain/rules/order-assignment.js"
 import { assertWithinOrderBudget } from "../domain/rules/order-budget.js"
+import { assertOrderOpen } from "../domain/rules/order-closed.js"
 import { assertWithinOrderPeriod } from "../domain/rules/order-period.js"
 import { assertRestPeriod } from "../domain/rules/rest-period.js"
 import { assertNotInFuture } from "../domain/rules/work-date.js"
@@ -59,6 +60,7 @@ export async function checkBookingRules(
   if (!order) {
     throw new DomainError("ORDER_NOT_FOUND", `Booking rejected: order ${input.orderId} does not exist.`)
   }
+  assertOrderOpen(order)
   assertAssignedToOrder({ user: consultant, order })
   assertWithinOrderPeriod({ order, workDate: input.workDate })
 

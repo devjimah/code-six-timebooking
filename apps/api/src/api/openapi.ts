@@ -170,7 +170,7 @@ export const routes: RouteDoc[] = [
     success: { status: 201, description: "Booked", schema: timeEntryResponse },
     errors: {
       400: "Invalid request body",
-      422: "A business rule was broken: INVALID_TIME, END_NOT_AFTER_START, INVALID_BREAK, BOOKING_OVERLAP, REST_PERIOD_TOO_SHORT, DAY_MARKED_UNAVAILABLE, DAILY_LIMIT_EXCEEDED, " +
+      422: "A business rule was broken: INVALID_TIME, END_NOT_AFTER_START, INVALID_BREAK, ORDER_CLOSED, BOOKING_OVERLAP, REST_PERIOD_TOO_SHORT, DAY_MARKED_UNAVAILABLE, DAILY_LIMIT_EXCEEDED, " +
         "BUDGET_EXCEEDED, ORDER_NOT_FOUND, ORDER_NOT_ASSIGNED, DATE_IN_FUTURE, SUNDAY_OR_HOLIDAY, OUTSIDE_ORDER_PERIOD",
     },
   },
@@ -330,6 +330,20 @@ export const routes: RouteDoc[] = [
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
       404: "The order does not exist (ORDER_NOT_FOUND)",
     },
+  },
+  {
+    method: "post", path: "/api/orders/{id}/close", tag: "Orders", roles: ["purchasing"],
+    summary: "Close an order: no more bookings or changes. Its bookings stay",
+    params: orderIdParams,
+    success: { status: 200, description: "Closed", schema: orderResponse },
+    errors: { 400: "The id is not a number", 404: "ORDER_NOT_FOUND", 422: "Bookings are still open or returned (ORDER_HAS_UNAPPROVED_BOOKINGS)" },
+  },
+  {
+    method: "post", path: "/api/orders/{id}/reopen", tag: "Orders", roles: ["purchasing"],
+    summary: "Reopen a closed order",
+    params: orderIdParams,
+    success: { status: 200, description: "Open again", schema: orderResponse },
+    errors: { 400: "The id is not a number", 404: "ORDER_NOT_FOUND" },
   },
   {
     method: "get", path: "/api/orders/{id}/proof-of-work", tag: "Orders", roles: ["project_manager"],

@@ -2,7 +2,7 @@
 // (docs/roles-and-privacy.md). Tap an order to change it; "New order" places one.
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { ChevronRight, CircleAlert, Plus } from "lucide-react"
+import { ChevronRight, CircleAlert, CopyPlus, Plus } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import { Badge } from "@workspace/ui/components/badge"
@@ -21,7 +21,8 @@ export function OrdersPage() {
   const orders = useApi<OrderOverview[]>("/orders")
   const suppliers = useApi<Supplier[]>("/suppliers")
   const projectManagers = useApi<ProjectManager[]>("/project-managers")
-  const [editing, setEditing] = React.useState<OrderOverview | "new" | null>(null)
+  const [editing, setEditing] = React.useState<OrderOverview | "new" | { followUpOf: OrderOverview } | null>(null)
+  const [showClosed, setShowClosed] = React.useState(false)
 
   const totals = (orders.data ?? []).reduce(
     (sum, o) => ({
@@ -54,6 +55,12 @@ export function OrdersPage() {
 
       {/* Σ over all orders: what purchasing has bought, what is used, what is still free. */}
       {/* One row on every screen size; smaller figures on phones so three amounts fit side by side. */}
+      <div className="flex justify-end">
+        <Button variant="ghost" size="sm" onClick={() => setShowClosed(!showClosed)}>
+          {t(showClosed ? "orders.hideClosed" : "orders.showClosed")}
+        </Button>
+      </div>
+
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {(
           [
@@ -105,11 +112,13 @@ export function OrdersPage() {
                   </TableCell>
                 </TableRow>
               )}
-              {orders.data?.map((order) => (
+              {orders.data?.filter((order) => showClosed || !order.closedAt).map((order) => (
                 <TableRow key={order.orderId} className="cursor-pointer" onClick={() => setEditing(order)}>
                   <TableCell className="pl-4 whitespace-normal">
                     <span className="block font-mono text-xs">{order.code}</span>
-                    <span className="block font-medium">{order.title}</span>
+                    <span className="block font-medium">
+                      {order.title} {order.closedAt && <Badge variant="secondary">{t("orders.closed")}</Badge>}
+                    </span>
                     {order.accountingObject && (
                       <span className="text-muted-foreground block font-mono text-xs">{order.accountingObject}</span>
                     )}
@@ -143,7 +152,19 @@ export function OrdersPage() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="pr-4">
+                  <TableCell className="pr-4 whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={t("orders.followUpOf", { code: order.code })}
+                      aria-label={t("orders.followUpOf", { code: order.code })}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setEditing({ followUpOf: order })
+                      }}
+                    >
+                      <CopyPlus aria-hidden />
+                    </Button>
                     {/* The real control for keyboard and screen reader users; the row click is a shortcut. */}
                     <Button
                       variant="ghost"

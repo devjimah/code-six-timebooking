@@ -258,6 +258,7 @@ export const orderResponse = z.object({
   startDate: z.string(),
   endDate: z.string(),
   accountingObject: z.string().nullable(),
+  closedAt: z.string().nullable().meta({ description: "ISO timestamp; null = open" }),
 })
 export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
 
@@ -334,6 +335,7 @@ export const orderBudgetResponse = z.object({
   remainingCents: z.number().int(),
   usedPercent: z.number(),
   overBudget: z.boolean(),
+  closedAt: z.string().nullable().meta({ description: "When purchasing closed the order; null = open" }),
 })
 export type OrderBudgetResponse = z.infer<typeof orderBudgetResponse>
 
@@ -356,11 +358,12 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
   remainingCents: budget.remainingCents,
   usedPercent: budget.usedPercent,
   overBudget: budget.overBudget,
+  closedAt: order.closedAt,
 })
 
 // How long the budget lasts at the current pace (ticket #51, ADR 0015). Dates are "YYYY-MM-DD".
 export const budgetForecastResponse = z.object({
-  state: z.enum(["no_pace", "ended", "lasts", "runs_out_early"]),
+  state: z.enum(["no_pace", "ended", "closed", "lasts", "runs_out_early"]),
   paceHoursPerWeek: z.number().meta({ description: "Booked per week over the last 4 weeks" }),
   pacePersonDaysPerWeek: z.number(),
   runsOutOn: z.string().nullable().meta({ description: "When the budget is used up at this pace" }),

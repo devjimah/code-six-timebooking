@@ -60,6 +60,7 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
             {forecast.state === "lasts" && t("forecast.lasts", { end })}
             {forecast.state === "no_pace" && t("forecast.noPace")}
             {forecast.state === "ended" && t("forecast.ended", { end })}
+            {forecast.state === "closed" && t("forecast.closed")}
           </p>
         )}
       </CardContent>

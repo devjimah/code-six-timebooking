@@ -90,7 +90,7 @@ export type AuditEvent = {
 // GET /api/orders (orderOverviewResponse): one order with its budget, for purchasing
 // How long the budget lasts at the current pace (budgetForecastResponse, ADR 0015)
 export type BudgetForecast = {
-  state: "no_pace" | "ended" | "lasts" | "runs_out_early"
+  state: "no_pace" | "ended" | "closed" | "lasts" | "runs_out_early"
   paceHoursPerWeek: number
   pacePersonDaysPerWeek: number
   runsOutOn: string | null // "YYYY-MM-DD"
@@ -103,6 +103,7 @@ export type BudgetForecast = {
 
 export type OrderOverview = {
   accountingObject: string | null
+  closedAt: string | null // ISO timestamp when purchasing closed it; null = open
   forecast: BudgetForecast
   orderId: number
   code: string
@@ -133,7 +134,7 @@ export type OrderOverview = {
 export type OrderBudget = Pick<
   OrderOverview,
   | "orderId" | "code" | "title" | "budgetHours" | "bookedHours" | "remainingHours"
-  | "budgetPersonDays" | "bookedPersonDays" | "remainingPersonDays"
+  | "budgetPersonDays" | "bookedPersonDays" | "remainingPersonDays" | "closedAt"
   | "budgetCents" | "bookedCents" | "remainingCents" | "usedPercent" | "overBudget"
 >
 

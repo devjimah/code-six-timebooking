@@ -32,6 +32,7 @@ const toOrder = (r: typeof orders.$inferSelect): Order => ({
   startDate: r.startDate,
   endDate: r.endDate,
   accountingObject: r.accountingObject,
+  closedAt: r.closedAt,
 })
 const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   id: r.id,
@@ -121,7 +122,7 @@ export function userRepository(db: Db) {
 export function orderRepository(db: Db) {
   return {
     /** The accounting object is optional, as it is for orders placed before it existed. */
-    async create(data: Omit<NewOf<Order>, "accountingObject"> & { accountingObject?: string | null }) {
+    async create(data: Omit<NewOf<Order>, "accountingObject" | "closedAt"> & { accountingObject?: string | null }) {
       const [row] = await db.insert(orders).values(data).returning()
       return toOrder(row!)
     },
@@ -132,7 +133,7 @@ export function orderRepository(db: Db) {
     async findAll() {
       return (await db.select().from(orders).orderBy(asc(orders.code))).map(toOrder)
     },
-    async update(id: number, data: NewOf<Order>) {
+    async update(id: number, data: Partial<NewOf<Order>>) {
       const [row] = await db.update(orders).set(data).where(eq(orders.id, id)).returning()
       return toOrder(row!)
     },
@@ -278,6 +279,14 @@ export function timeEntryRepository(db: Db) {
         .where(and(inArray(timeEntries.orderId, orderIds), gte(timeEntries.workDate, fromDate)))
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
+    },
+    /** Minutes still being checked on this order, for closing it. */
+    async unapprovedMinutesForOrder(orderId: number) {
+      const [row] = await db
+        .select({ total: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)` })
+        .from(timeEntries)
+        .where(and(eq(timeEntries.orderId, orderId), ne(timeEntries.status, "approved")))
+      return Number(row?.total ?? 0)
     },
     /** Approved minutes per order, for purchasing's overview. Orders without approved bookings are missing. */
     async approvedMinutesPerOrder(orderIds: number[]) {

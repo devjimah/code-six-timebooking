@@ -12,6 +12,7 @@ const MAX_DAYS_AFTER_ORDER_END = 365 // no need to look further: the budget clea
 export type ForecastState =
   | "no_pace" // nothing booked in the last 4 weeks: there is no pace to forecast from
   | "ended" // the order's period is over
+  | "closed" // purchasing closed the order
   | "lasts" // the budget lasts until the order ends
   | "runs_out_early" // the budget is used up before the order ends
 
@@ -25,7 +26,7 @@ export type BudgetForecast = {
 }
 
 export function forecastBudget(input: {
-  order: { startDate: string; endDate: string; budgetHours: number }
+  order: { startDate: string; endDate: string; budgetHours: number; closedAt?: string | null }
   bookedMinutes: number
   minutesInPaceWindow: number // booked on this order in the last PACE_WINDOW_DAYS days, up to today
   today: string // "YYYY-MM-DD"
@@ -41,6 +42,7 @@ export function forecastBudget(input: {
     orderMoreBy: null,
     leadTimeWeeks: input.leadTimeWeeks,
   }
+  if (order.closedAt) return { ...forecast, state: "closed" }
   if (today > order.endDate) return { ...forecast, state: "ended" }
 
   const remaining = order.budgetHours * 60 - input.bookedMinutes

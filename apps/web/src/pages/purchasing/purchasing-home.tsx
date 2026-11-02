@@ -27,7 +27,7 @@ export function PurchasingHome() {
   const today = todayInCompanyTimeZone()
   const list = orders.data ?? []
 
-  const running = list.filter((o) => o.startDate <= today && today <= o.endDate)
+  const running = list.filter((o) => o.startDate <= today && today <= o.endDate && !o.closedAt)
   const budgetCents = list.reduce((s, o) => s + o.budgetCents, 0)
   const bookedCents = list.reduce((s, o) => s + o.bookedCents, 0)
   const stats = [
@@ -56,7 +56,7 @@ export function PurchasingHome() {
   }
 
   const lowBudget = list
-    .filter((o) => o.usedPercent >= ATTENTION_PERCENT)
+    .filter((o) => o.usedPercent >= ATTENTION_PERCENT && !o.closedAt)
     .sort((a, b) => b.usedPercent - a.usedPercent)
   const endingSoon = running
     .filter((o) => daysBetween(today, o.endDate) <= ENDING_SOON_DAYS)

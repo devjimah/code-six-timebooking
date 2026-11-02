@@ -401,7 +401,9 @@
       "view_unavailable": "Nicht verfügbare Tage einer Bestellung angesehen",
       "view_proof": "Leistungsnachweis angesehen",
       "export_proof": "Leistungsnachweis heruntergeladen",
-      "check_invoice": "Rechnung geprüft"
+      "check_invoice": "Rechnung geprüft",
+      "close": "Bestellung abgeschlossen",
+      "reopen": "Bestellung wieder geöffnet"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -469,7 +471,16 @@
     "approvalSplit": "{{approved}} freigegeben · {{open}} noch nicht",
     "accountingObject": "Kostenstelle oder PSP-Element",
     "accountingObjectPlaceholder": "z. B. CC-4100 oder P-2026-0815.03",
-    "accountingObjectHint": "Wer diese Bestellung im Unternehmen bezahlt. Optional."
+    "accountingObjectHint": "Wer diese Bestellung im Unternehmen bezahlt. Optional.",
+    "closed": "Abgeschlossen",
+    "close": "Bestellung abschließen",
+    "reopen": "Bestellung wieder öffnen",
+    "closedNow": "Bestellung {{code}} abgeschlossen.",
+    "reopened": "Bestellung {{code}} wieder geöffnet.",
+    "showClosed": "Abgeschlossene Bestellungen zeigen",
+    "hideClosed": "Abgeschlossene Bestellungen ausblenden",
+    "followUpOf": "Folgebestellung zu {{code}}",
+    "followUpDescription": "Ein Vorschlag aus der bestehenden Bestellung für das, was ihrem Budget fehlt. Ändern Sie alles Nötige, bevor Sie anlegen."
   },
   "myOrders": {
     "description": "Die Bestellungen, für die Sie verantwortlich sind. Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen.",
@@ -641,7 +652,9 @@
     "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern.",
     "DAY_MARKED_UNAVAILABLE": "Buchung abgelehnt: Sie haben diesen Tag als nicht verfügbar markiert. Entfernen Sie zuerst die Markierung, wenn Sie an diesem Tag gearbeitet haben.",
     "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren.",
-    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Nur Berater haben ein Bundesland des Arbeitsorts, wegen ihrer Feiertage. Lassen Sie es leer."
+    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Nur Berater haben ein Bundesland des Arbeitsorts, wegen ihrer Feiertage. Lassen Sie es leer.",
+    "ORDER_CLOSED": "Diese Bestellung ist abgeschlossen. Der Einkauf kann sie wieder öffnen.",
+    "ORDER_HAS_UNAPPROVED_BOOKINGS": "Diese Bestellung hat noch offene oder zurückgegebene Buchungen. Die Projektleitung muss sie zuerst prüfen."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
@@ -652,7 +665,8 @@
     "orderNow": "Jetzt nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
     "lasts": "Bei diesem Tempo reicht das Budget bis zum Ende der Bestellung am {{end}}.",
     "noPace": "In den letzten 4 Wochen wurde nichts gebucht, daher gibt es kein Tempo für eine Prognose.",
-    "ended": "Diese Bestellung endete am {{end}}."
+    "ended": "Diese Bestellung endete am {{end}}.",
+    "closed": "Diese Bestellung ist abgeschlossen."
   },
   "unavailable": {
     "title": "Tage, an denen ich nicht verfügbar bin",
