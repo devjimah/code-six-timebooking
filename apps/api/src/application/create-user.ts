@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs"
 import { DomainError } from "../domain/errors.js"
 import type { Role, User } from "../domain/models.js"
-import { assertSupplierMatchesRole } from "../domain/rules/account.js"
+import { assertSupplierMatchesRole, assertWorkStateMatchesRole } from "../domain/rules/account.js"
 import type { Db } from "../persistence/db.js"
 import { supplierRepository, userRepository } from "../persistence/repositories.js"
 
@@ -12,11 +12,13 @@ export type NewAccount = {
   name: string
   role: Role
   supplierId: number | null
+  workState: User["workState"]
   initialPassword: string
 }
 
 export async function createUser(db: Db, input: NewAccount): Promise<User> {
   assertSupplierMatchesRole(input)
+  assertWorkStateMatchesRole(input)
 
   if (input.supplierId !== null && !(await supplierRepository(db).findById(input.supplierId))) {
     throw new DomainError("SUPPLIER_NOT_FOUND", `Supplier ${input.supplierId} does not exist.`)
@@ -33,6 +35,7 @@ export async function createUser(db: Db, input: NewAccount): Promise<User> {
     name: input.name,
     role: input.role,
     supplierId: input.supplierId,
+    workState: input.workState,
     passwordHash,
     // The admin knows this password, so the person chooses their own at the first sign-in (step 5).
     mustChangePassword: true,

@@ -4,6 +4,13 @@
 import { DomainError } from "../errors.js"
 import type { User } from "../models.js"
 
+/** The work state decides which holidays a booking must respect, so it only means something for someone who books. */
+export function assertWorkStateMatchesRole(account: Pick<User, "role" | "workState">): void {
+  if (account.role !== "consultant" && account.workState !== null) {
+    throw new DomainError("WORK_STATE_ONLY_FOR_CONSULTANTS", "Only consultants have a work state, for their public holidays. Leave it empty.")
+  }
+}
+
 export function assertSupplierMatchesRole(account: Pick<User, "role" | "supplierId">): void {
   if (account.role === "consultant" && account.supplierId === null) {
     throw new DomainError("CONSULTANT_NEEDS_SUPPLIER", "A consultant must belong to a supplier. Choose the consultant's company.")

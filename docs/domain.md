@@ -22,7 +22,7 @@ The words used in the code, the API and the UI (German in brackets, as in the ap
 | Unavailable day (nicht verfügbarer Tag) | A date a consultant marks as not available, never saying why. Nobody books on it, and the forecast counts it ([ADR 0016](adr/0016-unavailable-days.md)). |
 | Accounting object (Kostenstelle, PSP-Element) | The cost centre or project element that pays for an order inside the client company. Stored on the order as a code. |
 | Person-day (PD, Personentag) | 8 hours. Budgets are shown in hours and person-days; the database stores hours and minutes. |
-| Public holiday (Feiertag) | A day on which nobody may book. Today: the holidays valid in every German state, computed in code, not stored ([public-holidays.ts](../apps/api/src/domain/public-holidays.ts)). |
+| Public holiday (Feiertag) | A day on which a consultant may not book: the nationwide holidays plus those of the state they work in. Computed in code, not stored ([public-holidays.ts](../apps/api/src/domain/public-holidays.ts), [ADR 0019](adr/0019-public-holidays-per-state.md)). |
 | Working Time Act (ArbZG) | The German law behind several booking rules: at most 10 hours per day, 11 hours rest between working days, no work on Sundays and public holidays. |
 | Audit event | One row per API request: who did what, when, and whether it was allowed. Append-only ([ADR 0012](adr/0012-audit-log.md)). |
 
@@ -54,6 +54,7 @@ erDiagram
         string name
         string role "consultant | project_manager | purchasing | admin"
         int supplier_id FK "consultants only"
+        string work_state "consultants only, for public holidays"
         string password_hash
         string deactivated_at "null = active"
         bool must_change_password

@@ -4,12 +4,17 @@
 export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
 export type Role = (typeof ROLES)[number]
 
+// The 16 German states; public holidays differ between them (ADR 0019).
+export const GERMAN_STATES = ["BW", "BY", "BE", "BB", "HB", "HH", "HE", "MV", "NI", "NW", "RP", "SL", "SN", "ST", "SH", "TH"] as const
+export type GermanState = (typeof GERMAN_STATES)[number]
+
 export type User = {
   id: number
   email: string
   name: string
   role: Role
   supplierId: number | null
+  workState: GermanState | null
   deactivatedAt: string | null // ISO timestamp; null = active
   mustChangePassword: boolean // an admin chose the password; the person must replace it first (step 5)
 }

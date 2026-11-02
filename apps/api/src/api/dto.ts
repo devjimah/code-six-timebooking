@@ -4,6 +4,7 @@
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { BudgetForecast } from "../domain/forecast.js"
+import { GERMAN_STATES } from "../domain/public-holidays.js"
 import type { OrderInvoiceCheck, ProofOfWork } from "../application/proof-of-work.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
@@ -28,6 +29,7 @@ export const userResponse = z.object({
   name: z.string(),
   role: z.enum(ROLES),
   supplierId: z.number().int().nullable(),
+  workState: z.enum(GERMAN_STATES).nullable().meta({ description: "German state a consultant works in, for public holidays" }),
   deactivatedAt: z.string().nullable().meta({ description: "ISO timestamp; null = active" }),
   mustChangePassword: z.boolean().meta({ description: "An admin chose the password; the person must replace it first" }),
 })
@@ -39,6 +41,7 @@ export const toUserResponse = (user: User): UserResponse => ({
   name: user.name,
   role: user.role,
   supplierId: user.supplierId,
+  workState: user.workState,
   deactivatedAt: user.deactivatedAt,
   mustChangePassword: user.mustChangePassword,
 })
@@ -54,6 +57,8 @@ export const createUserRequest = z.object({
   role: z.enum(ROLES),
   // Required for consultants, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
   supplierId: z.number().int().positive().nullable().default(null),
+  // Only for consultants; leaving it out means only the nationwide holidays count (ADR 0019).
+  workState: z.enum(GERMAN_STATES).nullable().default(null),
   password: password.meta({ description: "Initial password; the admin hands it to the person" }),
 })
 

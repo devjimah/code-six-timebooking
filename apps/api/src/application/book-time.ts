@@ -53,7 +53,7 @@ export async function checkBookingRules(
   // Cheap checks first: they need no database. The duration is derived from the times (ADR 0010).
   const durationMinutes = workedMinutes(input)
   assertNotInFuture({ workDate: input.workDate, today })
-  assertWorkingDay(input.workDate)
+  assertWorkingDay(input.workDate, consultant.workState)
 
   const order = await orderRepository(db).findById(input.orderId)
   if (!order) {

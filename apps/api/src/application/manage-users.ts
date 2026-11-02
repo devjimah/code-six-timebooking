@@ -2,13 +2,14 @@
 // Creating accounts is in create-user.ts. The role check (admin only) is in the route; the rules are in the domain.
 import { DomainError } from "../domain/errors.js"
 import type { Role, User } from "../domain/models.js"
-import { assertSupplierMatchesRole } from "../domain/rules/account.js"
+import { assertSupplierMatchesRole, assertWorkStateMatchesRole } from "../domain/rules/account.js"
 import { assertNoManagedOrders, assertNotOwnAccount, assertRoleChangeAllowed } from "../domain/rules/account-change.js"
 import type { Db } from "../persistence/db.js"
 import { orderRepository, supplierRepository, timeEntryRepository, userRepository } from "../persistence/repositories.js"
 import { NotFoundError } from "./errors.js"
 
 export type AccountChanges = {
+  workState: User["workState"]
   email: string
   name: string
   role: Role
@@ -29,6 +30,7 @@ export async function updateUser(db: Db, admin: User, id: number, changes: Accou
   const current = await loadUser(db, id)
 
   assertSupplierMatchesRole(changes)
+  assertWorkStateMatchesRole(changes)
   if (changes.supplierId !== null && !(await supplierRepository(db).findById(changes.supplierId))) {
     throw new DomainError("SUPPLIER_NOT_FOUND", `Supplier ${changes.supplierId} does not exist.`)
   }

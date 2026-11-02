@@ -294,7 +294,10 @@
     "resetDescription": "Geben Sie ein neues Passwort ein und geben Sie es der Person persönlich weiter. Sie wird überall sofort abgemeldet und wählt bei der nächsten Anmeldung ein eigenes Passwort.",
     "newPassword": "Neues Passwort",
     "passwordReset": "Passwort von {{name}} zurückgesetzt. Die Person ist abgemeldet.",
-    "resetHint": "10 bis 72 Zeichen."
+    "resetHint": "10 bis 72 Zeichen.",
+    "workState": "Bundesland des Arbeitsorts",
+    "noWorkState": "Nur bundesweite Feiertage",
+    "workStateHint": "Feiertage unterscheiden sich je Bundesland. Buchungen an einem Feiertag dieses Landes werden abgelehnt."
   },
   "audit": {
     "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
@@ -637,7 +640,8 @@
     "BOOKING_APPROVED": "Diese Buchung ist freigegeben und kann nicht mehr geändert oder gelöscht werden.",
     "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern.",
     "DAY_MARKED_UNAVAILABLE": "Buchung abgelehnt: Sie haben diesen Tag als nicht verfügbar markiert. Entfernen Sie zuerst die Markierung, wenn Sie an diesem Tag gearbeitet haben.",
-    "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren."
+    "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren.",
+    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Nur Berater haben ein Bundesland des Arbeitsorts, wegen ihrer Feiertage. Lassen Sie es leer."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
@@ -683,5 +687,23 @@
     },
     "approved": "Freigegeben: {{hours}} = {{amount}}. Berechnet: {{invoiced}}.",
     "notApproved": "{{hours}} dieses Monats sind noch offen oder zurückgegeben; die Projektleitung ist also vielleicht noch nicht fertig."
+  },
+  "states": {
+    "BW": "Baden-Württemberg",
+    "BY": "Bayern",
+    "BE": "Berlin",
+    "BB": "Brandenburg",
+    "HB": "Bremen",
+    "HH": "Hamburg",
+    "HE": "Hessen",
+    "MV": "Mecklenburg-Vorpommern",
+    "NI": "Niedersachsen",
+    "NW": "Nordrhein-Westfalen",
+    "RP": "Rheinland-Pfalz",
+    "SL": "Saarland",
+    "SN": "Sachsen",
+    "ST": "Sachsen-Anhalt",
+    "SH": "Schleswig-Holstein",
+    "TH": "Thüringen"
   }
 }

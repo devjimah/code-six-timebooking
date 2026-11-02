@@ -3,6 +3,7 @@
 // which map these rows to domain types in src/domain/.
 import { sql } from "drizzle-orm"
 import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core"
+import { GERMAN_STATES } from "../domain/public-holidays.js"
 
 // Roles are a fixed list, so we store them as text with a CHECK-like enum
 // instead of a separate table. Who may do what: docs/roles-and-privacy.md.
@@ -29,6 +30,8 @@ export const users = sqliteTable("users", {
   role: text("role", { enum: ROLES }).notNull(),
   // Only consultants belong to a supplier; null for client-side roles.
   supplierId: integer("supplier_id").references(() => suppliers.id),
+  // The German state a consultant works in, for the public holidays (ADR 0019); null = only the nationwide ones.
+  workState: text("work_state", { enum: GERMAN_STATES }),
   // Set when an admin deactivates the account (step 4). The person can no longer sign in; their bookings stay.
   deactivatedAt: text("deactivated_at"),
   // Step 5: a password chosen by an admin (new account or reset) must be replaced by the person at the next sign-in.

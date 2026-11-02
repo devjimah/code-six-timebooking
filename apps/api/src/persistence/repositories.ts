@@ -16,6 +16,7 @@ const toUser = (r: typeof users.$inferSelect): User => ({
   name: r.name,
   role: r.role,
   supplierId: r.supplierId,
+  workState: r.workState,
   deactivatedAt: r.deactivatedAt,
   mustChangePassword: r.mustChangePassword,
 })
@@ -71,7 +72,11 @@ export function userRepository(db: Db) {
   return {
     /** New accounts are always active. `mustChangePassword` is false unless given (the seeded demo users). */
     async create(
-      data: Omit<NewOf<User>, "deactivatedAt" | "mustChangePassword"> & { passwordHash: string; mustChangePassword?: boolean },
+      data: Omit<NewOf<User>, "deactivatedAt" | "mustChangePassword" | "workState"> & {
+        passwordHash: string
+        mustChangePassword?: boolean
+        workState?: User["workState"]
+      },
     ) {
       const [row] = await db.insert(users).values(data).returning()
       return toUser(row!)

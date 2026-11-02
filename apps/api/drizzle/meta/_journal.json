@@ -71,6 +71,13 @@
       "when": 1793623394258,
       "tag": "0009_order_accounting_object",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1793625172714,
+      "tag": "0010_work_state",
+      "breakpoints": true
     }
   ]
 }

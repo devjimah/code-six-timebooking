@@ -79,6 +79,7 @@ describe("admin creates an account", () => {
       name: "Nina Neu",
       role: "consultant",
       supplierId: acmeId,
+      workState: null, // no state given: only the nationwide holidays count
       deactivatedAt: null, // new accounts are active
       mustChangePassword: true, // the admin knows the initial password, so the person chooses their own (step 5)
     })

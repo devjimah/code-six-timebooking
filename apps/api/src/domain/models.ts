@@ -4,6 +4,10 @@
 
 export type Role = "consultant" | "project_manager" | "purchasing" | "admin"
 
+/** The 16 German states, by their official abbreviations. Public holidays differ between them (ticket #66). */
+export type GermanState =
+  | "BW" | "BY" | "BE" | "BB" | "HB" | "HH" | "HE" | "MV" | "NI" | "NW" | "RP" | "SL" | "SN" | "ST" | "SH" | "TH"
+
 export interface Supplier {
   id: number
   name: string
@@ -15,6 +19,8 @@ export interface User {
   name: string
   role: Role
   supplierId: number | null
+  /** Where a consultant works, for the public holidays. Null: only the nationwide ones count. */
+  workState: GermanState | null
   /** ISO timestamp when an admin deactivated the account; null = active. Accounts are never deleted. */
   deactivatedAt: string | null
   /** True after an admin chose the password (new account or reset): the person must pick their own first. */

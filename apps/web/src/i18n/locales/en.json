@@ -294,7 +294,10 @@
     "resetDescription": "Type a new password and hand it to the person yourself. They are signed out everywhere at once and choose their own password at the next sign-in.",
     "newPassword": "New password",
     "passwordReset": "Password of {{name}} reset. The person is signed out.",
-    "resetHint": "10 to 72 characters."
+    "resetHint": "10 to 72 characters.",
+    "workState": "Work state",
+    "noWorkState": "Nationwide holidays only",
+    "workStateHint": "Public holidays differ between states. Bookings on a holiday of this state are refused."
   },
   "audit": {
     "description": "Every action in the API: who, what, on what, with which result and why – newest first. Tap a row for all details.",
@@ -637,7 +640,8 @@
     "BOOKING_APPROVED": "This booking is approved and can no longer be changed or deleted.",
     "NOT_YOUR_BOOKING": "You can only change your own bookings.",
     "DAY_MARKED_UNAVAILABLE": "Booking rejected: you marked this day as unavailable. Remove the mark first if you worked that day.",
-    "DAY_HAS_BOOKINGS": "You already booked time on this day. Delete the booking first if you were not available."
+    "DAY_HAS_BOOKINGS": "You already booked time on this day. Delete the booking first if you were not available.",
+    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Only consultants have a work state, for their public holidays. Leave it empty."
   },
   "forecast": {
     "title": "How long the budget lasts",
@@ -683,5 +687,23 @@
     },
     "approved": "Approved: {{hours}} = {{amount}}. Invoiced: {{invoiced}}.",
     "notApproved": "{{hours}} of this month are still open or returned, so the project manager may not have finished checking."
+  },
+  "states": {
+    "BW": "Baden-Württemberg",
+    "BY": "Bavaria",
+    "BE": "Berlin",
+    "BB": "Brandenburg",
+    "HB": "Bremen",
+    "HH": "Hamburg",
+    "HE": "Hesse",
+    "MV": "Mecklenburg-Western Pomerania",
+    "NI": "Lower Saxony",
+    "NW": "North Rhine-Westphalia",
+    "RP": "Rhineland-Palatinate",
+    "SL": "Saarland",
+    "SN": "Saxony",
+    "ST": "Saxony-Anhalt",
+    "SH": "Schleswig-Holstein",
+    "TH": "Thuringia"
   }
 }
