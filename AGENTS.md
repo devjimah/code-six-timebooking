@@ -61,10 +61,10 @@ The skills live in `.claude/skills/`. Claude Code and GitHub Copilot (VS Code ag
 
 The team fills this in once the stack is chosen. Keep it short and exact.
 
-- Product: TODO
-- Track: TODO (code / mockup / concept)
-- Stack: TODO
-- Install: `TODO`
-- Run: `TODO`
-- Test: `TODO`
-- Folder structure: TODO
+- Product: code-six timebooking – consultants book time on orders; project managers and purchasing see the budget and how long it lasts
+- Track: code
+- Stack: TypeScript monorepo (npm workspaces, Turborepo); API: Express, Drizzle, SQLite (libsql), zod, Vitest; web: Vite, React, shadcn/ui, i18next
+- Install: `npm install`, then `npm run db:migrate -w api`
+- Run: `npm run dev -w api` and `npm run dev -w web`, or `docker compose up --build`
+- Test: `npm test` (also `npm run typecheck`, `npm run lint`, `npm run build`; CI runs them all)
+- Folder structure: `apps/api/src/` `api/` (routes, DTOs), `application/` (use cases), `domain/` (rules, calculations), `persistence/` (schema, repositories, seed), `audit/`, `auth/`; `apps/web/src/`; `packages/ui/` (shadcn); `docs/` (ADRs, domain, roles)
