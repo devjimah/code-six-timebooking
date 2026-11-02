@@ -24,7 +24,7 @@ export function AppLayout() {
         <header className="bg-background sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <h1 className="truncate font-medium">{current ? t(current.labelKey) : t("app.title")}</h1>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <NotificationBell />
             <LanguageSwitcher />
           </div>
