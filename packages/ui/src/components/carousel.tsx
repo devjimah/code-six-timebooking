@@ -93,6 +93,7 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- shadcn's carousel reads its first state from Embla here
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)
