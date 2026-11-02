@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Time booking",
+    "title": "code-six timebooking",
     "tagline": "Every hour you buy, in view: book time, check budgets, reorder in time."
   },
   "language": {
@@ -18,6 +18,155 @@
     "failed": "Sign-in failed",
     "noAccount": "No account yet? Your admin creates it for you.",
     "demoHint": "Demo accounts (development only, password demo1234):"
+  },
+  "landing": {
+    "headline": "Every hour you buy, in view.",
+    "closing": "Know your budget before the invoice arrives.",
+    "example": {
+      "title": "Cloud migration",
+      "booked": "{{booked}} of {{budget}} booked",
+      "book": "Book {{hours}}",
+      "startOver": "Start over",
+      "hint": "Try it: an example order, nothing is saved."
+    },
+    "metrics": {
+      "label": "The product in numbers",
+      "instant": {
+        "value": "0 days",
+        "label": "from a booking to the updated budget"
+      },
+      "checks": {
+        "value": "9 checks",
+        "label": "on the server before a booking counts"
+      },
+      "leadTime": {
+        "value": "4 weeks",
+        "label": "order-more date ahead of the budget's end"
+      },
+      "roles": {
+        "value": "4 roles",
+        "label": "each seeing only what it needs"
+      }
+    },
+    "how": {
+      "title": "How it works",
+      "description": "One flow, from the order to the budget, with both sides working on the same hours.",
+      "previous": "Previous step",
+      "next": "Next step",
+      "goTo": "Go to position {{number}}",
+      "order": {
+        "title": "Purchasing places the order",
+        "text": "Budget in hours, hourly rate, period and the responsible project manager."
+      },
+      "book": {
+        "title": "The consultant books",
+        "text": "A day's work with a short description, on an order of their own company."
+      },
+      "check": {
+        "title": "The server checks the rules",
+        "text": "The order and the German Working Time Act, before the booking counts. Every refusal says why."
+      },
+      "approve": {
+        "title": "The project manager approves",
+        "text": "The booking is on the order at once, with the hours, person-days and euros left. It can be approved or returned."
+      },
+      "forecast": {
+        "title": "Purchasing orders more in time",
+        "text": "The forecast shows how long the budget lasts and by when to order more."
+      }
+    },
+    "rules": {
+      "title": "Rules before the booking counts",
+      "description": "Every booking is checked against the order and the German Working Time Act. A refused booking says why, so nobody has to correct it later. Pick one and see.",
+      "label": "Choose a booking that breaks a rule",
+      "scenarios": {
+        "longDay": "11 hours in a day",
+        "sunday": "Work on a Sunday",
+        "shortRest": "8 hours of rest",
+        "future": "A date next week",
+        "overlap": "Overlapping times",
+        "otherCompany": "Another company's order"
+      }
+    },
+    "roles": {
+      "title": "One booking, four views",
+      "description": "Each role sees what it needs, no more. Start and end times stay with the consultant, and the admin runs the system without seeing any business data. Switch roles and compare.",
+      "label": "Choose a role",
+      "hidden": "Not visible",
+      "startEnd": "Start and end",
+      "hours": "Hours",
+      "work": "Work done",
+      "budget": "Budget left",
+      "audit": "Audit log",
+      "orderTotal": "{{hours}} on the order",
+      "sampleDescription": "Legacy data reconciliation",
+      "auditValue": "Who did what, and when",
+      "wants": {
+        "project_manager": "Checks and approves the work on their own orders and watches the budget.",
+        "consultant": "Books their own time and knows at once if a booking breaks a rule.",
+        "purchasing": "Places orders and sees totals across all orders, to order more in time.",
+        "admin": "Manages accounts and reads the audit log."
+      },
+      "play": "Play the role tour",
+      "pause": "Pause the role tour"
+    },
+    "ahead": {
+      "title": "Know when to order more",
+      "description": "How long does the budget last at the current pace? The forecast uses the last 4 weeks of bookings and gives purchasing a date to act by. Change the pace and watch the answer move.",
+      "label": "Choose a pace",
+      "pace": "{{hours}} a week",
+      "lasts": "Lasts {{weeks}} weeks",
+      "remaining": "{{hours}} left",
+      "orderEnds": "Order ends in {{weeks}} weeks",
+      "short": "Runs out {{weeks}} weeks before the order ends",
+      "orderIn": "Order more within {{weeks}} weeks: purchasing needs {{lead}} weeks.",
+      "orderNow": "Order more now: purchasing needs {{lead}} weeks.",
+      "enough": "The budget lasts until the order ends."
+    },
+    "why": {
+      "title": "Why choose it",
+      "description": "Today the answers come from spreadsheets, an old tool and the monthly invoice.",
+      "question": "The question",
+      "before": "Today",
+      "budget": {
+        "question": "How much budget is left?",
+        "before": "Known when the monthly invoice arrives",
+        "now": "Up to date with every booking, in hours, person-days and euros"
+      },
+      "rules": {
+        "question": "Is this booking allowed?",
+        "before": "Found out and corrected later",
+        "now": "Checked before it counts, with the reason if it is refused"
+      },
+      "reorder": {
+        "question": "When do we order more?",
+        "before": "Noticed too late, then weeks to place the order",
+        "now": "A date to order by, 4 weeks before the budget runs out"
+      },
+      "approval": {
+        "question": "Has the work been checked?",
+        "before": "Invoices compared with timesheets by hand",
+        "now": "The project manager approves each booking; purchasing sees the approved hours"
+      }
+    },
+    "photos": "Photos: Unsplash",
+    "hero": {
+      "label": "Choose a photo and message",
+      "play": "Play the photos",
+      "pause": "Pause the photos",
+      "book": {
+        "label": "Book time",
+        "text": "Consultants book their working time and know at once if a booking breaks a rule."
+      },
+      "check": {
+        "label": "Check budgets",
+        "text": "Project managers see every booked hour and the budget left, without waiting for the invoice."
+      },
+      "reorder": {
+        "label": "Reorder in time",
+        "text": "Purchasing sees which budgets run out early, and by when to order more."
+      }
+    }
   },
   "home": {
     "welcome": "Welcome, {{name}}",

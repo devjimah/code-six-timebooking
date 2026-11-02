@@ -1,6 +1,7 @@
 // Sign-in screen. There is no sign-up: admins create accounts (ADR 0004).
 import * as React from "react"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router"
 import { CircleAlert, Clock } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
@@ -39,10 +40,10 @@ export function LoginPage() {
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6">
       <div className="flex w-full max-w-sm items-center justify-between">
-        <div className="text-primary flex items-center gap-2 font-medium">
+        <Link to="/" className="text-primary flex items-center gap-2 font-medium">
           <Clock className="size-5" aria-hidden />
           {t("app.title")}
-        </div>
+        </Link>
         <LanguageSwitcher />
       </div>
 

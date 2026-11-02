@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Zeiterfassung",
+    "title": "code-six timebooking",
     "tagline": "Jede eingekaufte Stunde im Blick: Zeiten buchen, Budgets prüfen, rechtzeitig nachbestellen."
   },
   "language": {
@@ -18,6 +18,155 @@
     "failed": "Anmeldung fehlgeschlagen",
     "noAccount": "Noch kein Konto? Ihr Admin legt es für Sie an.",
     "demoHint": "Demo-Zugänge (nur Entwicklung, Passwort demo1234):"
+  },
+  "landing": {
+    "headline": "Jede eingekaufte Stunde im Blick.",
+    "closing": "Sehen Sie Ihr Budget, bevor die Rechnung kommt.",
+    "example": {
+      "title": "Cloud-Migration",
+      "booked": "{{booked}} von {{budget}} gebucht",
+      "book": "{{hours}} buchen",
+      "startOver": "Von vorn beginnen",
+      "hint": "Probieren Sie es aus: eine Beispielbestellung, nichts wird gespeichert."
+    },
+    "metrics": {
+      "label": "Das Produkt in Zahlen",
+      "instant": {
+        "value": "0 Tage",
+        "label": "von der Buchung bis zum aktuellen Budget"
+      },
+      "checks": {
+        "value": "9 Prüfungen",
+        "label": "auf dem Server, bevor eine Buchung zählt"
+      },
+      "leadTime": {
+        "value": "4 Wochen",
+        "label": "Nachbestelltermin vor dem Ende des Budgets"
+      },
+      "roles": {
+        "value": "4 Rollen",
+        "label": "jede sieht nur, was sie braucht"
+      }
+    },
+    "how": {
+      "title": "So funktioniert es",
+      "description": "Ein Ablauf von der Bestellung bis zum Budget, beide Seiten arbeiten mit denselben Stunden.",
+      "previous": "Vorheriger Schritt",
+      "next": "Nächster Schritt",
+      "goTo": "Zu Position {{number}}",
+      "order": {
+        "title": "Der Einkauf legt die Bestellung an",
+        "text": "Budget in Stunden, Stundensatz, Zeitraum und die verantwortliche Projektleitung."
+      },
+      "book": {
+        "title": "Der Berater bucht",
+        "text": "Einen Arbeitstag mit kurzer Beschreibung, auf eine Bestellung der eigenen Firma."
+      },
+      "check": {
+        "title": "Der Server prüft die Regeln",
+        "text": "Die Bestellung und das Arbeitszeitgesetz, bevor die Buchung zählt. Jede Ablehnung nennt den Grund."
+      },
+      "approve": {
+        "title": "Die Projektleitung genehmigt",
+        "text": "Die Buchung steht sofort auf der Bestellung, mit den freien Stunden, Personentagen und Euro. Sie kann genehmigt oder zurückgegeben werden."
+      },
+      "forecast": {
+        "title": "Der Einkauf bestellt rechtzeitig nach",
+        "text": "Die Prognose zeigt, wie lange das Budget reicht und bis wann nachzubestellen ist."
+      }
+    },
+    "rules": {
+      "title": "Regeln, bevor die Buchung zählt",
+      "description": "Jede Buchung wird gegen die Bestellung und das Arbeitszeitgesetz geprüft. Eine abgelehnte Buchung nennt den Grund, niemand muss später korrigieren. Wählen Sie eine aus.",
+      "label": "Eine Buchung wählen, die gegen eine Regel verstößt",
+      "scenarios": {
+        "longDay": "11 Stunden an einem Tag",
+        "sunday": "Arbeit am Sonntag",
+        "shortRest": "8 Stunden Ruhezeit",
+        "future": "Ein Datum nächste Woche",
+        "overlap": "Überlappende Zeiten",
+        "otherCompany": "Bestellung einer anderen Firma"
+      }
+    },
+    "roles": {
+      "title": "Eine Buchung, vier Ansichten",
+      "description": "Jede Rolle sieht, was sie braucht, und nicht mehr. Beginn und Ende bleiben beim Berater, der Admin betreibt das System, ohne Geschäftsdaten zu sehen. Wechseln Sie die Rolle und vergleichen Sie.",
+      "label": "Rolle wählen",
+      "hidden": "Nicht sichtbar",
+      "startEnd": "Beginn und Ende",
+      "hours": "Stunden",
+      "work": "Tätigkeit",
+      "budget": "Freies Budget",
+      "audit": "Audit-Log",
+      "orderTotal": "{{hours}} auf der Bestellung",
+      "sampleDescription": "Abgleich der Altdaten",
+      "auditValue": "Wer wann was getan hat",
+      "wants": {
+        "project_manager": "Prüft und genehmigt die Arbeit auf den eigenen Bestellungen und behält das Budget im Blick.",
+        "consultant": "Bucht die eigene Zeit und weiß sofort, wenn eine Buchung gegen eine Regel verstößt.",
+        "purchasing": "Legt Bestellungen an und sieht die Summen aller Bestellungen, um rechtzeitig nachzubestellen.",
+        "admin": "Verwaltet Konten und liest das Audit-Log."
+      },
+      "play": "Rollen-Rundgang abspielen",
+      "pause": "Rollen-Rundgang anhalten"
+    },
+    "ahead": {
+      "title": "Wissen, wann nachzubestellen ist",
+      "description": "Wie lange reicht das Budget beim aktuellen Tempo? Die Prognose nutzt die Buchungen der letzten 4 Wochen und nennt dem Einkauf einen Termin. Ändern Sie das Tempo und sehen Sie, wie sich die Antwort ändert.",
+      "label": "Tempo wählen",
+      "pace": "{{hours}} pro Woche",
+      "lasts": "Reicht {{weeks}} Wochen",
+      "remaining": "noch {{hours}}",
+      "orderEnds": "Bestellung endet in {{weeks}} Wochen",
+      "short": "Endet {{weeks}} Wochen vor der Bestellung",
+      "orderIn": "Innerhalb von {{weeks}} Wochen nachbestellen: Der Einkauf braucht {{lead}} Wochen.",
+      "orderNow": "Jetzt nachbestellen: Der Einkauf braucht {{lead}} Wochen.",
+      "enough": "Das Budget reicht bis zum Ende der Bestellung."
+    },
+    "why": {
+      "title": "Warum dieses Produkt",
+      "description": "Heute kommen die Antworten aus Tabellen, einem alten Tool und der Monatsrechnung.",
+      "question": "Die Frage",
+      "before": "Heute",
+      "budget": {
+        "question": "Wie viel Budget ist noch frei?",
+        "before": "Bekannt, wenn die Monatsrechnung kommt",
+        "now": "Mit jeder Buchung aktuell, in Stunden, Personentagen und Euro"
+      },
+      "rules": {
+        "question": "Ist diese Buchung erlaubt?",
+        "before": "Später bemerkt und korrigiert",
+        "now": "Geprüft, bevor sie zählt, mit Begründung bei einer Ablehnung"
+      },
+      "reorder": {
+        "question": "Wann bestellen wir nach?",
+        "before": "Zu spät bemerkt, dann Wochen bis zur Bestellung",
+        "now": "Ein Nachbestelltermin, 4 Wochen bevor das Budget endet"
+      },
+      "approval": {
+        "question": "Wurde die Arbeit geprüft?",
+        "before": "Rechnungen von Hand mit Stundenzetteln verglichen",
+        "now": "Die Projektleitung genehmigt jede Buchung, der Einkauf sieht die genehmigten Stunden"
+      }
+    },
+    "photos": "Fotos: Unsplash",
+    "hero": {
+      "label": "Foto und Botschaft wählen",
+      "play": "Fotos abspielen",
+      "pause": "Fotos anhalten",
+      "book": {
+        "label": "Zeiten buchen",
+        "text": "Berater buchen ihre Arbeitszeit und wissen sofort, wenn eine Buchung gegen eine Regel verstößt."
+      },
+      "check": {
+        "label": "Budgets prüfen",
+        "text": "Die Projektleitung sieht jede gebuchte Stunde und das freie Budget, ohne auf die Rechnung zu warten."
+      },
+      "reorder": {
+        "label": "Rechtzeitig nachbestellen",
+        "text": "Der Einkauf sieht, welche Budgets zu früh enden und bis wann nachzubestellen ist."
+      }
+    }
   },
   "home": {
     "welcome": "Willkommen, {{name}}",

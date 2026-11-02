@@ -13,7 +13,7 @@ import { OrdersPage } from "@/pages/purchasing/orders-page.tsx"
 import { SuppliersPage } from "@/pages/purchasing/suppliers-page.tsx"
 import { ChangePasswordPage } from "@/pages/change-password-page.tsx"
 import { LoginPage } from "@/pages/login-page.tsx"
-import { CHANGE_PASSWORD_PATH, RedirectIfSignedIn, RequireAuth, RequireRole, RequireSession } from "@/routes/guards.tsx"
+import { CHANGE_PASSWORD_PATH, LandingIfSignedOut, RedirectIfSignedIn, RequireAuth, RequireRole, RequireSession } from "@/routes/guards.tsx"
 
 export function App() {
   const { loading } = useAuth()
@@ -33,24 +33,26 @@ export function App() {
           <Route path={CHANGE_PASSWORD_PATH} element={<ChangePasswordPage />} />
         </Route>
 
-        <Route element={<RequireAuth />}>
-          <Route element={<AppLayout />}>
-            {/* Every role lands on its own home (pages/home-page.tsx). */}
-            <Route index element={<HomePage />} />
-            <Route element={<RequireRole role="consultant" />}>
-              <Route path="/time" element={<BookTimePage />} />
-            </Route>
-            <Route element={<RequireRole role="project_manager" />}>
-              <Route path="/orders" element={<MyOrdersPage />} />
-              <Route path="/orders/:orderId" element={<OrderDetailPage />} />
-            </Route>
-            <Route element={<RequireRole role="admin" />}>
-              <Route path="/admin/users" element={<UsersPage />} />
-              <Route path="/admin/audit" element={<AuditPage />} />
-            </Route>
-            <Route element={<RequireRole role="purchasing" />}>
-              <Route path="/purchasing/orders" element={<OrdersPage />} />
-              <Route path="/purchasing/suppliers" element={<SuppliersPage />} />
+        <Route element={<LandingIfSignedOut />}>
+          <Route element={<RequireAuth />}>
+            <Route element={<AppLayout />}>
+              {/* Every role lands on its own home (pages/home-page.tsx). */}
+              <Route index element={<HomePage />} />
+              <Route element={<RequireRole role="consultant" />}>
+                <Route path="/time" element={<BookTimePage />} />
+              </Route>
+              <Route element={<RequireRole role="project_manager" />}>
+                <Route path="/orders" element={<MyOrdersPage />} />
+                <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+              </Route>
+              <Route element={<RequireRole role="admin" />}>
+                <Route path="/admin/users" element={<UsersPage />} />
+                <Route path="/admin/audit" element={<AuditPage />} />
+              </Route>
+              <Route element={<RequireRole role="purchasing" />}>
+                <Route path="/purchasing/orders" element={<OrdersPage />} />
+                <Route path="/purchasing/suppliers" element={<SuppliersPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>
