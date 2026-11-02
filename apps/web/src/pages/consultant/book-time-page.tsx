@@ -56,6 +56,7 @@ export function BookTimePage() {
   const [editing, setEditing] = React.useState<TimeEntry | null>(null)
   const [deleting, setDeleting] = React.useState<TimeEntry | null>(null)
   const [copied, setCopied] = React.useState<CopyLastWeekResult | null>(null)
+  const [proposals, setProposals] = React.useState(0)
   const update = (changes: Partial<typeof form>) => setForm((current) => ({ ...current, ...changes }))
 
   // With only one order there is nothing to choose: pick it.
@@ -92,6 +93,7 @@ export function BookTimePage() {
 
   /** A proposal from a sentence fills in what it understood, and leaves the rest as it is. Nothing is saved yet. */
   function applyProposal(proposal: SentenceProposal) {
+    setProposals((count) => count + 1)
     update({
       ...(proposal.orderId !== null && { orderId: String(proposal.orderId) }),
       ...(proposal.workDate !== null && { workDate: proposal.workDate }),
@@ -289,9 +291,9 @@ export function BookTimePage() {
                 </FieldSet>
                 <FieldSet>
                   <FieldLegend variant="label">{t("booking.date")}</FieldLegend>
-                  {/* A new key when editing starts or ends, so the calendar opens at the booking's month. */}
+                  {/* A new key when editing starts or ends, or a sentence fills the form, so the calendar opens at that date's month. */}
                   <BookingCalendar
-                    key={editing?.id ?? "new"}
+                    key={`${editing?.id ?? "new"}-${proposals}`}
                     value={form.workDate}
                     onChange={chooseDate}
                     order={order}
