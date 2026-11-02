@@ -3,10 +3,11 @@
 // which map these rows to domain types in src/domain/.
 import { sql } from "drizzle-orm"
 import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core"
+import { GERMAN_STATES } from "../domain/public-holidays.js"
 
 // Roles are a fixed list, so we store them as text with a CHECK-like enum
 // instead of a separate table. Who may do what: docs/roles-and-privacy.md.
-export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin", "supplier_manager"] as const
 
 const timestamps = {
   createdAt: text("created_at")
@@ -27,8 +28,10 @@ export const users = sqliteTable("users", {
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
   role: text("role", { enum: ROLES }).notNull(),
-  // Only consultants belong to a supplier; null for client-side roles.
+  // Consultants and supplier managers belong to a supplier; null for client-side roles.
   supplierId: integer("supplier_id").references(() => suppliers.id),
+  // The German state a consultant works in, for the public holidays (ADR 0019); null = only the nationwide ones.
+  workState: text("work_state", { enum: GERMAN_STATES }),
   // Set when an admin deactivates the account (step 4). The person can no longer sign in; their bookings stay.
   deactivatedAt: text("deactivated_at"),
   // Step 5: a password chosen by an admin (new account or reset) must be replaced by the person at the next sign-in.
@@ -36,6 +39,20 @@ export const users = sqliteTable("users", {
   // Goes up with every password change. A session cookie carries the version it was issued with; an older
   // version is not accepted any more, so a reset signs the person out of every browser at once.
   sessionVersion: integer("session_version").notNull().default(0),
+  ...timestamps,
+})
+
+// A long-term contract with one supplier, whose total budget its orders draw from (ADR 0020).
+export const frameworkAgreements = sqliteTable("framework_agreements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  code: text("code").notNull().unique(),
+  title: text("title").notNull(),
+  supplierId: integer("supplier_id")
+    .notNull()
+    .references(() => suppliers.id),
+  totalBudgetCents: integer("total_budget_cents").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
   ...timestamps,
 })
 
@@ -58,6 +75,11 @@ export const orders = sqliteTable("orders", {
   // Migration 0003 gave orders that existed before it the whole year 2026 – only demo data existed then.
   startDate: text("start_date").notNull().default("2026-01-01"),
   endDate: text("end_date").notNull().default("2026-12-31"),
+  // Who pays inside the client company: a cost centre or project element (Kostenstelle, PSP-Element). Optional.
+  accountingObject: text("accounting_object"),
+  // Set when purchasing closes the order (ticket #70). No more bookings or changes; it is never deleted.
+  closedAt: text("closed_at"),
+  frameworkAgreementId: integer("framework_agreement_id").references(() => frameworkAgreements.id),
   ...timestamps,
 })
 

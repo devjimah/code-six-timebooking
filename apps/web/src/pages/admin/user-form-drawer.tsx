@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import { ROLES, type Role, type Supplier, type User } from "@/lib/api-types.ts"
+import { GERMAN_STATES, ROLES, type Role, type Supplier, type User } from "@/lib/api-types.ts"
 
 type Props = {
   /** null = closed, "new" = create an account, a user = change that account */
@@ -35,7 +35,9 @@ type Props = {
   onSaved: () => void
 }
 
-const EMPTY_FORM = { name: "", email: "", role: "consultant" as Role, supplierId: "", password: "" }
+const belongsToSupplier = (role: Role) => role === "consultant" || role === "supplier_manager"
+const NO_STATE = "none"
+const EMPTY_FORM = { name: "", email: "", role: "consultant" as Role, supplierId: "", workState: NO_STATE, password: "" }
 
 export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onSaved }: Props) {
   const { t } = useTranslation()
@@ -52,7 +54,14 @@ export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onS
     setOpenedFor(editing)
     setForm(
       existing
-        ? { name: existing.name, email: existing.email, role: existing.role, supplierId: String(existing.supplierId ?? ""), password: "" }
+        ? {
+            name: existing.name,
+            email: existing.email,
+            role: existing.role,
+            supplierId: String(existing.supplierId ?? ""),
+            workState: existing.workState ?? NO_STATE,
+            password: "",
+          }
         : EMPTY_FORM,
     )
     setError(null)
@@ -69,7 +78,8 @@ export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onS
       name: form.name,
       email: form.email,
       role: form.role,
-      supplierId: form.role === "consultant" && form.supplierId ? Number(form.supplierId) : null,
+      supplierId: belongsToSupplier(form.role) && form.supplierId ? Number(form.supplierId) : null,
+      workState: form.role === "consultant" && form.workState !== NO_STATE ? form.workState : null,
     }
     try {
       const saved = existing
@@ -149,7 +159,7 @@ export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onS
                 existing && <FieldDescription>{t("users.roleChangeHint")}</FieldDescription>
               )}
             </Field>
-            {form.role === "consultant" && (
+            {belongsToSupplier(form.role) && (
               <Field>
                 <FieldLabel htmlFor="user-supplier">{t("profile.company")}</FieldLabel>
                 <Select value={form.supplierId} onValueChange={(supplierId) => update({ supplierId })}>
@@ -165,6 +175,25 @@ export function UserFormDrawer({ editing, currentUserId, suppliers, onClose, onS
                   </SelectContent>
                 </Select>
                 <FieldDescription>{t("users.supplierHint")}</FieldDescription>
+              </Field>
+            )}
+            {form.role === "consultant" && (
+              <Field>
+                <FieldLabel htmlFor="user-state">{t("users.workState")}</FieldLabel>
+                <Select value={form.workState} onValueChange={(workState) => update({ workState })}>
+                  <SelectTrigger id="user-state" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_STATE}>{t("users.noWorkState")}</SelectItem>
+                    {GERMAN_STATES.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {t(`states.${state}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldDescription>{t("users.workStateHint")}</FieldDescription>
               </Field>
             )}
             {!existing && (

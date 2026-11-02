@@ -14,6 +14,7 @@ createApp({
   secureCookies: config.secureCookies,
   trustProxyHops: config.trustProxyHops,
   purchasingLeadTimeWeeks: config.purchasingLeadTimeWeeks,
+  aiMode: config.aiMode,
 }).listen(config.port, () => {
   console.log(`API listening on http://localhost:${config.port}`)
 })

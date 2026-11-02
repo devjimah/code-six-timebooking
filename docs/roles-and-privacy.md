@@ -11,7 +11,7 @@
 | Project manager | client | Runs a project and is responsible for its orders. Checks the work booked on own orders and watches their budget. |
 | Purchasing | client | Places purchase orders with suppliers and follows up when a budget runs out. Manages the supplier companies. |
 | Admin | client IT | Runs the system: creates accounts and reads the audit log. Sees no bookings, budgets or prices. |
-| Supplier manager | supplier | *Later stage, not built.* Would see all bookings of their own company's consultants, because the supplier is the employer and responsible for working-time law. |
+| Supplier manager | supplier | The employer of the consultants, responsible for working-time law. Sees all bookings of the own company's consultants, with times. Read only, no money, nothing of the client's ([ADR 0021](adr/0021-supplier-manager-role.md)). |
 
 The roles differ on purpose: the person who **spends** a budget (project manager) is not the person who **creates** it
 (purchasing), and the person who **runs the system** (admin) sees no business data. One fixed role per account,
@@ -33,13 +33,21 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | See the status of a booking and the reason for a return | own only | ✔ own orders | Σ approved and not approved hours per order | – | built |
 | Mark and remove own unavailable days, without a reason ([ADR 0016](adr/0016-unavailable-days.md)) | ✔ own only | – | – | – | built |
 | See upcoming unavailable days of consultants who booked on an order in the last 4 weeks | own only | ✔ own orders, date and name | only the effect on the forecast | – | built |
+| See all bookings of the own company's consultants, with times (only the supplier manager; read only, no money, [ADR 0021](adr/0021-supplier-manager-role.md)) | own only | – | – | – | built |
 | See budget of an order (booked / remaining hours and €) | – | ✔ own orders | Σ all orders | – | built |
 | See how long a budget lasts and when to order more ([ADR 0015](adr/0015-budget-forecast.md)) | – | ✔ own orders | ✔ all orders | – | built |
+| See and download the proof of work of a month, without times ([ADR 0018](adr/0018-proof-of-work-and-invoice-check.md)) | – | ✔ own orders | – | – | built |
+| Check an invoice against the approved hours | – | – | ✔ sums only | – | built |
 | See hourly rates and money | – | ✔ own orders | ✔ | – | built |
+| See and set the cost centre or project element of an order | – | see, own orders | ✔ | – | built |
+| Close and reopen an order; propose a follow-up order from an existing one | – | – | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
 | See names of project managers (to assign an order) | – | – | ✔ names only | ✔ (user list) | built |
+| See orders, money and share per supplier | – | – | Σ per supplier | – | built |
+| Create and edit framework agreements; see what their orders take | – | – | ✔ | – | built |
 | Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
 | Create user accounts | – | – | – | ✔ | built |
+| Import user accounts from a CSV file; each passes the same rules | – | – | – | ✔ | built |
 | Edit and deactivate user accounts (never delete) | – | – | – | ✔ not own role, not self | built |
 | Reset a user's password (the person must then choose their own) | – | – | – | ✔ not own | built |
 | Change own password | ✔ | ✔ | ✔ | ✔ | built |
@@ -53,15 +61,15 @@ every route with a role check answers 403 `PASSWORD_CHANGE_REQUIRED`.
 
 | Data | Why we store it | Who needs it | How long we keep it |
 |---|---|---|---|
-| Name, business email, role, supplier company | Sign-in, permissions, showing who booked | the person, admin; project manager sees the name on bookings of own orders | as long as the account exists. Accounts are deactivated, never deleted, while bookings refer to them; deactivated people cannot sign in and their open sessions end at once |
+| Name, business email, role, supplier company, work state (consultants; for the public holidays, [ADR 0019](adr/0019-public-holidays-per-state.md)) | Sign-in, permissions, showing who booked, refusing bookings on a holiday | the person, admin; project manager sees the name on bookings of own orders | as long as the account exists. Accounts are deactivated, never deleted, while bookings refer to them; deactivated people cannot sign in and their open sessions end at once |
 | Password hash (bcrypt), "must change password" flag, session version | Sign-in; after an admin chose the password, the person replaces it; a password change ends all open sessions | nobody reads the hash, the server only compares; the admin sees whether a password is still the one they set | as long as the account exists |
 | Bookings: date, duration, description, consultant, status, reason for a return | Proof of work for the order, budget, invoice check | the consultant; project manager of the order (per booking); purchasing only as Σ per order | proposal: 10 years for bookings that back an invoice (German tax law, §147 AO); the client's data protection officer confirms before production |
-| Bookings: start time, end time, break | The server checks the Working Time Act: no overlap, 11 hours rest, breaks ([ADR 0010](adr/0010-time-entry-granularity.md)) | the consultant only; nobody on the client side | same as the booking it belongs to |
+| Bookings: start time, end time, break | The server checks the Working Time Act: no overlap, 11 hours rest, breaks ([ADR 0010](adr/0010-time-entry-granularity.md)) | the consultant and their employer's supplier manager; nobody on the client side | same as the booking it belongs to |
 | Unavailable days: consultant, date, no reason | Planning without asking; the forecast counts them ([ADR 0016](adr/0016-unavailable-days.md)) | the consultant; project manager of an order they recently booked on, upcoming days only | as long as the account exists. Proposal: delete a day once it has passed; the client's data protection officer confirms before production |
 | Audit events: user, time, action, target, key facts, IP address, browser, email tried at sign-in | Security and traceability of bookings and account changes ([ADR 0012](adr/0012-audit-log.md)) | admin only | read events 90 days, all other events 365 days; deleted automatically by a daily job |
 
 Data minimisation: no private addresses, birth dates or photos. Bookings store start and end times only because the
-working-time rules need them, and only the consultant sees them; every client role gets the duration. The audit
+working-time rules need them, and only the consultant and their employer see them; every client role gets the duration. The audit
 log never stores passwords, query strings, booking descriptions, booking times or the reason for a return.
 
 ## Conflicts and how we resolve them
@@ -119,6 +127,8 @@ that is convenience, not security.
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
 | `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
+| `POST /api/time-entries/parse-sentence` | consultant | only own orders; saves nothing; the sentence is not logged and leaves no system ([ADR 0022](adr/0022-use-of-ai.md)) |
+| `POST /api/time-entries/copy-last-week` | consultant | only own bookings, up to today; every copy passes the booking rules |
 | `PUT /api/time-entries/:id` | consultant | only own bookings; not when approved; booking rules run again; times not logged |
 | `DELETE /api/time-entries/:id` | consultant | only own bookings; not when approved |
 | `POST /api/time-entries/:id/approve` | project manager | only own orders; only open bookings |
@@ -127,6 +137,15 @@ that is convenience, not security.
 | `GET /api/unavailable-days/mine` | consultant | only own days |
 | `PUT /api/unavailable-days/:date`, `DELETE …` | consultant | only own days; no reason field; a day with bookings cannot be marked |
 | `GET /api/orders/:id/unavailable-days` | project manager | only own orders; upcoming days of consultants who booked in the last 4 weeks; date and name only |
+| `POST /api/orders/:id/close`, `/reopen` | purchasing | closing needs all bookings approved; a closed order takes no bookings or changes |
+| `GET /api/suppliers/overview` | purchasing | sums per supplier, no persons or single bookings |
+| `/api/framework-agreements` | purchasing | an order beyond the total is refused ([ADR 0020](adr/0020-framework-agreements.md)) |
+| `GET /api/orders/:id/forecast-scenario` | project manager | only own orders; a what-if, nothing is saved |
+| `GET /api/supplier/bookings` | supplier manager | only the own supplier, from the account; times but no money |
+| `GET /api/notifications` | every signed-in person | only what the role may already see; computed each time, never stored |
+| `POST /api/users/import` | admin | each account passes the same rules; only counts are logged |
+| `GET /api/orders/:id/proof-of-work`, `.csv` | project manager | only own orders; no times; a month at a time |
+| `GET /api/orders/:id/invoice-check` | purchasing | sums only; the amount is neither stored nor logged |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |
 | `GET /api/users`, `POST /api/users` | admin | – |
 | `PUT /api/users/:id` | admin | role changes only without dependent bookings/orders; not own role |

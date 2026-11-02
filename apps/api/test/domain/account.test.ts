@@ -15,7 +15,7 @@ describe("supplier and role of an account", () => {
 
   it("rejects purchasing with a supplier: purchasing works for the client", () => {
     expect(() => assertSupplierMatchesRole({ role: "purchasing", supplierId: 1 })).toThrow(
-      expect.objectContaining({ code: "SUPPLIER_ONLY_FOR_CONSULTANTS" }),
+      expect.objectContaining({ code: "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE" }),
     )
   })
 
@@ -27,10 +27,22 @@ describe("supplier and role of an account", () => {
 
   it("rejects a project manager or admin with a supplier", () => {
     expect(() => assertSupplierMatchesRole({ role: "project_manager", supplierId: 1 })).toThrow(
-      expect.objectContaining({ code: "SUPPLIER_ONLY_FOR_CONSULTANTS" }),
+      expect.objectContaining({ code: "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE" }),
     )
     expect(() => assertSupplierMatchesRole({ role: "admin", supplierId: 1 })).toThrow(
-      "Only consultants belong to a supplier.",
+      "Only consultants and supplier managers belong to a supplier.",
+    )
+  })
+})
+
+describe("a supplier manager's account", () => {
+  it("accepts a supplier", () => {
+    expect(() => assertSupplierMatchesRole({ role: "supplier_manager", supplierId: 1 })).not.toThrow()
+  })
+
+  it("rejects a supplier manager without one", () => {
+    expect(() => assertSupplierMatchesRole({ role: "supplier_manager", supplierId: null })).toThrow(
+      expect.objectContaining({ code: "SUPPLIER_MANAGER_NEEDS_SUPPLIER" }),
     )
   })
 })

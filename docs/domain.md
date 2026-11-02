@@ -17,11 +17,13 @@ The words used in the code, the API and the UI (German in brackets, as in the ap
 | Booking / time entry (Buchung) | One block of work by one consultant on one order on one day: start, end, break, the worked duration and what was done. `time_entries` in the database. |
 | Booking status | *Open* until the project manager checks it, then *approved* (final) or *returned* with a reason. A corrected booking is open again ([ADR 0014](adr/0014-booking-approval.md)). |
 | Worked duration (Dauer) | End − start − break of a booking, in minutes. Derived by the server, never typed in ([ADR 0010](adr/0010-time-entry-granularity.md)). |
+| Framework agreement (Rahmenvertrag) | A long-term contract with one supplier and a total budget that its orders draw from. |
 | Budget | What the client ordered: `budget hours × hourly rate`. *Booked* is the sum of all bookings on the order, *remaining* is budget − booked ([ADR 0008](adr/0008-budget-calculation.md)). |
 | Pace and forecast (Tempo, Prognose) | The hours booked on an order per week, over the last 4 weeks, and when the budget runs out at that pace. Computed, never stored ([ADR 0015](adr/0015-budget-forecast.md)). |
 | Unavailable day (nicht verfügbarer Tag) | A date a consultant marks as not available, never saying why. Nobody books on it, and the forecast counts it ([ADR 0016](adr/0016-unavailable-days.md)). |
+| Accounting object (Kostenstelle, PSP-Element) | The cost centre or project element that pays for an order inside the client company. Stored on the order as a code. |
 | Person-day (PD, Personentag) | 8 hours. Budgets are shown in hours and person-days; the database stores hours and minutes. |
-| Public holiday (Feiertag) | A day on which nobody may book. Today: the holidays valid in every German state, computed in code, not stored ([public-holidays.ts](../apps/api/src/domain/public-holidays.ts)). |
+| Public holiday (Feiertag) | A day on which a consultant may not book: the nationwide holidays plus those of the state they work in. Computed in code, not stored ([public-holidays.ts](../apps/api/src/domain/public-holidays.ts), [ADR 0019](adr/0019-public-holidays-per-state.md)). |
 | Working Time Act (ArbZG) | The German law behind several booking rules: at most 10 hours per day, 11 hours rest between working days, no work on Sundays and public holidays. |
 | Audit event | One row per API request: who did what, when, and whether it was allowed. Append-only ([ADR 0012](adr/0012-audit-log.md)). |
 
@@ -42,9 +44,6 @@ erDiagram
 
     SUPPLIER ||--o{ FRAMEWORK_AGREEMENT : "signs"
     FRAMEWORK_AGREEMENT |o--o{ ORDER : "funds"
-    ACCOUNTING_OBJECT ||--o{ ORDER : "pays for"
-    ORDER ||--o{ PROOF_OF_WORK : "is approved per month in"
-    PROOF_OF_WORK |o--o{ TIME_ENTRY : "covers"
 
     SUPPLIER["Supplier (now)"] {
         int id PK
@@ -54,8 +53,9 @@ erDiagram
         int id PK
         string email UK
         string name
-        string role "consultant | project_manager | purchasing | admin"
-        int supplier_id FK "consultants only"
+        string role "consultant | project_manager | purchasing | admin | supplier_manager"
+        int supplier_id FK "consultants and supplier managers"
+        string work_state "consultants only, for public holidays"
         string password_hash
         string deactivated_at "null = active"
         bool must_change_password
@@ -71,6 +71,9 @@ erDiagram
         int hourly_rate_cents
         string start_date
         string end_date
+        string accounting_object "cost centre or project element, optional"
+        string closed_at "null = open"
+        int framework_agreement_id FK "optional"
     }
     TIME_ENTRY["Time entry (now)"] {
         int id PK
@@ -99,24 +102,14 @@ erDiagram
         string error_code
         string details "allow-listed JSON, never times or descriptions"
     }
-    FRAMEWORK_AGREEMENT["Framework agreement (later)"] {
+    FRAMEWORK_AGREEMENT["Framework agreement (now)"] {
         int id PK
+        string code UK
+        string title
         int supplier_id FK
-        int total_budget_hours
+        int total_budget_cents
         string start_date
         string end_date
-    }
-    ACCOUNTING_OBJECT["Accounting object (later)"] {
-        int id PK
-        string code UK "cost centre or project element"
-        string name
-    }
-    PROOF_OF_WORK["Proof of work (later)"] {
-        int id PK
-        int order_id FK
-        string month "YYYY-MM"
-        string status "open | submitted | approved | rejected"
-        int approved_by FK
     }
 ```
 
@@ -124,24 +117,26 @@ The audit event shows only its key columns; the full list is in [schema.ts](../a
 
 ## Notes
 
-- **One role per user, one table for all.** Consultants, project managers, purchasing and admins are all `users`
-  with a `role` ([ADR 0004](adr/0004-role-model-and-accounts.md)). Only consultants have a `supplier_id`; the
-  client-side roles do not belong to a supplier.
+- **One role per user, one table for all.** Consultants, supplier managers, project managers, purchasing and admins are
+  all `users` with a `role` ([ADR 0004](adr/0004-role-model-and-accounts.md)). Only the supplier side has a `supplier_id`.
 - **Budget is computed, never stored.** Booked = `SUM(duration_minutes)` of the order's time entries; money =
   minutes × hourly rate, in integer euro cents; person-days = hours ÷ 8. Nothing can drift from the bookings
   ([ADR 0008](adr/0008-budget-calculation.md), [budget.ts](../apps/api/src/domain/budget.ts)).
 - **Duration is stored although it is derived.** The server calculates it from start, end and break when booking.
   Storing it keeps the budget and the 10-hour sum a plain SQL `SUM` ([ADR 0010](adr/0010-time-entry-granularity.md)).
-- **Times stay with the consultant.** Start, end and break are returned only to the consultant who booked them;
-  the client side sees durations or sums ([roles-and-privacy.md](roles-and-privacy.md)).
+- **Times stay on the supplier's side.** Start, end and break are returned only to the consultant who booked them and
+  their employer's supplier manager ([ADR 0021](adr/0021-supplier-manager-role.md)); the client side sees durations or sums ([roles-and-privacy.md](roles-and-privacy.md)).
 - **Bookings are never deleted with their user.** A deactivated account keeps its bookings, so the order's budget
   stays correct. The audit log has no foreign key on purpose, so it outlives any account.
 - **Approval is a status on each booking** ([ADR 0014](adr/0014-booking-approval.md)). Returned hours stay in the
   budget until they are corrected: they were reported as worked.
 - **Unavailable days have no reason on purpose.** Sick days are health data, and managing a supplier's absences is
   the employer's job, so vacation and sickness stay with the supplier ([ADR 0016](adr/0016-unavailable-days.md)).
-- **Not stored:** public holidays (computed from the year), the remaining budget and the forecast (both computed on read).
+- **Proof of work and invoice check are computed, never stored** ([ADR 0018](adr/0018-proof-of-work-and-invoice-check.md)):
+  one order's bookings in one month, and the difference between an invoice and the approved hours × rate.
+- **A framework agreement's total is a hard limit** for its orders ([ADR 0020](adr/0020-framework-agreements.md)).
+- **Not stored:** public holidays (computed from the year), the remaining budget, the forecast, the proof of work and the
+  invoice check (all computed on read).
 - **Next stage, in one sentence each** (proposals, not built):
-  - *Framework agreement* – a long-term contract with a supplier whose total budget the orders draw from.
-  - *Accounting object* – the cost centre or project element that pays for an order.
-  - *Proof of work* – the monthly list of an order's hours for the invoice, built on the booking statuses we have now.
+  - *Line items and accounting objects as their own table* – today the order holds one code; a list of valid cost centres
+    and order items would need an import from the client's finance system.

@@ -1,17 +1,25 @@
 // Orders, seen from each role (tickets #11 and #18). Every route checks the role here
 // and the use case narrows the data to the caller's own orders.
 import { Router } from "express"
-import { getOrderBudget } from "../application/get-order-budget.js"
+import { getOrderBudget, getOrderScenario } from "../application/get-order-budget.js"
 import { listOrderBookings } from "../application/list-order-bookings.js"
-import { createOrder, listAllOrders, updateOrder } from "../application/manage-orders.js"
+import { closeOrder, createOrder, listAllOrders, reopenOrder, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
+import { checkOrderInvoice, getProofOfWork } from "../application/proof-of-work.js"
 import { approveOpenBookings } from "../application/review-bookings.js"
 import { listOrderUnavailableDays } from "../application/unavailable-days.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
+import { proofOfWorkCsv, proofOfWorkFileName } from "./proof-of-work-csv.js"
 import {
   type OrderRequest,
+  forecastScenarioQuery,
+  toBudgetForecastResponse,
+  invoiceCheckQuery,
+  proofOfWorkQuery,
+  toInvoiceCheckResponse,
+  toProofOfWorkResponse,
   orderIdParams,
   orderRequest,
   toBookableOrderResponse,
@@ -46,6 +54,19 @@ export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
     res.json(toOrderResponse(await updateOrder(db, id, input)))
   })
 
+  // POST /api/orders/:id/close and /reopen – purchasing says the work is finished (ticket #70). The rule is in the use case.
+  router.post("/:id/close", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
+    res.json(toOrderResponse(await closeOrder(db, id)))
+  })
+
+  router.post("/:id/reopen", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    setAuditContext(res, { targetType: "order", targetId: id })
+    res.json(toOrderResponse(await reopenOrder(db, id)))
+  })
+
   // GET /api/orders/bookable – the consultant's own supplier's orders, to pick one when booking time.
   router.get("/bookable", requireRole("consultant"), async (req, res) => {
     const orders = await listBookableOrders(db, req.user!)
@@ -66,11 +87,44 @@ export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
     res.json(toOrderBudgetDetailResponse(order, budget, forecast))
   })
 
+  // What if? Same ownership check as the budget; nothing is saved (ticket #73).
+  router.get("/:id/forecast-scenario", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const scenario = forecastScenarioQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: scenario })
+    const { order, forecast } = await getOrderScenario(db, req.user!, id, purchasingLeadTimeWeeks, scenario)
+    res.json(toBudgetForecastResponse(order, forecast))
+  })
+
   // GET /api/orders/:id/time-entries – single bookings of the project manager's own order (same ownership check).
   router.get("/:id/time-entries", requireRole("project_manager"), async (req, res) => {
     const { id } = orderIdParams.parse(req.params)
     setAuditContext(res, { targetType: "order", targetId: id })
     res.json(await listOrderBookings(db, req.user!, id))
+  })
+
+  // One month of the project manager's own order, as data and as a file (ADR 0018).
+  router.get("/:id/proof-of-work", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const { month } = proofOfWorkQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: { month } })
+    res.json(toProofOfWorkResponse(await getProofOfWork(db, req.user!, id, month)))
+  })
+
+  router.get("/:id/proof-of-work.csv", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const { month } = proofOfWorkQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: { month } })
+    const proof = await getProofOfWork(db, req.user!, id, month)
+    res.attachment(proofOfWorkFileName(proof)).type("text/csv").send(proofOfWorkCsv(proof))
+  })
+
+  // Purchasing compares an invoice with the approved hours: sums only, and the amount is neither stored nor logged.
+  router.get("/:id/invoice-check", requireRole("purchasing"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const { month, invoicedCents } = invoiceCheckQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: { month } })
+    res.json(toInvoiceCheckResponse(await checkOrderInvoice(db, id, month, invoicedCents)))
   })
 
   // GET /api/orders/:id/unavailable-days – upcoming days of the consultants on the project manager's own order (#10).
@@ -101,4 +155,6 @@ const auditFacts = (input: OrderRequest) => ({
   hourlyRateCents: input.hourlyRateCents,
   startDate: input.startDate,
   endDate: input.endDate,
+  accountingObject: input.accountingObject,
+  frameworkAgreementId: input.frameworkAgreementId,
 })

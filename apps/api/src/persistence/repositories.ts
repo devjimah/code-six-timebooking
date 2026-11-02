@@ -1,10 +1,12 @@
 // Repositories: the only place that runs database queries.
 // Each one maps a database row (persistence entity) to a domain object.
 import { and, asc, desc, eq, gte, inArray, lt, ne, notInArray, or, sql } from "drizzle-orm"
+import { monthRange } from "../domain/proof-of-work.js"
 import { READ_METHODS } from "../domain/audit-retention.js"
-import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
+import { addDays } from "../domain/public-holidays.js"
+import type { AuditDetails, AuditEvent, AuditOutcome, FrameworkAgreement, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
-import { auditEvents, orders, suppliers, timeEntries, unavailableDays, users } from "./schema.js"
+import { auditEvents, frameworkAgreements, orders, suppliers, timeEntries, unavailableDays, users } from "./schema.js"
 
 type NewOf<T> = Omit<T, "id">
 
@@ -14,6 +16,7 @@ const toUser = (r: typeof users.$inferSelect): User => ({
   name: r.name,
   role: r.role,
   supplierId: r.supplierId,
+  workState: r.workState,
   deactivatedAt: r.deactivatedAt,
   mustChangePassword: r.mustChangePassword,
 })
@@ -28,6 +31,9 @@ const toOrder = (r: typeof orders.$inferSelect): Order => ({
   hourlyRateCents: r.hourlyRateCents,
   startDate: r.startDate,
   endDate: r.endDate,
+  accountingObject: r.accountingObject,
+  closedAt: r.closedAt,
+  frameworkAgreementId: r.frameworkAgreementId,
 })
 const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   id: r.id,
@@ -68,7 +74,11 @@ export function userRepository(db: Db) {
   return {
     /** New accounts are always active. `mustChangePassword` is false unless given (the seeded demo users). */
     async create(
-      data: Omit<NewOf<User>, "deactivatedAt" | "mustChangePassword"> & { passwordHash: string; mustChangePassword?: boolean },
+      data: Omit<NewOf<User>, "deactivatedAt" | "mustChangePassword" | "workState"> & {
+        passwordHash: string
+        mustChangePassword?: boolean
+        workState?: User["workState"]
+      },
     ) {
       const [row] = await db.insert(users).values(data).returning()
       return toUser(row!)
@@ -112,7 +122,13 @@ export function userRepository(db: Db) {
 
 export function orderRepository(db: Db) {
   return {
-    async create(data: NewOf<Order>) {
+    /** The accounting object is optional, as it is for orders placed before it existed. */
+    async create(
+      data: Omit<NewOf<Order>, "accountingObject" | "closedAt" | "frameworkAgreementId"> & {
+        accountingObject?: string | null
+        frameworkAgreementId?: number | null
+      },
+    ) {
       const [row] = await db.insert(orders).values(data).returning()
       return toOrder(row!)
     },
@@ -123,7 +139,7 @@ export function orderRepository(db: Db) {
     async findAll() {
       return (await db.select().from(orders).orderBy(asc(orders.code))).map(toOrder)
     },
-    async update(id: number, data: NewOf<Order>) {
+    async update(id: number, data: Partial<NewOf<Order>>) {
       const [row] = await db.update(orders).set(data).where(eq(orders.id, id)).returning()
       return toOrder(row!)
     },
@@ -270,6 +286,24 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
+    /** Minutes still being checked on this order, for closing it. */
+    async unapprovedMinutesForOrder(orderId: number) {
+      const [row] = await db
+        .select({ total: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)` })
+        .from(timeEntries)
+        .where(and(eq(timeEntries.orderId, orderId), ne(timeEntries.status, "approved")))
+      return Number(row?.total ?? 0)
+    },
+    /** How many bookings wait for the project manager, per order. Orders without any are missing. */
+    async openCountPerOrder(orderIds: number[]) {
+      if (orderIds.length === 0) return new Map<number, number>()
+      const rows = await db
+        .select({ orderId: timeEntries.orderId, count: sql<number>`count(*)` })
+        .from(timeEntries)
+        .where(and(inArray(timeEntries.orderId, orderIds), eq(timeEntries.status, "open")))
+        .groupBy(timeEntries.orderId)
+      return new Map(rows.map((r) => [r.orderId, Number(r.count)]))
+    },
     /** Approved minutes per order, for purchasing's overview. Orders without approved bookings are missing. */
     async approvedMinutesPerOrder(orderIds: number[]) {
       if (orderIds.length === 0) return new Map<number, number>()
@@ -280,8 +314,32 @@ export function timeEntryRepository(db: Db) {
         .groupBy(timeEntries.orderId)
       return new Map(rows.map((r) => [r.orderId, Number(r.total)]))
     },
-    /** Bookings of one order with the consultant's name, newest work date first. No email, no user id. */
-    async findByOrderWithConsultantName(orderId: number) {
+    /** For the supplier manager: one month of a supplier's consultants, with the times, by person and day. No money. */
+    async findBySupplierInMonth(supplierId: number, month: string) {
+      const { from, to } = monthRange(month)
+      return db
+        .select({
+          id: timeEntries.id,
+          userId: timeEntries.userId,
+          consultantName: users.name,
+          orderCode: orders.code,
+          workDate: timeEntries.workDate,
+          startTime: timeEntries.startTime,
+          endTime: timeEntries.endTime,
+          breakMinutes: timeEntries.breakMinutes,
+          durationMinutes: timeEntries.durationMinutes,
+          description: timeEntries.description,
+          status: timeEntries.status,
+        })
+        .from(timeEntries)
+        .innerJoin(users, eq(timeEntries.userId, users.id))
+        .innerJoin(orders, eq(timeEntries.orderId, orders.id))
+        .where(and(eq(users.supplierId, supplierId), gte(timeEntries.workDate, from), lt(timeEntries.workDate, to)))
+        .orderBy(desc(timeEntries.workDate), asc(users.name), asc(timeEntries.startTime))
+    },
+    /** Bookings of one order, or of one month of it, with the consultant's name, newest work date first. No email, no user id. */
+    async findByOrderWithConsultantName(orderId: number, month?: string) {
+      const range = month === undefined ? undefined : monthRange(month)
       const rows = await db
         .select({
           id: timeEntries.id,
@@ -294,9 +352,45 @@ export function timeEntryRepository(db: Db) {
         })
         .from(timeEntries)
         .innerJoin(users, eq(timeEntries.userId, users.id))
-        .where(eq(timeEntries.orderId, orderId))
+        .where(
+          and(
+            eq(timeEntries.orderId, orderId),
+            range && gte(timeEntries.workDate, range.from),
+            range && lt(timeEntries.workDate, range.to),
+          ),
+        )
         .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
       return rows
+    },
+  }
+}
+
+const toFrameworkAgreement = (r: typeof frameworkAgreements.$inferSelect): FrameworkAgreement => ({
+  id: r.id,
+  code: r.code,
+  title: r.title,
+  supplierId: r.supplierId,
+  totalBudgetCents: r.totalBudgetCents,
+  startDate: r.startDate,
+  endDate: r.endDate,
+})
+
+export function frameworkAgreementRepository(db: Db) {
+  return {
+    async create(data: NewOf<FrameworkAgreement>) {
+      const [row] = await db.insert(frameworkAgreements).values(data).returning()
+      return toFrameworkAgreement(row!)
+    },
+    async findById(id: number) {
+      const [row] = await db.select().from(frameworkAgreements).where(eq(frameworkAgreements.id, id))
+      return row ? toFrameworkAgreement(row) : null
+    },
+    async findAll() {
+      return (await db.select().from(frameworkAgreements).orderBy(asc(frameworkAgreements.code))).map(toFrameworkAgreement)
+    },
+    async update(id: number, data: NewOf<FrameworkAgreement>) {
+      const [row] = await db.update(frameworkAgreements).set(data).where(eq(frameworkAgreements.id, id)).returning()
+      return toFrameworkAgreement(row!)
     },
   }
 }
@@ -375,11 +469,14 @@ export function auditEventRepository(db: Db) {
       await db.insert(auditEvents).values({ ...data, details: details === null ? null : JSON.stringify(details) })
     },
     /** Newest first. Every filter is optional. */
-    async findLatest({ limit, actorUserId, outcome, action }: AuditEventFilter) {
+    async findLatest({ limit, actorUserId, outcome, action, from, to }: AuditEventFilter) {
       const conditions = [
         actorUserId === undefined ? undefined : eq(auditEvents.actorUserId, actorUserId),
         outcome === undefined ? undefined : eq(auditEvents.outcome, outcome),
         action === undefined ? undefined : eq(auditEvents.action, action),
+        // Timestamps are ISO strings, which sort like dates. "to" is the last day included, so compare with the next.
+        from === undefined ? undefined : gte(auditEvents.occurredAt, from),
+        to === undefined ? undefined : lt(auditEvents.occurredAt, addDays(to, 1)),
       ]
       const rows = await db
         .select()
@@ -404,4 +501,4 @@ export function auditEventRepository(db: Db) {
   }
 }
 
-export type AuditEventFilter = { limit: number; actorUserId?: number; outcome?: AuditOutcome; action?: string }
+export type AuditEventFilter = { limit: number; actorUserId?: number; outcome?: AuditOutcome; action?: string; from?: string; to?: string }

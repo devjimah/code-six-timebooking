@@ -2,7 +2,11 @@
 // No Drizzle imports here – if we swapped SQLite for Postgres, this file would not change.
 // Note: User has no passwordHash; credentials stay inside the persistence/auth layer.
 
-export type Role = "consultant" | "project_manager" | "purchasing" | "admin"
+export type Role = "consultant" | "project_manager" | "purchasing" | "admin" | "supplier_manager"
+
+/** The 16 German states, by their official abbreviations. Public holidays differ between them (ticket #66). */
+export type GermanState =
+  | "BW" | "BY" | "BE" | "BB" | "HB" | "HH" | "HE" | "MV" | "NI" | "NW" | "RP" | "SL" | "SN" | "ST" | "SH" | "TH"
 
 export interface Supplier {
   id: number
@@ -15,6 +19,8 @@ export interface User {
   name: string
   role: Role
   supplierId: number | null
+  /** Where a consultant works, for the public holidays. Null: only the nationwide ones count. */
+  workState: GermanState | null
   /** ISO timestamp when an admin deactivated the account; null = active. Accounts are never deleted. */
   deactivatedAt: string | null
   /** True after an admin chose the password (new account or reset): the person must pick their own first. */
@@ -31,10 +37,24 @@ export interface Order {
   hourlyRateCents: number
   startDate: string // "YYYY-MM-DD", first day work may be booked
   endDate: string // "YYYY-MM-DD", last day work may be booked
+  accountingObject: string | null // cost centre or project element that pays for this order
+  closedAt: string | null // ISO timestamp when purchasing closed it; null = open
+  frameworkAgreementId: number | null // the contract whose total budget this order draws from; usually none
 }
 
 /** Check and approve (ADR 0014): open → approved, or open → returned → (corrected) → open. */
 export type BookingStatus = "open" | "approved" | "returned"
+
+/** A long-term contract with one supplier, whose total budget its orders draw from (ADR 0020). */
+export interface FrameworkAgreement {
+  id: number
+  code: string
+  title: string
+  supplierId: number
+  totalBudgetCents: number
+  startDate: string // "YYYY-MM-DD"
+  endDate: string // "YYYY-MM-DD"
+}
 
 export interface TimeEntry {
   id: number

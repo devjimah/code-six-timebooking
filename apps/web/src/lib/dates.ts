@@ -25,6 +25,14 @@ export function startOfWeek(isoDate: string): string {
   return addDays(isoDate, -((weekday + 6) % 7))
 }
 
+/** The ISO calendar week, as Germans plan in numbered weeks (challenge glossary): "2026-12-09" → 50. */
+export function calendarWeek(isoDate: string): number {
+  // The week belongs to the year of its Thursday; week 1 is the week with the year's first Thursday.
+  const thursday = addDays(startOfWeek(isoDate), 3)
+  const firstOfYear = `${thursday.slice(0, 4)}-01-01`
+  return Math.floor(daysBetween(firstOfYear, thursday) / 7) + 1
+}
+
 /** Whole days from one date to another; negative when `to` lies before `from`. */
 export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000)

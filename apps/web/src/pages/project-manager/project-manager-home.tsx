@@ -30,7 +30,7 @@ export function ProjectManagerHome() {
     ["home.pm.remaining", formatEuroCents(list.reduce((s, o) => s + o.remainingCents, 0))],
   ] as const
   const attention = list
-    .filter((o) => o.usedPercent >= ATTENTION_PERCENT)
+    .filter((o) => o.usedPercent >= ATTENTION_PERCENT && !o.closedAt)
     .sort((a, b) => b.usedPercent - a.usedPercent)
 
   return (

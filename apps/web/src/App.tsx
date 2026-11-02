@@ -9,6 +9,8 @@ import { BookTimePage } from "@/pages/consultant/book-time-page.tsx"
 import { HomePage } from "@/pages/home-page.tsx"
 import { MyOrdersPage } from "@/pages/project-manager/my-orders-page.tsx"
 import { OrderDetailPage } from "@/pages/project-manager/order-detail-page.tsx"
+import { FrameworkAgreementsPage } from "@/pages/purchasing/framework-agreements-page.tsx"
+import { InvoiceCheckPage } from "@/pages/purchasing/invoice-check-page.tsx"
 import { OrdersPage } from "@/pages/purchasing/orders-page.tsx"
 import { SuppliersPage } from "@/pages/purchasing/suppliers-page.tsx"
 import { ChangePasswordPage } from "@/pages/change-password-page.tsx"
@@ -51,6 +53,8 @@ export function App() {
               </Route>
               <Route element={<RequireRole role="purchasing" />}>
                 <Route path="/purchasing/orders" element={<OrdersPage />} />
+                <Route path="/purchasing/agreements" element={<FrameworkAgreementsPage />} />
+                <Route path="/purchasing/invoice-check" element={<InvoiceCheckPage />} />
                 <Route path="/purchasing/suppliers" element={<SuppliersPage />} />
               </Route>
             </Route>

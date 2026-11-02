@@ -1,7 +1,9 @@
 // Consultants book, see and correct their own time (tickets #12, #53); project managers approve or return it (#50).
 import { Router } from "express"
 import { bookTime } from "../application/book-time.js"
+import { copyLastWeek } from "../application/copy-last-week.js"
 import { correctBooking, deleteBooking } from "../application/correct-booking.js"
+import { type AiMode, proposeBooking } from "../application/parse-booking-sentence.js"
 import { approveBooking, returnBooking } from "../application/review-bookings.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
@@ -9,13 +11,14 @@ import type { Db } from "../persistence/db.js"
 import { timeEntryRepository } from "../persistence/repositories.js"
 import {
   createTimeEntryRequest,
+  parseSentenceRequest,
   returnBookingRequest,
   timeEntryIdParams,
   toBookingReviewResponse,
   toTimeEntryResponse,
 } from "./dto.js"
 
-export function timeEntryRoutes(db: Db) {
+export function timeEntryRoutes(db: Db, aiMode: AiMode) {
   const router = Router()
 
   // Malformed body → 400 (zod). Broken business rule → 422 (DomainError). Both via the error handler.
@@ -32,6 +35,19 @@ export function timeEntryRoutes(db: Db) {
   router.get("/mine", requireRole("consultant"), async (req, res) => {
     const entries = await timeEntryRepository(db).findByUser(req.user!.id)
     res.json(entries.map(toTimeEntryResponse))
+  })
+
+  // A proposal for the form; it saves nothing. The sentence is free text, so it stays out of the audit log (ADR 0022).
+  router.post("/parse-sentence", requireRole("consultant"), async (req, res) => {
+    const { sentence } = parseSentenceRequest.parse(req.body)
+    res.json(await proposeBooking(db, req.user!, sentence, aiMode))
+  })
+
+  // Before "/:id", so the word is not read as an id. Every copy passes the booking rules; refused days say why.
+  router.post("/copy-last-week", requireRole("consultant"), async (req, res) => {
+    const { created, refused, notYet } = await copyLastWeek(db, req.user!)
+    setAuditContext(res, { details: { copied: created.length, refused: refused.length } })
+    res.json({ created: created.map(toTimeEntryResponse), refused, notYet })
   })
 
   // Whose booking it is and whether it is approved: in the use case. Times and text stay out of the log, as in POST.

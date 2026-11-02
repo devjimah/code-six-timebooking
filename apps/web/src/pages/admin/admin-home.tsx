@@ -21,7 +21,7 @@ import { OUTCOME_BADGE } from "@/pages/admin/audit-outcome.ts"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 // Asking "who is signed in?" without a session is normal for every visitor of the sign-in page – not worth a look.
-const ROUTINE_ACTIONS = new Set(["auth.session"])
+const ROUTINE_ACTIONS = new Set(["auth.session", "notification.list"])
 
 export function AdminHome() {
   const { t } = useTranslation()

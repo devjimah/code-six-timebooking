@@ -4,9 +4,12 @@
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { BudgetForecast } from "../domain/forecast.js"
+import type { AgreementOverview } from "../application/framework-agreements.js"
+import { GERMAN_STATES } from "../domain/public-holidays.js"
+import type { OrderInvoiceCheck, ProofOfWork } from "../application/proof-of-work.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 
-const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
+const ROLES = ["consultant", "project_manager", "purchasing", "admin", "supplier_manager"] as const
 
 // Every error response (401, 403, 404, 422 …) has this shape (ADR 0005). The UI translates `code`.
 export const errorResponse = z.object({
@@ -27,6 +30,7 @@ export const userResponse = z.object({
   name: z.string(),
   role: z.enum(ROLES),
   supplierId: z.number().int().nullable(),
+  workState: z.enum(GERMAN_STATES).nullable().meta({ description: "German state a consultant works in, for public holidays" }),
   deactivatedAt: z.string().nullable().meta({ description: "ISO timestamp; null = active" }),
   mustChangePassword: z.boolean().meta({ description: "An admin chose the password; the person must replace it first" }),
 })
@@ -38,6 +42,7 @@ export const toUserResponse = (user: User): UserResponse => ({
   name: user.name,
   role: user.role,
   supplierId: user.supplierId,
+  workState: user.workState,
   deactivatedAt: user.deactivatedAt,
   mustChangePassword: user.mustChangePassword,
 })
@@ -51,9 +56,21 @@ export const createUserRequest = z.object({
   email: z.email().toLowerCase(),
   name: z.string().trim().min(2).max(100),
   role: z.enum(ROLES),
-  // Required for consultants, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
+  // Required for consultants and supplier managers, empty for everyone else – a business rule (domain/rules/account.ts), not a format check.
   supplierId: z.number().int().positive().nullable().default(null),
+  // Only for consultants; leaving it out means only the nationwide holidays count (ADR 0019).
+  workState: z.enum(GERMAN_STATES).nullable().default(null),
   password: password.meta({ description: "Initial password; the admin hands it to the person" }),
+})
+
+// POST /api/users/import – admin only: accounts from a CSV file, all with the same initial password.
+export const importUsersRequest = z.object({
+  csv: z.string().max(100_000).meta({ example: "email;name;role;supplier;state" }),
+  password: password.meta({ description: "Initial password for all of them; each person must replace it" }),
+})
+export const importUsersResponse = z.object({
+  created: z.array(userResponse),
+  refused: z.array(z.object({ line: z.number().int(), email: z.string(), code: z.string(), message: z.string() })),
 })
 
 // PUT /api/users/:id – admin only. Same fields as creating an account, without the password.
@@ -88,6 +105,8 @@ export const auditEventsQuery = z.object({
   userId: z.coerce.number().int().positive().optional(),
   outcome: z.enum(["success", "rejected", "denied", "error"]).optional(),
   action: z.string().max(64).optional().meta({ example: "time_entry.create" }),
+  from: z.iso.date().optional().meta({ description: "First day, in UTC like the stored timestamps" }),
+  to: z.iso.date().optional().meta({ description: "Last day, included" }),
 })
 
 export const auditEventResponse = z.object({
@@ -178,6 +197,23 @@ export const toBookingReviewResponse = (entry: TimeEntry): z.infer<typeof bookin
   returnReason: entry.returnReason,
 })
 
+// POST /api/time-entries/copy-last-week (ticket #63)
+export const copyLastWeekResponse = z.object({
+  created: z.array(timeEntryResponse),
+  refused: z.array(z.object({ workDate: z.string(), code: z.string(), message: z.string() })),
+  notYet: z.number().int().meta({ description: "Days of this week still to come, not copied" }),
+})
+
+// POST /api/time-entries/parse-sentence (ticket #79, ADR 0022): a proposal for the form, nothing is saved
+export const parseSentenceRequest = z.object({ sentence: z.string().trim().min(1).max(300) })
+export const sentenceProposalResponse = z.object({
+  orderId: z.number().int().nullable(),
+  workDate: z.string().nullable(),
+  startTime: z.string().nullable(),
+  endTime: z.string().nullable(),
+  breakMinutes: z.number().int().nullable(),
+})
+
 // POST /api/orders/:id/time-entries/approve-open
 export const approveOpenResponse = z.object({ approved: z.number().int().meta({ description: "How many were approved" }) })
 
@@ -220,6 +256,16 @@ export const orderRequest = z.object({
   hourlyRateCents: z.number().int().min(1).max(10_000_00).meta({ description: "Euro cents: 9500 = 95,00 € per hour" }),
   startDate: z.iso.date().meta({ example: "2026-11-01" }),
   endDate: z.iso.date().meta({ example: "2027-03-31" }),
+  // Empty means none. Left out of a request, it is also none.
+  accountingObject: z
+    .string()
+    .trim()
+    .max(40)
+    .nullable()
+    .default(null)
+    .transform((value) => value || null)
+    .meta({ example: "P-2026-0815.03", description: "Cost centre or project element that pays for this order" }),
+  frameworkAgreementId: z.number().int().positive().nullable().default(null),
 })
 export type OrderRequest = z.infer<typeof orderRequest>
 
@@ -233,6 +279,9 @@ export const orderResponse = z.object({
   hourlyRateCents: z.number().int(),
   startDate: z.string(),
   endDate: z.string(),
+  accountingObject: z.string().nullable(),
+  closedAt: z.string().nullable().meta({ description: "ISO timestamp; null = open" }),
+  frameworkAgreementId: z.number().int().nullable(),
 })
 export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
 
@@ -254,6 +303,98 @@ export const unavailableDayParams = z.object({ date: z.iso.date() })
 export const unavailableDayResponse = z.object({ date: z.string().meta({ example: "2026-12-21" }) })
 // GET /api/orders/:id/unavailable-days: the date and the name, for planning.
 export const orderUnavailableDayResponse = unavailableDayResponse.extend({ consultantName: z.string() })
+
+// /api/orders/:id/proof-of-work and /invoice-check (ADR 0018): a calendar month as text.
+const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Use YYYY-MM").meta({ example: "2026-10" })
+export const proofOfWorkQuery = z.object({ month })
+export const invoiceCheckQuery = z.object({
+  month,
+  invoicedCents: z.coerce.number().int().min(0).max(100_000_000_00).meta({ description: "Invoice amount in euro cents" }),
+})
+export const proofOfWorkResponse = z.object({
+  orderId: z.number().int(),
+  code: z.string(),
+  title: z.string(),
+  accountingObject: z.string().nullable(),
+  month: z.string(),
+  approvedHours: z.number(),
+  openHours: z.number(),
+  returnedHours: z.number(),
+  approvedCents: z.number().int(),
+  bookings: z.array(orderBookingResponse),
+})
+// Sums only: purchasing sees no single bookings.
+export const invoiceCheckResponse = z.object({
+  orderId: z.number().int(),
+  code: z.string(),
+  month: z.string(),
+  approvedHours: z.number(),
+  notApprovedHours: z.number().meta({ description: "Open or returned hours in this month" }),
+  approvedCents: z.number().int(),
+  invoicedCents: z.number().int(),
+  differenceCents: z.number().int().meta({ description: "Invoice minus approved; positive means invoiced more than approved" }),
+  result: z.enum(["matches", "invoice_higher", "invoice_lower"]),
+})
+
+// /api/framework-agreements (ADR 0020), purchasing only
+export const frameworkAgreementRequest = z.object({
+  code: z.string().trim().min(3).max(40).meta({ example: "FA-2026-02" }),
+  title: z.string().trim().min(3).max(200),
+  supplierId: z.number().int().positive(),
+  totalBudgetCents: z.number().int().min(1).max(100_000_000_00).meta({ description: "Euro cents, because rates differ between orders" }),
+  startDate: z.iso.date(),
+  endDate: z.iso.date(),
+})
+export const frameworkAgreementIdParams = z.object({ id: z.coerce.number().int().positive() })
+export const frameworkAgreementResponse = frameworkAgreementRequest.extend({ id: z.number().int() })
+export const frameworkAgreementOverviewResponse = frameworkAgreementResponse.extend({
+  supplierName: z.string(),
+  orderCount: z.number().int(),
+  orderedCents: z.number().int().meta({ description: "What its orders take of the total" }),
+  bookedCents: z.number().int().meta({ description: "What has been booked on those orders" }),
+  freeCents: z.number().int().meta({ description: "What is left for new orders" }),
+})
+export const toFrameworkAgreementOverview = (row: AgreementOverview): z.infer<typeof frameworkAgreementOverviewResponse> => ({
+  ...row.agreement,
+  supplierName: row.supplierName,
+  orderCount: row.orderCount,
+  orderedCents: row.orderedCents,
+  bookedCents: row.bookedCents,
+  freeCents: row.freeCents,
+})
+
+// GET /api/suppliers/overview (ticket #71): sums per supplier
+export const supplierOverviewResponse = z.object({
+  supplierId: z.number().int(),
+  name: z.string(),
+  orderCount: z.number().int(),
+  budgetCents: z.number().int(),
+  bookedCents: z.number().int(),
+  sharePercent: z.number().meta({ description: "Share of everything ordered" }),
+})
+
+// GET /api/supplier/bookings (ADR 0021): the employer's view, with times, without money
+export const supplierBookingResponse = z.object({
+  id: z.number().int(),
+  userId: z.number().int(),
+  consultantName: z.string(),
+  orderCode: z.string(),
+  workDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  breakMinutes: z.number().int(),
+  durationMinutes: z.number().int(),
+  description: z.string(),
+  status: bookingStatus,
+})
+
+// GET /api/notifications: what needs attention, per role. Computed each time, never stored.
+export const notificationResponse = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("booking_returned"), timeEntryId: z.number().int(), workDate: z.string(), reason: z.string().nullable() }),
+  z.object({ type: z.literal("bookings_to_check"), orderId: z.number().int(), code: z.string(), count: z.number().int() }),
+  z.object({ type: z.literal("budget_runs_out"), orderId: z.number().int(), code: z.string(), runsOutOn: z.string() }),
+  z.object({ type: z.literal("order_more"), orderId: z.number().int(), code: z.string(), runsOutOn: z.string(), orderMoreBy: z.string().nullable() }),
+])
 
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
 export const projectManagerResponse = z.object({ id: z.number().int(), name: z.string() })
@@ -277,6 +418,7 @@ export const orderBudgetResponse = z.object({
   remainingCents: z.number().int(),
   usedPercent: z.number(),
   overBudget: z.boolean(),
+  closedAt: z.string().nullable().meta({ description: "When purchasing closed the order; null = open" }),
 })
 export type OrderBudgetResponse = z.infer<typeof orderBudgetResponse>
 
@@ -299,11 +441,12 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
   remainingCents: budget.remainingCents,
   usedPercent: budget.usedPercent,
   overBudget: budget.overBudget,
+  closedAt: order.closedAt,
 })
 
 // How long the budget lasts at the current pace (ticket #51, ADR 0015). Dates are "YYYY-MM-DD".
 export const budgetForecastResponse = z.object({
-  state: z.enum(["no_pace", "ended", "lasts", "runs_out_early"]),
+  state: z.enum(["no_pace", "ended", "closed", "lasts", "runs_out_early"]),
   paceHoursPerWeek: z.number().meta({ description: "Booked per week over the last 4 weeks" }),
   pacePersonDaysPerWeek: z.number(),
   runsOutOn: z.string().nullable().meta({ description: "When the budget is used up at this pace" }),
@@ -313,7 +456,7 @@ export const budgetForecastResponse = z.object({
   leadTimeWeeks: z.number().int(),
   orderEndDate: z.string(),
 })
-const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.infer<typeof budgetForecastResponse> => ({
+export const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.infer<typeof budgetForecastResponse> => ({
   state: forecast.state,
   paceHoursPerWeek: hours(forecast.paceMinutesPerWeek),
   pacePersonDaysPerWeek: personDays(forecast.paceMinutesPerWeek),
@@ -325,19 +468,31 @@ const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.inf
   orderEndDate: order.endDate,
 })
 
+// GET /api/orders/:id/forecast-scenario (ticket #73): a what-if, nothing is saved.
+export const forecastScenarioQuery = z.object({
+  extraConsultants: z.coerce.number().int().min(0).max(20).default(0),
+  extraWeeks: z.coerce.number().int().min(0).max(104).default(0),
+})
+
 // GET /api/orders/:id/budget – one order, with its forecast. The list of own orders stays without one.
-export const orderBudgetDetailResponse = orderBudgetResponse.extend({ forecast: budgetForecastResponse })
+export const orderBudgetDetailResponse = orderBudgetResponse.extend({
+  accountingObject: z.string().nullable(),
+  forecast: budgetForecastResponse,
+})
 export const toOrderBudgetDetailResponse = (
   order: Order,
   budget: OrderBudget,
   forecast: BudgetForecast,
 ): z.infer<typeof orderBudgetDetailResponse> => ({
   ...toOrderBudgetResponse(order, budget),
+  accountingObject: order.accountingObject,
   forecast: toBudgetForecastResponse(order, forecast),
 })
 
 // GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
 export const orderOverviewResponse = orderBudgetResponse.extend({
+  frameworkAgreementId: z.number().int().nullable(),
+  accountingObject: z.string().nullable(),
   forecast: budgetForecastResponse,
   approvedHours: z.number().meta({ description: "Booked hours the project manager has approved" }),
   notApprovedHours: z.number().meta({ description: "Booked hours still open or returned" }),
@@ -359,6 +514,8 @@ export const toOrderOverviewResponse = (row: {
   projectManagerName: string
 }): z.infer<typeof orderOverviewResponse> => ({
   ...toOrderBudgetResponse(row.order, row.budget),
+  accountingObject: row.order.accountingObject,
+  frameworkAgreementId: row.order.frameworkAgreementId,
   forecast: toBudgetForecastResponse(row.order, row.forecast),
   approvedHours: hours(row.approvedMinutes),
   notApprovedHours: hours(row.budget.bookedMinutes - row.approvedMinutes),
@@ -369,4 +526,29 @@ export const toOrderOverviewResponse = (row: {
   hourlyRateCents: row.order.hourlyRateCents,
   startDate: row.order.startDate,
   endDate: row.order.endDate,
+})
+
+export const toProofOfWorkResponse = ({ order, month, totals, bookings }: ProofOfWork): z.infer<typeof proofOfWorkResponse> => ({
+  orderId: order.id,
+  code: order.code,
+  title: order.title,
+  accountingObject: order.accountingObject,
+  month,
+  approvedHours: hours(totals.approvedMinutes),
+  openHours: hours(totals.openMinutes),
+  returnedHours: hours(totals.returnedMinutes),
+  approvedCents: totals.approvedCents,
+  bookings,
+})
+
+export const toInvoiceCheckResponse = ({ order, month, totals, invoicedCents, check }: OrderInvoiceCheck): z.infer<typeof invoiceCheckResponse> => ({
+  orderId: order.id,
+  code: order.code,
+  month,
+  approvedHours: hours(totals.approvedMinutes),
+  notApprovedHours: hours(totals.openMinutes + totals.returnedMinutes),
+  approvedCents: totals.approvedCents,
+  invoicedCents,
+  differenceCents: check.differenceCents,
+  result: check.result,
 })

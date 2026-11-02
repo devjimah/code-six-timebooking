@@ -10,10 +10,10 @@ export function auditRoutes(db: Db) {
   const router = Router()
 
   router.get("/", requireRole("admin"), async (req, res) => {
-    const { limit, userId, outcome, action } = auditEventsQuery.parse(req.query)
+    const { limit, userId, outcome, action, from, to } = auditEventsQuery.parse(req.query)
     // Reading the log is itself logged, including whose actions were looked at.
     if (userId !== undefined) setAuditContext(res, { targetType: "user", targetId: userId })
-    const events = await auditEventRepository(db).findLatest({ limit, actorUserId: userId, outcome, action })
+    const events = await auditEventRepository(db).findLatest({ limit, actorUserId: userId, outcome, action, from, to })
     res.json(events.map(toAuditEventResponse))
   })
 

@@ -36,7 +36,7 @@
         "label": "von der Buchung bis zum aktuellen Budget"
       },
       "checks": {
-        "value": "9 Prüfungen",
+        "value": "10 Prüfungen",
         "label": "auf dem Server, bevor eine Buchung zählt"
       },
       "leadTime": {
@@ -44,7 +44,7 @@
         "label": "Nachbestelltermin vor dem Ende des Budgets"
       },
       "roles": {
-        "value": "4 Rollen",
+        "value": "5 Rollen",
         "label": "jede sieht nur, was sie braucht"
       }
     },
@@ -215,7 +215,7 @@
       "runningOutEarly": "Budget endet vor der Bestellung",
       "runningOutEarlyDescription": "Beim Tempo der letzten 4 Wochen. Sonn- und Feiertage verbrauchen kein Budget.",
       "noneRunningOut": "Beim aktuellen Tempo reicht jedes Budget bis zum Ende der Bestellung.",
-      "usedUpOn": "Aufgebraucht am {{date}}."
+      "usedUpOn": "Aufgebraucht am {{date}}, etwa {{hours}} zu wenig."
     },
     "admin": {
       "intro": "Konten und Sicherheit auf einen Blick. Geschäftsdaten wie Buchungen und Budgets sehen Admins nicht.",
@@ -237,7 +237,8 @@
     "consultant": "Berater",
     "project_manager": "Projektleitung",
     "purchasing": "Einkauf",
-    "admin": "Admin"
+    "admin": "Admin",
+    "supplier_manager": "Dienstleister-Leitung"
   },
   "logout": "Abmelden",
   "profile": {
@@ -256,7 +257,9 @@
     "suppliers": "Dienstleister",
     "orders": "Bestellungen",
     "myOrders": "Meine Bestellungen",
-    "bookTime": "Zeit buchen"
+    "bookTime": "Zeit buchen",
+    "invoiceCheck": "Rechnungsprüfung",
+    "agreements": "Rahmenverträge"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -293,7 +296,21 @@
     "resetDescription": "Geben Sie ein neues Passwort ein und geben Sie es der Person persönlich weiter. Sie wird überall sofort abgemeldet und wählt bei der nächsten Anmeldung ein eigenes Passwort.",
     "newPassword": "Neues Passwort",
     "passwordReset": "Passwort von {{name}} zurückgesetzt. Die Person ist abgemeldet.",
-    "resetHint": "10 bis 72 Zeichen."
+    "resetHint": "10 bis 72 Zeichen.",
+    "workState": "Bundesland des Arbeitsorts",
+    "noWorkState": "Nur bundesweite Feiertage",
+    "workStateHint": "Feiertage unterscheiden sich je Bundesland. Buchungen an einem Feiertag dieses Landes werden abgelehnt.",
+    "importTitle": "Aus Datei importieren",
+    "importDescription": "Legen Sie viele Konten auf einmal an, zum Beispiel beim Wechsel vom alten Werkzeug. Jedes durchläuft dieselben Regeln wie ein von Hand angelegtes Konto.",
+    "importFile": "CSV-Datei",
+    "importCsv": "Oder Liste einfügen",
+    "importHint": "Spalten: email, name, role, optional supplier und state. Die erste Zeile benennt sie. Rollen: consultant, project_manager, purchasing, admin, supplier_manager.",
+    "importPasswordHint": "Dasselbe für alle. Jede Person muss es bei der ersten Anmeldung ersetzen.",
+    "importSubmit": "Importieren",
+    "importDone_one": "{{count}} Konto angelegt.",
+    "importDone_other": "{{count}} Konten angelegt.",
+    "importResult": "{{created}} angelegt, {{refused}} abgelehnt.",
+    "importLine": "Zeile {{line}}"
   },
   "audit": {
     "description": "Jede Aktion in der API: wer, was, woran, mit welchem Ergebnis und warum – neueste zuerst. Tippen Sie auf eine Zeile für alle Details.",
@@ -329,7 +346,8 @@
       "user": "Benutzer #{{id}}",
       "order": "Bestellung #{{id}}",
       "supplier": "Dienstleister #{{id}}",
-      "timeEntry": "Buchung #{{id}}"
+      "timeEntry": "Buchung #{{id}}",
+      "frameworkAgreement": "Rahmenvertrag #{{id}}"
     },
     "details": {
       "email": "E-Mail",
@@ -346,8 +364,19 @@
       "startDate": "Beginn",
       "endDate": "Ende",
       "approved": "Freigegeben",
-      "date": "Datum"
-    }
+      "date": "Datum",
+      "accountingObject": "Kostenstelle oder PSP-Element",
+      "month": "Monat",
+      "copied": "Kopiert",
+      "refused": "Abgelehnt",
+      "frameworkAgreementId": "Rahmenvertrag",
+      "totalBudgetCents": "Gesamtbudget",
+      "extraConsultants": "Zusätzliche Berater",
+      "extraWeeks": "Zusätzliche Wochen",
+      "created": "Angelegt"
+    },
+    "from": "Von",
+    "to": "Bis"
   },
   "auditActions": {
     "auth": {
@@ -363,12 +392,15 @@
       "update": "Benutzer geändert",
       "deactivate": "Benutzer deaktiviert",
       "reactivate": "Benutzer wieder aktiviert",
-      "reset_password": "Passwort zurückgesetzt"
+      "reset_password": "Passwort zurückgesetzt",
+      "import": "Konten importiert"
     },
     "supplier": {
       "list": "Dienstleister angesehen",
       "create": "Dienstleister angelegt",
-      "update": "Dienstleister umbenannt"
+      "update": "Dienstleister umbenannt",
+      "overview": "Dienstleister-Übersicht angesehen",
+      "view_bookings": "Buchungen des eigenen Unternehmens angesehen"
     },
     "time_entry": {
       "create": "Zeit gebucht",
@@ -376,7 +408,9 @@
       "approve": "Buchung freigegeben",
       "return": "Buchung zurückgegeben",
       "update": "Buchung korrigiert",
-      "delete": "Buchung gelöscht"
+      "delete": "Buchung gelöscht",
+      "copy_last_week": "Letzte Woche kopiert",
+      "parse_sentence": "Formular aus einem Satz ausgefüllt"
     },
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
@@ -387,7 +421,13 @@
       "update": "Bestellung geändert",
       "view_bookings": "Buchungen einer Bestellung angesehen",
       "approve_open": "Alle offenen Buchungen einer Bestellung freigegeben",
-      "view_unavailable": "Nicht verfügbare Tage einer Bestellung angesehen"
+      "view_unavailable": "Nicht verfügbare Tage einer Bestellung angesehen",
+      "view_proof": "Leistungsnachweis angesehen",
+      "export_proof": "Leistungsnachweis heruntergeladen",
+      "check_invoice": "Rechnung geprüft",
+      "close": "Bestellung abgeschlossen",
+      "reopen": "Bestellung wieder geöffnet",
+      "forecast_scenario": "Prognose-Szenario ausprobiert"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -402,6 +442,14 @@
       "list_own": "Eigene nicht verfügbare Tage angesehen",
       "mark": "Tag als nicht verfügbar markiert",
       "remove": "Nicht verfügbaren Tag entfernt"
+    },
+    "framework": {
+      "list": "Rahmenverträge angesehen",
+      "create": "Rahmenvertrag angelegt",
+      "update": "Rahmenvertrag geändert"
+    },
+    "notification": {
+      "list": "Benachrichtigungen angesehen"
     }
   },
   "suppliers": {
@@ -418,7 +466,12 @@
     "created": "{{name}} angelegt.",
     "renamed": "Umbenannt in {{name}}.",
     "empty": "Noch keine Dienstleister.",
-    "loadFailed": "Dienstleister konnten nicht geladen werden"
+    "loadFailed": "Dienstleister konnten nicht geladen werden",
+    "orders": "Bestellungen",
+    "ordered": "Bestellt",
+    "booked": "Gebucht",
+    "share": "Anteil an Bestellungen",
+    "shareOf": "{{percent}} % aller Bestellungen liegen bei {{name}}"
   },
   "orders": {
     "description": "Alle Bestellungen mit ihrem Budget – nur Summen, keine einzelnen Buchungen. Tippen Sie auf eine Bestellung, um sie zu ändern.",
@@ -452,7 +505,19 @@
     "saved": "Bestellung {{code}} gespeichert.",
     "empty": "Noch keine Bestellungen.",
     "loadFailed": "Bestellungen konnten nicht geladen werden",
-    "approvalSplit": "{{approved}} freigegeben · {{open}} noch nicht"
+    "approvalSplit": "{{approved}} freigegeben · {{open}} noch nicht",
+    "accountingObject": "Kostenstelle oder PSP-Element",
+    "accountingObjectPlaceholder": "z. B. CC-4100 oder P-2026-0815.03",
+    "accountingObjectHint": "Wer diese Bestellung im Unternehmen bezahlt. Optional.",
+    "closed": "Abgeschlossen",
+    "close": "Bestellung abschließen",
+    "reopen": "Bestellung wieder öffnen",
+    "closedNow": "Bestellung {{code}} abgeschlossen.",
+    "reopened": "Bestellung {{code}} wieder geöffnet.",
+    "showClosed": "Abgeschlossene Bestellungen zeigen",
+    "hideClosed": "Abgeschlossene Bestellungen ausblenden",
+    "followUpOf": "Folgebestellung zu {{code}}",
+    "followUpDescription": "Ein Vorschlag aus der bestehenden Bestellung für das, was ihrem Budget fehlt. Ändern Sie alles Nötige, bevor Sie anlegen."
   },
   "myOrders": {
     "description": "Die Bestellungen, für die Sie verantwortlich sind. Tippen Sie auf eine Bestellung, um die gebuchte Arbeit zu prüfen.",
@@ -486,7 +551,10 @@
     "returnConfirm": "Buchung zurückgeben",
     "returning": "Wird zurückgegeben …",
     "cancel": "Abbrechen",
-    "personDays": "{{days}} PT"
+    "personDays": "{{days}} PT",
+    "month": "Monat",
+    "allMonths": "Alle Monate",
+    "calendarWeek": "KW {{week}}"
   },
   "password": {
     "title": "Passwort ändern",
@@ -553,7 +621,10 @@
     "deleted": "Buchung gelöscht.",
     "deleteTitle": "Diese Buchung löschen?",
     "deleteDescription": "{{hours}} am {{date}} werden entfernt. Das kann nicht rückgängig gemacht werden.",
-    "deleteConfirm": "Löschen"
+    "deleteConfirm": "Löschen",
+    "copyLastWeek": "Letzte Woche kopieren",
+    "repeatNamed": "Buchung vom {{date}} wiederholen",
+    "copyResult": "{{copied}} kopiert, {{refused}} abgelehnt, {{notYet}} noch nicht fällig."
   },
   "calendar": {
     "future": "In der Zukunft – Zeit wird erst gebucht, wenn sie gearbeitet ist",
@@ -578,7 +649,6 @@
     "INVALID_JSON": "Die Anfrage konnte nicht gelesen werden.",
     "INTERNAL_ERROR": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "CONSULTANT_NEEDS_SUPPLIER": "Ein Berater muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen des Beraters.",
-    "SUPPLIER_ONLY_FOR_CONSULTANTS": "Nur Berater gehören zu einem Dienstleister. Projektleitung, Einkauf und Admins arbeiten für den Auftraggeber; lassen Sie den Dienstleister leer.",
     "SUPPLIER_NOT_FOUND": "Dieser Dienstleister existiert nicht.",
     "EMAIL_TAKEN": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse.",
     "SUNDAY_OR_HOLIDAY": "Buchung abgelehnt: An Sonn- und Feiertagen darf nicht gearbeitet werden (Arbeitszeitgesetz §9).",
@@ -617,18 +687,42 @@
     "BOOKING_APPROVED": "Diese Buchung ist freigegeben und kann nicht mehr geändert oder gelöscht werden.",
     "NOT_YOUR_BOOKING": "Sie können nur Ihre eigenen Buchungen ändern.",
     "DAY_MARKED_UNAVAILABLE": "Buchung abgelehnt: Sie haben diesen Tag als nicht verfügbar markiert. Entfernen Sie zuerst die Markierung, wenn Sie an diesem Tag gearbeitet haben.",
-    "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren."
+    "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren.",
+    "WORK_STATE_ONLY_FOR_CONSULTANTS": "Nur Berater haben ein Bundesland des Arbeitsorts, wegen ihrer Feiertage. Lassen Sie es leer.",
+    "ORDER_CLOSED": "Diese Bestellung ist abgeschlossen. Der Einkauf kann sie wieder öffnen.",
+    "ORDER_HAS_UNAPPROVED_BOOKINGS": "Diese Bestellung hat noch offene oder zurückgegebene Buchungen. Die Projektleitung muss sie zuerst prüfen.",
+    "FRAMEWORK_BUDGET_EXCEEDED": "Bestellung abgelehnt: In diesem Rahmenvertrag ist nicht mehr genug frei.",
+    "FRAMEWORK_OTHER_SUPPLIER": "Dieser Rahmenvertrag besteht mit einem anderen Dienstleister.",
+    "FRAMEWORK_PERIOD": "Der Zeitraum der Bestellung muss im Rahmenvertrag liegen.",
+    "FRAMEWORK_NOT_FOUND": "Diesen Rahmenvertrag gibt es nicht.",
+    "FRAMEWORK_CODE_TAKEN": "Einen Rahmenvertrag mit diesem Code gibt es bereits.",
+    "FRAMEWORK_TOTAL_BELOW_ORDERS": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen.",
+    "SUPPLIER_MANAGER_NEEDS_SUPPLIER": "Eine Dienstleister-Leitung muss zu einem Dienstleister gehören. Wählen Sie das Unternehmen.",
+    "SUPPLIER_ONLY_FOR_SUPPLIER_SIDE": "Nur Berater und Dienstleister-Leitungen gehören zu einem Dienstleister. Lassen Sie das Feld leer.",
+    "IMPORT_BAD_HEADER": "Die erste Zeile muss die Spalten benennen: email, name, role, optional supplier und state.",
+    "IMPORT_TOO_LARGE": "Eine Datei darf höchstens 500 Konten enthalten.",
+    "IMPORT_INVALID_EMAIL": "Das ist keine E-Mail-Adresse.",
+    "IMPORT_INVALID_NAME": "Ein Name braucht 2 bis 100 Zeichen.",
+    "IMPORT_INVALID_ROLE": "Diese Rolle gibt es nicht.",
+    "IMPORT_INVALID_STATE": "Dieses Bundesland gibt es nicht.",
+    "AI_OFF": "Buchen aus einem Satz ist ausgeschaltet. Füllen Sie stattdessen das Formular aus."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
     "pace": "Aktuelles Tempo: {{hours}} ({{days}} PT) pro Woche, aus den letzten 4 Wochen",
-    "runsOut": "Bei diesem Tempo ist das Budget am {{date}} aufgebraucht, vor dem Ende der Bestellung am {{end}}.",
+    "runsOut": "Bei diesem Tempo ist das Budget am {{date}} (KW {{week}}) aufgebraucht, vor dem Ende der Bestellung am {{end}}.",
     "missing": "Bis dahin fehlen etwa {{hours}} ({{days}} Personentage).",
-    "orderBy": "Bis {{date}} nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
+    "orderBy": "Bis {{date}} (KW {{week}}) nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
     "orderNow": "Jetzt nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",
     "lasts": "Bei diesem Tempo reicht das Budget bis zum Ende der Bestellung am {{end}}.",
     "noPace": "In den letzten 4 Wochen wurde nichts gebucht, daher gibt es kein Tempo für eine Prognose.",
-    "ended": "Diese Bestellung endete am {{end}}."
+    "ended": "Diese Bestellung endete am {{end}}.",
+    "closed": "Diese Bestellung ist abgeschlossen.",
+    "whatIf": "Was wäre, wenn?",
+    "extraConsultants": "Zusätzliche Berater",
+    "extraWeeks": "Projekt läuft länger, in Wochen",
+    "scenarioShort": "Dann ist das Budget am {{date}} aufgebraucht, etwa {{hours}} fehlen bis zum Ende am {{end}}.",
+    "scenarioLasts": "Dann reicht das Budget bis zum Ende am {{end}}."
   },
   "unavailable": {
     "title": "Tage, an denen ich nicht verfügbar bin",
@@ -639,5 +733,97 @@
     "remove": "{{date}} entfernen",
     "upcoming": "Kommende nicht verfügbare Tage",
     "upcomingDescription": "Berater auf dieser Bestellung. Die Prognose berücksichtigt diese Tage; der Grund bleibt beim Arbeitgeber."
+  },
+  "proof": {
+    "title": "Leistungsnachweis {{month}}",
+    "description": "Die Stunden dieses Monats, für die Rechnung. Download ohne Beginn und Ende.",
+    "download": "CSV herunterladen",
+    "approved": "Freigegeben",
+    "approvedMoney": "Freigegebener Betrag",
+    "open": "Offen",
+    "returned": "Zurückgegeben"
+  },
+  "invoice": {
+    "title": "Rechnung prüfen",
+    "description": "Vergleichen Sie eine Rechnung mit den Stunden, die die Projektleitung in diesem Monat freigegeben hat. Nur Summen.",
+    "month": "Monat",
+    "amount": "Rechnungsbetrag in €",
+    "notSaved": "Wird nur verglichen, nicht gespeichert.",
+    "check": "Prüfen",
+    "result": {
+      "matches": "Die Rechnung passt zu den freigegebenen Stunden.",
+      "invoice_higher": "Die Rechnung liegt {{difference}} über den freigegebenen Stunden.",
+      "invoice_lower": "Die Rechnung liegt {{difference}} unter den freigegebenen Stunden."
+    },
+    "approved": "Freigegeben: {{hours}} = {{amount}}. Berechnet: {{invoiced}}.",
+    "notApproved": "{{hours}} dieses Monats sind noch offen oder zurückgegeben; die Projektleitung ist also vielleicht noch nicht fertig."
+  },
+  "states": {
+    "BW": "Baden-Württemberg",
+    "BY": "Bayern",
+    "BE": "Berlin",
+    "BB": "Brandenburg",
+    "HB": "Bremen",
+    "HH": "Hamburg",
+    "HE": "Hessen",
+    "MV": "Mecklenburg-Vorpommern",
+    "NI": "Niedersachsen",
+    "NW": "Nordrhein-Westfalen",
+    "RP": "Rheinland-Pfalz",
+    "SL": "Saarland",
+    "SN": "Sachsen",
+    "ST": "Sachsen-Anhalt",
+    "SH": "Schleswig-Holstein",
+    "TH": "Thüringen"
+  },
+  "agreements": {
+    "description": "Langfristige Verträge mit einem Dienstleister. Bestellungen zehren vom Gesamtbudget, und der Server lehnt eine Bestellung darüber hinaus ab.",
+    "new": "Neuer Rahmenvertrag",
+    "change": "Ändern",
+    "changeNamed": "{{code}} ändern",
+    "loadFailed": "Die Rahmenverträge konnten nicht geladen werden",
+    "empty": "Noch keine Rahmenverträge.",
+    "field": "Rahmenvertrag",
+    "none": "Keiner",
+    "free": "{{amount}} frei",
+    "total": "Gesamt",
+    "ordered": "Bestellt",
+    "booked": "Gebucht",
+    "left": "Frei",
+    "orderCount_one": "{{count}} Bestellung",
+    "orderCount_other": "{{count}} Bestellungen",
+    "formDescription": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen und muss ihre Zeiträume abdecken.",
+    "title": "Titel",
+    "totalField": "Gesamtbudget in €",
+    "saved": "Rahmenvertrag {{code}} gespeichert."
+  },
+  "supplierManager": {
+    "intro": "Als Arbeitgeber sehen Sie die Buchungen der Berater Ihres Unternehmens, um das Arbeitszeitrecht zu prüfen.",
+    "bookings": "Buchungen Ihrer Berater",
+    "note": "Mit Beginn, Ende und Pause, denn der Arbeitgeber ist für das Arbeitszeitrecht verantwortlich. Der Kunde sieht nur Dauern.",
+    "times": "Zeiten",
+    "dayTotal": "Tag",
+    "none": "Keine Buchungen in diesem Monat.",
+    "loadFailed": "Die Buchungen konnten nicht geladen werden"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "description": "Was jetzt Ihre Aufmerksamkeit braucht. Es verschwindet, sobald es erledigt ist.",
+    "none": "Nichts braucht Ihre Aufmerksamkeit.",
+    "open_one": "Benachrichtigungen: {{count}} neu",
+    "open_other": "Benachrichtigungen: {{count}} neu",
+    "returned": "Ihre Buchung vom {{date}} wurde zurückgegeben: {{reason}}",
+    "toCheck_one": "{{code}}: {{count}} Buchung zu prüfen",
+    "toCheck_other": "{{code}}: {{count}} Buchungen zu prüfen",
+    "runsOut": "{{code}}: Das Budget ist am {{date}} aufgebraucht, vor dem Ende der Bestellung",
+    "orderMore": "{{code}}: bis {{date}} nachbestellen"
+  },
+  "sentence": {
+    "label": "Oder in einem Satz",
+    "placeholder": "gestern 9-17 auf Portal Migration, 1 h Pause",
+    "fill": "Ausfüllen",
+    "hint": "Füllt das Formular aus, und Sie prüfen es. Noch wird nichts gespeichert, und keine Daten verlassen das System.",
+    "filled": "Ausgefüllt. Prüfen Sie es, ergänzen Sie, was Sie gemacht haben, und buchen Sie.",
+    "partly": "Ausgefüllt, soweit verstanden. Prüfen Sie es und ergänzen Sie den Rest."
   }
 }

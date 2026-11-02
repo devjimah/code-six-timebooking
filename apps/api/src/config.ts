@@ -27,6 +27,8 @@ export const config = {
   trustProxyHops: Number(process.env.TRUST_PROXY_HOPS ?? 0),
   // ADR 0015: how long purchasing needs for a follow-up order.
   purchasingLeadTimeWeeks: Number(process.env.PURCHASING_LEAD_TIME_WEEKS ?? 4),
+  // ADR 0022: booking from a sentence. Only "off" switches it off; there is no mode that needs a key.
+  aiMode: process.env.AI_MODE === "off" ? ("off" as const) : ("mock" as const),
 }
 
 // With the public default secret, anyone could forge a session cookie. Refuse to start in production.

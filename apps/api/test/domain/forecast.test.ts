@@ -66,6 +66,54 @@ describe("planned absences (#10)", () => {
   })
 })
 
+describe("what-if scenarios (#73)", () => {
+  // 48 h per week from one person, 200 h left, order ends in about 8 weeks: it lasts 25 working days.
+  const base = {
+    order: { startDate: "2026-07-01", endDate: "2026-12-04", budgetHours: 200 },
+    teamSize: 1,
+  }
+
+  it("uses the budget up sooner with a second consultant, at twice the pace", () => {
+    const alone = forecast(base)
+    const together = forecast({ ...base, scenario: { extraConsultants: 1, extraWeeks: 0 } })
+
+    expect(alone.paceMinutesPerWeek).toBe(48 * HOUR)
+    expect(together.paceMinutesPerWeek).toBe(96 * HOUR)
+    expect(together.runsOutOn! < alone.runsOutOn!).toBe(true)
+  })
+
+  it("counts an extra consultant by the size of the team", () => {
+    const result = forecast({ ...base, teamSize: 2, scenario: { extraConsultants: 1, extraWeeks: 0 } })
+
+    expect(result.paceMinutesPerWeek).toBe(72 * HOUR)
+  })
+
+  it("misses more when the project runs longer", () => {
+    const asPlanned = forecast({ ...base, order: { ...base.order, endDate: "2026-12-31" } })
+    const longer = forecast({ ...base, order: { ...base.order, endDate: "2026-12-31" }, scenario: { extraConsultants: 0, extraWeeks: 4 } })
+
+    expect(longer.runsOutOn).toBe(asPlanned.runsOutOn)
+    expect(longer.missingMinutes).toBeGreaterThan(asPlanned.missingMinutes)
+  })
+
+  it("can turn a budget that lasts into a warning", () => {
+    const short = { startDate: "2026-07-01", endDate: "2026-10-31", budgetHours: 200 }
+
+    expect(forecast({ ...base, order: short }).state).toBe("lasts")
+    expect(forecast({ ...base, order: short, scenario: { extraConsultants: 0, extraWeeks: 8 } }).state).toBe("runs_out_early")
+  })
+
+  it("changes nothing without a change", () => {
+    expect(forecast({ ...base, scenario: { extraConsultants: 0, extraWeeks: 0 } })).toEqual(forecast(base))
+  })
+
+  it("cannot make a pace out of an empty team", () => {
+    const result = forecast({ ...base, teamSize: 0, minutesInPaceWindow: 0, scenario: { extraConsultants: 2, extraWeeks: 0 } })
+
+    expect(result.state).toBe("no_pace")
+  })
+})
+
 describe("the budget's end date", () => {
   it("skips Sundays: 6 working days from Monday end on the next Monday", () => {
     const result = forecast({ order: { startDate: "2026-07-01", endDate: "2027-01-31", budgetHours: 48 } })

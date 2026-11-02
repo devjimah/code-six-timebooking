@@ -7,15 +7,18 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Progress } from "@workspace/ui/components/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
-import { translateApiError } from "@/i18n/format.ts"
-import type { Supplier } from "@/lib/api-types.ts"
+import { formatEuroCents, translateApiError } from "@/i18n/format.ts"
+import type { Supplier, SupplierOverview } from "@/lib/api-types.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { SupplierDrawer } from "@/pages/purchasing/supplier-drawer.tsx"
 
 export function SuppliersPage() {
   const { t } = useTranslation()
   const suppliers = useApi<Supplier[]>("/suppliers")
+  const overview = useApi<SupplierOverview[]>("/suppliers/overview")
+  const shareOf = (id: number) => overview.data?.find((row) => row.supplierId === id)
   const [editing, setEditing] = React.useState<Supplier | "new" | null>(null)
 
   return (
@@ -42,6 +45,10 @@ export function SuppliersPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="pl-4">{t("suppliers.name")}</TableHead>
+                <TableHead className="hidden text-right md:table-cell">{t("suppliers.orders")}</TableHead>
+                <TableHead className="hidden text-right md:table-cell">{t("suppliers.ordered")}</TableHead>
+                <TableHead className="hidden text-right md:table-cell">{t("suppliers.booked")}</TableHead>
+                <TableHead className="w-32 sm:w-48">{t("suppliers.share")}</TableHead>
                 <TableHead className="w-0 pr-4">
                   <span className="sr-only">{t("suppliers.rename")}</span>
                 </TableHead>
@@ -51,14 +58,14 @@ export function SuppliersPage() {
               {suppliers.loading &&
                 Array.from({ length: 3 }, (_, i) => (
                   <TableRow key={i}>
-                    <TableCell className="pl-4" colSpan={2}>
+                    <TableCell className="pl-4" colSpan={6}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))}
               {suppliers.data?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-muted-foreground py-8 text-center">
+                  <TableCell colSpan={6} className="text-muted-foreground py-8 text-center">
                     {t("suppliers.empty")}
                   </TableCell>
                 </TableRow>
@@ -70,6 +77,22 @@ export function SuppliersPage() {
                       <Building2 className="text-muted-foreground size-4 shrink-0" aria-hidden />
                       <span className="font-medium">{supplier.name}</span>
                     </span>
+                  </TableCell>
+                  <TableCell className="hidden text-right tabular-nums md:table-cell">{shareOf(supplier.id)?.orderCount}</TableCell>
+                  <TableCell className="hidden text-right tabular-nums md:table-cell">
+                    {formatEuroCents(shareOf(supplier.id)?.budgetCents ?? 0)}
+                  </TableCell>
+                  <TableCell className="hidden text-right tabular-nums md:table-cell">
+                    {formatEuroCents(shareOf(supplier.id)?.bookedCents ?? 0)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="grid gap-1">
+                      <Progress
+                        value={shareOf(supplier.id)?.sharePercent ?? 0}
+                        aria-label={t("suppliers.shareOf", { percent: shareOf(supplier.id)?.sharePercent ?? 0, name: supplier.name })}
+                      />
+                      <span className="text-muted-foreground text-xs tabular-nums">{shareOf(supplier.id)?.sharePercent ?? 0} %</span>
+                    </div>
                   </TableCell>
                   <TableCell className="pr-4">
                     {/* The real control for keyboard and screen reader users; the row click is a shortcut. */}
@@ -92,7 +115,14 @@ export function SuppliersPage() {
         </CardContent>
       </Card>
 
-      <SupplierDrawer editing={editing} onClose={() => setEditing(null)} onSaved={suppliers.reload} />
+      <SupplierDrawer
+        editing={editing}
+        onClose={() => setEditing(null)}
+        onSaved={() => {
+          suppliers.reload()
+          overview.reload()
+        }}
+      />
     </>
   )
 }

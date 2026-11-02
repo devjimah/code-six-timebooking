@@ -11,9 +11,9 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useAuth } from "@/auth/auth-context.tsx"
 import { OrderProgressList } from "@/components/order-progress-list.tsx"
-import { formatDate, formatEuroCents, translateApiError } from "@/i18n/format.ts"
+import { formatDate, formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
 import type { OrderOverview, Supplier } from "@/lib/api-types.ts"
-import { daysBetween, todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { calendarWeek, daysBetween, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { ATTENTION_PERCENT } from "@/pages/project-manager/project-manager-home.tsx"
 
@@ -27,7 +27,7 @@ export function PurchasingHome() {
   const today = todayInCompanyTimeZone()
   const list = orders.data ?? []
 
-  const running = list.filter((o) => o.startDate <= today && today <= o.endDate)
+  const running = list.filter((o) => o.startDate <= today && today <= o.endDate && !o.closedAt)
   const budgetCents = list.reduce((s, o) => s + o.budgetCents, 0)
   const bookedCents = list.reduce((s, o) => s + o.bookedCents, 0)
   const stats = [
@@ -45,15 +45,18 @@ export function PurchasingHome() {
     .filter((o) => o.forecast.state === "runs_out_early")
     .sort((a, b) => (a.forecast.orderMoreBy ?? "").localeCompare(b.forecast.orderMoreBy ?? ""))
   const forecastNote = (o: { orderId: number }) => {
-    const { runsOutOn, orderMoreBy, leadTimeWeeks } = list.find((x) => x.orderId === o.orderId)!.forecast
-    const usedUp = t("home.purchasing.usedUpOn", { date: formatDate(runsOutOn ?? "") })
+    const { runsOutOn, orderMoreBy, leadTimeWeeks, missingHours } = list.find((x) => x.orderId === o.orderId)!.forecast
+    const usedUp = t("home.purchasing.usedUpOn", {
+      date: formatDate(runsOutOn ?? ""),
+      hours: formatHours(missingHours * 60),
+    })
     return orderMoreBy && orderMoreBy > today
-      ? `${usedUp} ${t("forecast.orderBy", { date: formatDate(orderMoreBy), weeks: leadTimeWeeks })}`
+      ? `${usedUp} ${t("forecast.orderBy", { date: formatDate(orderMoreBy), week: calendarWeek(orderMoreBy), weeks: leadTimeWeeks })}`
       : `${usedUp} ${t("forecast.orderNow", { weeks: leadTimeWeeks })}`
   }
 
   const lowBudget = list
-    .filter((o) => o.usedPercent >= ATTENTION_PERCENT)
+    .filter((o) => o.usedPercent >= ATTENTION_PERCENT && !o.closedAt)
     .sort((a, b) => b.usedPercent - a.usedPercent)
   const endingSoon = running
     .filter((o) => daysBetween(today, o.endDate) <= ENDING_SOON_DAYS)

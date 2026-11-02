@@ -22,13 +22,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile"
 import { formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import type { OrderOverview, OrderRequest, ProjectManager, Supplier } from "@/lib/api-types.ts"
+import { addDays } from "@/lib/dates.ts"
+import { euroToCents } from "@/lib/money.ts"
+import type { FrameworkAgreement, OrderOverview, OrderRequest, ProjectManager, Supplier } from "@/lib/api-types.ts"
 
 type Props = {
-  /** null = closed, "new" = place an order, an order = change it */
-  editing: OrderOverview | "new" | null
+  /** null = closed, "new" = place an order, an order = change it, followUpOf = a new order proposed from an existing one */
+  editing: OrderOverview | "new" | { followUpOf: OrderOverview } | null
   suppliers: Supplier[]
   projectManagers: ProjectManager[]
+  agreements: FrameworkAgreement[]
   onClose: () => void
   onSaved: () => void
 }
@@ -42,7 +45,11 @@ type Form = {
   hourlyRate: string // euros as typed, "95" or "95,50"
   startDate: string
   endDate: string
+  accountingObject: string
+  frameworkAgreementId: string
 }
+
+const NO_AGREEMENT = "none"
 
 const EMPTY: Form = {
   code: "",
@@ -53,6 +60,8 @@ const EMPTY: Form = {
   hourlyRate: "",
   startDate: "",
   endDate: "",
+  accountingObject: "",
+  frameworkAgreementId: NO_AGREEMENT,
 }
 
 /** `decimalComma`: show "95,00" in German, "95.00" in English – the way people type it in that language. */
@@ -65,16 +74,32 @@ const toForm = (order: OrderOverview, decimalComma: boolean): Form => ({
   hourlyRate: (order.hourlyRateCents / 100).toFixed(2).replace(".", decimalComma ? "," : "."),
   startDate: order.startDate,
   endDate: order.endDate,
+  accountingObject: order.accountingObject ?? "",
+  frameworkAgreementId: order.frameworkAgreementId === null ? NO_AGREEMENT : String(order.frameworkAgreementId),
 })
 
-/** "95,50" or "95.50" → 9550 cents; NaN if it is not a number. German users type a decimal comma. */
-const euroToCents = (text: string) => Math.round(Number(text.replace(",", ".")) * 100)
+/**
+ * A proposal from the early warning (ticket #70): the same supplier, project manager, rate and cost centre. It covers
+ * what the budget lacks until the order ends; without a warning, it starts when the old order ends. Purchasing decides.
+ */
+const toFollowUpForm = (order: OrderOverview, decimalComma: boolean): Form => {
+  const runsOut = order.forecast.state === "runs_out_early" ? order.forecast.runsOutOn : null
+  return {
+    ...toForm(order, decimalComma),
+    code: "",
+    budgetHours: runsOut ? String(Math.ceil(order.forecast.missingHours)) : "",
+    startDate: runsOut ?? addDays(order.endDate, 1),
+    endDate: runsOut ? order.endDate : "",
+  }
+}
 
-export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSaved }: Props) {
+export function OrderDrawer({ editing, suppliers, projectManagers, agreements, onClose, onSaved }: Props) {
   const { t, i18n } = useTranslation()
   const isMobile = useIsMobile()
-  const isNew = editing === "new"
-  const existing = editing && editing !== "new" ? editing : null
+  const followUpOf = editing && editing !== "new" && "followUpOf" in editing ? editing.followUpOf : null
+  const existing = editing && editing !== "new" && !("followUpOf" in editing) ? editing : null
+  const isNew = editing !== null && existing === null
+  const isClosed = existing?.closedAt != null
   const hasBookings = (existing?.bookedHours ?? 0) > 0
   const [form, setForm] = React.useState<Form>(EMPTY)
   const [error, setError] = React.useState<string | null>(null)
@@ -84,7 +109,8 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
   const [openedFor, setOpenedFor] = React.useState<typeof editing>(null)
   if (editing !== openedFor) {
     setOpenedFor(editing)
-    setForm(existing ? toForm(existing, i18n.resolvedLanguage === "de") : EMPTY)
+    const decimalComma = i18n.resolvedLanguage === "de"
+    setForm(existing ? toForm(existing, decimalComma) : followUpOf ? toFollowUpForm(followUpOf, decimalComma) : EMPTY)
     setError(null)
   }
 
@@ -93,6 +119,20 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
   const rateCents = euroToCents(form.hourlyRate)
   const hours = Number(form.budgetHours)
   const budgetPreview = Number.isFinite(rateCents) && hours > 0 && rateCents > 0 ? formatEuroCents(hours * rateCents) : null
+
+  /** Close or reopen: the server checks that nothing is still waiting to be approved. */
+  async function changeClosed() {
+    if (!existing) return
+    setError(null)
+    try {
+      await api(`/orders/${existing.orderId}/${isClosed ? "reopen" : "close"}`, { method: "POST" })
+      toast.success(t(isClosed ? "orders.reopened" : "orders.closedNow", { code: existing.code }))
+      onSaved()
+      onClose()
+    } catch (caught) {
+      setError(caught instanceof ApiError ? translateApiError(caught) : t("errors.INTERNAL_ERROR"))
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -108,6 +148,8 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
       hourlyRateCents: rateCents,
       startDate: form.startDate,
       endDate: form.endDate,
+      accountingObject: form.accountingObject,
+      frameworkAgreementId: form.frameworkAgreementId === NO_AGREEMENT ? null : Number(form.frameworkAgreementId),
     }
     try {
       const saved = existing
@@ -127,11 +169,19 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
     <Drawer direction={isMobile ? "bottom" : "right"} open={editing !== null} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{existing ? t("orders.edit", { code: existing.code }) : t("orders.new")}</DrawerTitle>
+          <DrawerTitle>
+            {existing
+              ? t("orders.edit", { code: existing.code })
+              : followUpOf
+                ? t("orders.followUpOf", { code: followUpOf.code })
+                : t("orders.new")}
+          </DrawerTitle>
           <DrawerDescription>
             {existing && hasBookings
               ? t("orders.editBooked", { hours: formatHours(existing.bookedHours * 60) })
-              : t("orders.newDescription")}
+              : followUpOf
+                ? t("orders.followUpDescription")
+                : t("orders.newDescription")}
           </DrawerDescription>
         </DrawerHeader>
         {/* The form scrolls on small phones; the footer buttons stay visible below it. */}
@@ -171,8 +221,24 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
               </Field>
             </div>
             <Field>
+              <FieldLabel htmlFor="order-accounting">{t("orders.accountingObject")}</FieldLabel>
+              <Input
+                id="order-accounting"
+                maxLength={40}
+                autoComplete="off"
+                placeholder={t("orders.accountingObjectPlaceholder")}
+                value={form.accountingObject}
+                onChange={(e) => update({ accountingObject: e.target.value })}
+              />
+              <FieldDescription>{t("orders.accountingObjectHint")}</FieldDescription>
+            </Field>
+            <Field>
               <FieldLabel htmlFor="order-supplier">{t("orders.supplier")}</FieldLabel>
-              <Select value={form.supplierId} onValueChange={(supplierId) => update({ supplierId })} disabled={hasBookings}>
+              <Select
+                value={form.supplierId}
+                onValueChange={(supplierId) => update({ supplierId, frameworkAgreementId: NO_AGREEMENT })}
+                disabled={hasBookings}
+              >
                 <SelectTrigger id="order-supplier" className="w-full">
                   <SelectValue placeholder={t("users.chooseSupplier")} />
                 </SelectTrigger>
@@ -185,6 +251,24 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
                 </SelectContent>
               </Select>
               {hasBookings && <FieldDescription>{t("orders.supplierLocked")}</FieldDescription>}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="order-agreement">{t("agreements.field")}</FieldLabel>
+              <Select value={form.frameworkAgreementId} onValueChange={(frameworkAgreementId) => update({ frameworkAgreementId })}>
+                <SelectTrigger id="order-agreement" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_AGREEMENT}>{t("agreements.none")}</SelectItem>
+                  {agreements
+                    .filter((agreement) => String(agreement.supplierId) === form.supplierId)
+                    .map((agreement) => (
+                      <SelectItem key={agreement.id} value={String(agreement.id)}>
+                        {agreement.code} · {t("agreements.free", { amount: formatEuroCents(agreement.freeCents) })}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </Field>
             <Field>
               <FieldLabel htmlFor="order-pm">{t("orders.projectManager")}</FieldLabel>
@@ -255,9 +339,14 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
           </FieldGroup>
         </form>
         <DrawerFooter>
-          <Button type="submit" form="order-form" disabled={submitting}>
+          <Button type="submit" form="order-form" disabled={submitting || isClosed}>
             {submitting ? t("suppliers.saving") : t(isNew ? "orders.create" : "suppliers.save")}
           </Button>
+          {existing && (
+            <Button variant="outline" onClick={changeClosed}>
+              {t(isClosed ? "orders.reopen" : "orders.close")}
+            </Button>
+          )}
           <DrawerClose asChild>
             <Button variant="outline">{t("users.cancel")}</Button>
           </DrawerClose>

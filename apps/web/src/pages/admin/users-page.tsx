@@ -3,7 +3,7 @@
 // Accounts are never deleted: bookings and audit events keep pointing to the person (step 4).
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { CircleAlert, KeyRound, Pencil, UserCheck, UserPlus, UserX } from "lucide-react"
+import { CircleAlert, KeyRound, Pencil, Upload, UserCheck, UserPlus, UserX } from "lucide-react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
@@ -33,12 +33,14 @@ import { initials } from "@/lib/initials.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { ResetPasswordDrawer } from "@/pages/admin/reset-password-drawer.tsx"
 import { UserFormDrawer } from "@/pages/admin/user-form-drawer.tsx"
+import { UserImportDrawer } from "@/pages/admin/user-import-drawer.tsx"
 
 const ROLE_BADGE: Record<Role, "default" | "secondary" | "outline"> = {
   admin: "default",
   project_manager: "secondary",
   purchasing: "secondary",
   consultant: "outline",
+  supplier_manager: "outline",
 }
 
 export function UsersPage() {
@@ -48,6 +50,7 @@ export function UsersPage() {
   const suppliers = useApi<Supplier[]>("/suppliers")
   const [selected, setSelected] = React.useState<User | null>(null)
   const [editing, setEditing] = React.useState<User | "new" | null>(null)
+  const [importing, setImporting] = React.useState(false)
   const [resetting, setResetting] = React.useState<User | null>(null)
 
   const supplierName = (id: number | null) => suppliers.data?.find((s) => s.id === id)?.name ?? null
@@ -71,6 +74,10 @@ export function UsersPage() {
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted-foreground text-sm">{t("users.description")}</p>
+        <Button variant="outline" onClick={() => setImporting(true)}>
+          <Upload aria-hidden />
+          {t("users.importTitle")}
+        </Button>
         <Button onClick={() => setEditing("new")}>
           <UserPlus aria-hidden />
           {t("users.new")}
@@ -214,6 +221,7 @@ export function UsersPage() {
 
       <ResetPasswordDrawer user={resetting} onClose={() => setResetting(null)} onSaved={users.reload} />
 
+      <UserImportDrawer open={importing} onClose={() => setImporting(false)} onImported={users.reload} />
       <UserFormDrawer
         editing={editing}
         currentUserId={me?.id ?? 0}

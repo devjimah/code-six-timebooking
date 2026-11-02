@@ -7,14 +7,16 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { formatDate, formatHours, formatNumber } from "@/i18n/format.ts"
 import type { BudgetForecast } from "@/lib/api-types.ts"
-import { todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { calendarWeek, todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { ForecastScenarioPanel } from "@/pages/project-manager/forecast-scenario.tsx"
 
 type Props = {
+  orderId?: string
   forecast: BudgetForecast
   endDate: string
 }
 
-export function BudgetForecastCard({ forecast, endDate }: Props) {
+export function BudgetForecastCard({ orderId, forecast, endDate }: Props) {
   const { t } = useTranslation()
   const end = formatDate(endDate)
   const late = forecast.orderMoreBy !== null && forecast.orderMoreBy <= todayInCompanyTimeZone()
@@ -30,11 +32,11 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
           })}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="grid gap-4">
         {forecast.state === "runs_out_early" && forecast.runsOutOn ? (
           <Alert variant="destructive">
             <TriangleAlert aria-hidden />
-            <AlertTitle>{t("forecast.runsOut", { date: formatDate(forecast.runsOutOn), end })}</AlertTitle>
+            <AlertTitle>{t("forecast.runsOut", { date: formatDate(forecast.runsOutOn), week: calendarWeek(forecast.runsOutOn), end })}</AlertTitle>
             <AlertDescription>
               <p>
                 {t("forecast.missing", {
@@ -46,7 +48,11 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
                 <p>
                   {late
                     ? t("forecast.orderNow", { weeks: forecast.leadTimeWeeks })
-                    : t("forecast.orderBy", { date: formatDate(forecast.orderMoreBy), weeks: forecast.leadTimeWeeks })}
+                    : t("forecast.orderBy", {
+                        date: formatDate(forecast.orderMoreBy),
+                        week: calendarWeek(forecast.orderMoreBy),
+                        weeks: forecast.leadTimeWeeks,
+                      })}
                 </p>
               )}
             </AlertDescription>
@@ -56,8 +62,11 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
             {forecast.state === "lasts" && t("forecast.lasts", { end })}
             {forecast.state === "no_pace" && t("forecast.noPace")}
             {forecast.state === "ended" && t("forecast.ended", { end })}
+            {forecast.state === "closed" && t("forecast.closed")}
           </p>
         )}
+        {/* Only while there is a pace to change and the order is running. */}
+        {orderId && (forecast.state === "lasts" || forecast.state === "runs_out_early") && <ForecastScenarioPanel orderId={orderId} />}
       </CardContent>
     </Card>
   )

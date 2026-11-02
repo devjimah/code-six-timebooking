@@ -20,7 +20,8 @@ import { formatEuroCents, formatHours } from "@/i18n/format.ts"
 import type { Role } from "@/lib/api-types.ts"
 import { useAutoplay } from "@/pages/landing/use-autoplay.ts"
 
-const SLIDES: { role: Role; photo: string }[] = [
+// The four roles on the client's and the consultant's side; the supplier manager is not part of the tour.
+const SLIDES: { role: Exclude<Role, "supplier_manager">; photo: string }[] = [
   { role: "project_manager", photo: projectManagerPhoto },
   { role: "consultant", photo: consultantPhoto },
   { role: "purchasing", photo: purchasingPhoto },

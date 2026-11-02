@@ -1,8 +1,12 @@
 // The shapes the API sends back. They mirror the response DTOs in apps/api/src/api/dto.ts –
 // when a DTO changes there, change it here too.
 
-export const ROLES = ["consultant", "project_manager", "purchasing", "admin"] as const
+export const ROLES = ["consultant", "project_manager", "purchasing", "admin", "supplier_manager"] as const
 export type Role = (typeof ROLES)[number]
+
+// The 16 German states; public holidays differ between them (ADR 0019).
+export const GERMAN_STATES = ["BW", "BY", "BE", "BB", "HB", "HH", "HE", "MV", "NI", "NW", "RP", "SL", "SN", "ST", "SH", "TH"] as const
+export type GermanState = (typeof GERMAN_STATES)[number]
 
 export type User = {
   id: number
@@ -10,6 +14,7 @@ export type User = {
   name: string
   role: Role
   supplierId: number | null
+  workState: GermanState | null
   deactivatedAt: string | null // ISO timestamp; null = active
   mustChangePassword: boolean // an admin chose the password; the person must replace it first (step 5)
 }
@@ -33,6 +38,13 @@ export type BookableOrder = {
 export type UnavailableDay = { date: string } // "YYYY-MM-DD"
 // GET /api/orders/:id/unavailable-days
 export type OrderUnavailableDay = UnavailableDay & { consultantName: string }
+
+// POST /api/time-entries/copy-last-week
+export type CopyLastWeekResult = {
+  created: TimeEntry[]
+  refused: { workDate: string; code: string; message: string }[]
+  notYet: number
+}
 
 // Check and approve (ADR 0014)
 export type BookingStatus = "open" | "approved" | "returned"
@@ -78,7 +90,7 @@ export type AuditEvent = {
 // GET /api/orders (orderOverviewResponse): one order with its budget, for purchasing
 // How long the budget lasts at the current pace (budgetForecastResponse, ADR 0015)
 export type BudgetForecast = {
-  state: "no_pace" | "ended" | "lasts" | "runs_out_early"
+  state: "no_pace" | "ended" | "closed" | "lasts" | "runs_out_early"
   paceHoursPerWeek: number
   pacePersonDaysPerWeek: number
   runsOutOn: string | null // "YYYY-MM-DD"
@@ -89,7 +101,36 @@ export type BudgetForecast = {
   orderEndDate: string
 }
 
+// GET /api/framework-agreements (ADR 0020)
+export type FrameworkAgreement = {
+  id: number
+  code: string
+  title: string
+  supplierId: number
+  supplierName: string
+  totalBudgetCents: number
+  startDate: string
+  endDate: string
+  orderCount: number
+  orderedCents: number
+  bookedCents: number
+  freeCents: number
+}
+
+// GET /api/suppliers/overview: sums per supplier
+export type SupplierOverview = {
+  supplierId: number
+  name: string
+  orderCount: number
+  budgetCents: number
+  bookedCents: number
+  sharePercent: number
+}
+
 export type OrderOverview = {
+  frameworkAgreementId: number | null
+  accountingObject: string | null
+  closedAt: string | null // ISO timestamp when purchasing closed it; null = open
   forecast: BudgetForecast
   orderId: number
   code: string
@@ -120,12 +161,12 @@ export type OrderOverview = {
 export type OrderBudget = Pick<
   OrderOverview,
   | "orderId" | "code" | "title" | "budgetHours" | "bookedHours" | "remainingHours"
-  | "budgetPersonDays" | "bookedPersonDays" | "remainingPersonDays"
+  | "budgetPersonDays" | "bookedPersonDays" | "remainingPersonDays" | "closedAt"
   | "budgetCents" | "bookedCents" | "remainingCents" | "usedPercent" | "overBudget"
 >
 
 // GET /api/orders/:id/budget (orderBudgetDetailResponse): one order, with its forecast
-export type OrderBudgetDetail = OrderBudget & { forecast: BudgetForecast }
+export type OrderBudgetDetail = OrderBudget & { accountingObject: string | null; forecast: BudgetForecast }
 
 // GET /api/orders/:id/time-entries: one booking, with the consultant's name only
 export type OrderBooking = {
@@ -148,6 +189,72 @@ export type OrderRequest = {
   hourlyRateCents: number
   startDate: string
   endDate: string
+  accountingObject: string | null
+  frameworkAgreementId: number | null
+}
+
+// GET /api/orders/:id/proof-of-work (ADR 0018)
+export type ProofOfWork = {
+  orderId: number
+  code: string
+  title: string
+  accountingObject: string | null
+  month: string
+  approvedHours: number
+  openHours: number
+  returnedHours: number
+  approvedCents: number
+  bookings: OrderBooking[]
+}
+
+// GET /api/orders/:id/invoice-check (ADR 0018): sums only
+export type InvoiceCheck = {
+  orderId: number
+  code: string
+  month: string
+  approvedHours: number
+  notApprovedHours: number
+  approvedCents: number
+  invoicedCents: number
+  differenceCents: number
+  result: "matches" | "invoice_higher" | "invoice_lower"
+}
+
+// GET /api/supplier/bookings (ADR 0021)
+export type SupplierBooking = {
+  id: number
+  userId: number
+  consultantName: string
+  orderCode: string
+  workDate: string
+  startTime: string
+  endTime: string
+  breakMinutes: number
+  durationMinutes: number
+  description: string
+  status: BookingStatus
+}
+
+// GET /api/notifications: computed each time, never stored
+export type Notification =
+  | { type: "booking_returned"; timeEntryId: number; workDate: string; reason: string | null }
+  | { type: "bookings_to_check"; orderId: number; code: string; count: number }
+  | { type: "budget_runs_out"; orderId: number; code: string; runsOutOn: string }
+  | { type: "order_more"; orderId: number; code: string; runsOutOn: string; orderMoreBy: string | null }
+
+// POST /api/users/import
+export type UserImportResult = {
+  created: User[]
+  refused: { line: number; email: string; code: string; message: string }[]
+}
+
+// POST /api/time-entries/parse-sentence (ADR 0022): null = not understood
+export type SentenceProposal = {
+  orderId: number | null
+  workDate: string | null
+  startTime: string | null
+  endTime: string | null
+  breakMinutes: number | null
 }
 
 // GET /api/project-managers: names only

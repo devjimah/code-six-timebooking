@@ -9,7 +9,7 @@ import { createClient } from "@libsql/client"
 import { drizzle } from "drizzle-orm/libsql"
 import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import { createApp } from "../src/app.js"
-import { nationwideHoliday } from "../src/domain/public-holidays.js"
+import { publicHoliday } from "../src/domain/public-holidays.js"
 import * as schema from "../src/persistence/schema.js"
 import { DEMO_PASSWORD } from "../src/persistence/seed.js"
 import { setupDatabase } from "../src/persistence/setup.js"
@@ -50,8 +50,8 @@ const holidays = (query: string, cookie: string | null) =>
   fetch(`${baseUrl}/api/public-holidays${query}`, { headers: cookie ? { Cookie: cookie } : {} })
 
 describe("public holidays for the booking calendar", () => {
-  it("lists the nationwide holidays of a year in calendar order", async () => {
-    const res = await holidays("?year=2026", await sessionCookieFor("consultant@demo.local"))
+  it("lists the nationwide holidays of a year in calendar order for a consultant without a work state", async () => {
+    const res = await holidays("?year=2026", await sessionCookieFor("anna@demo.local"))
 
     expect(res.status).toBe(200)
     const list = (await res.json()) as { date: string; name: string }[]
@@ -61,13 +61,13 @@ describe("public holidays for the booking calendar", () => {
     expect(list.map((h) => h.date)).toEqual([...list.map((h) => h.date)].sort())
   })
 
-  it("lists exactly the days the booking rule refuses", async () => {
+  it("lists exactly the days the booking rule refuses for this consultant, who works in Bavaria", async () => {
     const list = (await (await holidays("?year=2027", await sessionCookieFor("consultant@demo.local"))).json()) as {
       date: string
       name: string
     }[]
 
-    for (const { date, name } of list) expect(nationwideHoliday(date)).toBe(name)
+    for (const { date, name } of list) expect(publicHoliday(date, "BY")).toBe(name)
   })
 
   it("rejects a missing or impossible year with 400", async () => {

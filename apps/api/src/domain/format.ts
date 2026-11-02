@@ -15,6 +15,11 @@ export function formatHours(minutes: number): string {
   return `${Number((minutes / 60).toFixed(2))} h`
 }
 
+/** 123456 → "1,234.56 €". The API answers in English; the web app translates by error code. */
+export function formatEuros(cents: number): string {
+  return `${(cents / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`
+}
+
 /** Person-days, 1 PD = 8 h (challenge glossary). 120 → "0.25 PD" */
 export function formatPersonDays(minutes: number): string {
   return `${Number((minutes / 60 / 8).toFixed(2))} PD`

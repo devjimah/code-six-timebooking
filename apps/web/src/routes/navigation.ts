@@ -1,11 +1,11 @@
 // Which screens each role sees in the sidebar. Every role starts on its own home (pages/home-page.tsx).
-import { Building2, Clock, FileText, House, ScrollText, Users, type LucideIcon } from "lucide-react"
+import { Building2, Clock, FileText, Handshake, House, Receipt, ScrollText, Users, type LucideIcon } from "lucide-react"
 
 import type { Role } from "@/lib/api-types.ts"
 
 export type NavItem = {
   path: string
-  labelKey: "nav.home" | "nav.users" | "nav.audit" | "nav.suppliers" | "nav.orders" | "nav.myOrders" | "nav.bookTime"
+  labelKey: "nav.home" | "nav.users" | "nav.audit" | "nav.suppliers" | "nav.orders" | "nav.myOrders" | "nav.bookTime" | "nav.invoiceCheck" | "nav.agreements"
   icon: LucideIcon
 }
 
@@ -21,9 +21,12 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
   purchasing: [
     HOME,
     { path: "/purchasing/orders", labelKey: "nav.orders", icon: FileText },
+    { path: "/purchasing/agreements", labelKey: "nav.agreements", icon: Handshake },
+    { path: "/purchasing/invoice-check", labelKey: "nav.invoiceCheck", icon: Receipt },
     { path: "/purchasing/suppliers", labelKey: "nav.suppliers", icon: Building2 },
   ],
   consultant: [HOME, { path: "/time", labelKey: "nav.bookTime", icon: Clock }],
+  supplier_manager: [HOME],
 }
 
 /** The first screen of a role, shown after sign-in: the role's home. */

@@ -8,6 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent } from "@workspace/ui/components/card"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
+import { Input } from "@workspace/ui/components/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
@@ -25,12 +27,16 @@ export function AuditPage() {
   const [userId, setUserId] = React.useState(ALL)
   const [outcome, setOutcome] = React.useState(ALL)
   const [action, setAction] = React.useState(ALL)
+  const [from, setFrom] = React.useState("")
+  const [to, setTo] = React.useState("")
   const [selected, setSelected] = React.useState<AuditEvent | null>(null)
 
   const query = new URLSearchParams({ limit: "100" })
   if (userId !== ALL) query.set("userId", userId)
   if (outcome !== ALL) query.set("outcome", outcome)
   if (action !== ALL) query.set("action", action)
+  if (from) query.set("from", from)
+  if (to) query.set("to", to)
   const events = useApi<AuditEvent[]>(`/audit-events?${query}`)
   const users = useApi<User[]>("/users")
 
@@ -81,6 +87,17 @@ export function AuditPage() {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:max-w-md">
+        <Field>
+          <FieldLabel htmlFor="audit-from">{t("audit.from")}</FieldLabel>
+          <Input id="audit-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="audit-to">{t("audit.to")}</FieldLabel>
+          <Input id="audit-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+        </Field>
       </div>
 
       {events.error && (
