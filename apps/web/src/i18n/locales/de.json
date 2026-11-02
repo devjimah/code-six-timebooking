@@ -358,7 +358,9 @@
       "copied": "Kopiert",
       "refused": "Abgelehnt",
       "frameworkAgreementId": "Rahmenvertrag",
-      "totalBudgetCents": "Gesamtbudget"
+      "totalBudgetCents": "Gesamtbudget",
+      "extraConsultants": "Zusätzliche Berater",
+      "extraWeeks": "Zusätzliche Wochen"
     },
     "from": "Von",
     "to": "Bis"
@@ -408,7 +410,8 @@
       "export_proof": "Leistungsnachweis heruntergeladen",
       "check_invoice": "Rechnung geprüft",
       "close": "Bestellung abgeschlossen",
-      "reopen": "Bestellung wieder geöffnet"
+      "reopen": "Bestellung wieder geöffnet",
+      "forecast_scenario": "Prognose-Szenario ausprobiert"
     },
     "audit": {
       "view": "Protokoll angesehen"
@@ -687,7 +690,12 @@
     "lasts": "Bei diesem Tempo reicht das Budget bis zum Ende der Bestellung am {{end}}.",
     "noPace": "In den letzten 4 Wochen wurde nichts gebucht, daher gibt es kein Tempo für eine Prognose.",
     "ended": "Diese Bestellung endete am {{end}}.",
-    "closed": "Diese Bestellung ist abgeschlossen."
+    "closed": "Diese Bestellung ist abgeschlossen.",
+    "whatIf": "Was wäre, wenn?",
+    "extraConsultants": "Zusätzliche Berater",
+    "extraWeeks": "Projekt läuft länger, in Wochen",
+    "scenarioShort": "Dann ist das Budget am {{date}} aufgebraucht, etwa {{hours}} fehlen bis zum Ende am {{end}}.",
+    "scenarioLasts": "Dann reicht das Budget bis zum Ende am {{end}}."
   },
   "unavailable": {
     "title": "Tage, an denen ich nicht verfügbar bin",

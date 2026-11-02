@@ -30,6 +30,8 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  budgetForecastResponse,
+  forecastScenarioQuery,
   frameworkAgreementIdParams,
   frameworkAgreementOverviewResponse,
   frameworkAgreementRequest,
@@ -374,6 +376,14 @@ export const routes: RouteDoc[] = [
     params: orderIdParams,
     success: { status: 200, description: "Open again", schema: orderResponse },
     errors: { 400: "The id is not a number", 404: "ORDER_NOT_FOUND" },
+  },
+  {
+    method: "get", path: "/api/orders/{id}/forecast-scenario", tag: "Orders", roles: ["project_manager"],
+    summary: "What if another consultant joins or the project runs longer? Nothing is saved",
+    params: orderIdParams,
+    query: forecastScenarioQuery,
+    success: { status: 200, description: "The forecast with this change", schema: budgetForecastResponse },
+    errors: { 400: "Invalid id or values", 403: "FORBIDDEN or NOT_YOUR_ORDER", 404: "ORDER_NOT_FOUND" },
   },
   {
     method: "get", path: "/api/orders/{id}/proof-of-work", tag: "Orders", roles: ["project_manager"],

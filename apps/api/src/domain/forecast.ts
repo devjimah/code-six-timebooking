@@ -16,6 +16,9 @@ export type ForecastState =
   | "lasts" // the budget lasts until the order ends
   | "runs_out_early" // the budget is used up before the order ends
 
+/** A what-if on top of the forecast: nothing is saved (ticket #73). */
+export type ForecastScenario = { extraConsultants: number; extraWeeks: number }
+
 export type BudgetForecast = {
   state: ForecastState
   paceMinutesPerWeek: number
@@ -32,9 +35,16 @@ export function forecastBudget(input: {
   today: string // "YYYY-MM-DD"
   leadTimeWeeks: number
   capacityOn?: (date: string) => number // share of the team available that day, 0 to 1; everyone if left out
+  scenario?: ForecastScenario
+  teamSize?: number // how many people the pace comes from, needed for scenario.extraConsultants
 }): BudgetForecast {
-  const { order, today, capacityOn = () => 1 } = input
-  const pace = paceMinutesPerWeek(input.minutesInPaceWindow, order.startDate, today)
+  const { today, capacityOn = () => 1, scenario, teamSize = 0 } = input
+  // What if? The project runs longer, and each extra consultant works at the team's average pace (ticket #73).
+  const order = scenario
+    ? { ...input.order, endDate: addDays(input.order.endDate, scenario.extraWeeks * 7) }
+    : input.order
+  const growth = scenario && teamSize > 0 ? (teamSize + scenario.extraConsultants) / teamSize : 1
+  const pace = Math.round(paceMinutesPerWeek(input.minutesInPaceWindow, order.startDate, today) * growth)
   const forecast = {
     paceMinutesPerWeek: pace,
     runsOutOn: null,

@@ -413,7 +413,7 @@ export const budgetForecastResponse = z.object({
   leadTimeWeeks: z.number().int(),
   orderEndDate: z.string(),
 })
-const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.infer<typeof budgetForecastResponse> => ({
+export const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.infer<typeof budgetForecastResponse> => ({
   state: forecast.state,
   paceHoursPerWeek: hours(forecast.paceMinutesPerWeek),
   pacePersonDaysPerWeek: personDays(forecast.paceMinutesPerWeek),
@@ -423,6 +423,12 @@ const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.inf
   orderMoreBy: forecast.orderMoreBy,
   leadTimeWeeks: forecast.leadTimeWeeks,
   orderEndDate: order.endDate,
+})
+
+// GET /api/orders/:id/forecast-scenario (ticket #73): a what-if, nothing is saved.
+export const forecastScenarioQuery = z.object({
+  extraConsultants: z.coerce.number().int().min(0).max(20).default(0),
+  extraWeeks: z.coerce.number().int().min(0).max(104).default(0),
 })
 
 // GET /api/orders/:id/budget – one order, with its forecast. The list of own orders stays without one.

@@ -120,7 +120,7 @@ export function OrderDetailPage() {
           aria-label={t("orders.usedOf", { percent: order.usedPercent, code: order.code })}
         />
       )}
-      {order && <BudgetForecastCard forecast={order.forecast} endDate={order.forecast.orderEndDate} />}
+      {order && <BudgetForecastCard orderId={orderId} forecast={order.forecast} endDate={order.forecast.orderEndDate} />}
 
       {/* Planning without asking: that someone is away, never why (ADR 0016). */}
       {unavailable.data && unavailable.data.length > 0 && (

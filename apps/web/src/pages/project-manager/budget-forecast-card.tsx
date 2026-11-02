@@ -8,13 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@work
 import { formatDate, formatHours, formatNumber } from "@/i18n/format.ts"
 import type { BudgetForecast } from "@/lib/api-types.ts"
 import { calendarWeek, todayInCompanyTimeZone } from "@/lib/dates.ts"
+import { ForecastScenarioPanel } from "@/pages/project-manager/forecast-scenario.tsx"
 
 type Props = {
+  orderId?: string
   forecast: BudgetForecast
   endDate: string
 }
 
-export function BudgetForecastCard({ forecast, endDate }: Props) {
+export function BudgetForecastCard({ orderId, forecast, endDate }: Props) {
   const { t } = useTranslation()
   const end = formatDate(endDate)
   const late = forecast.orderMoreBy !== null && forecast.orderMoreBy <= todayInCompanyTimeZone()
@@ -30,7 +32,7 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
           })}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="grid gap-4">
         {forecast.state === "runs_out_early" && forecast.runsOutOn ? (
           <Alert variant="destructive">
             <TriangleAlert aria-hidden />
@@ -63,6 +65,8 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
             {forecast.state === "closed" && t("forecast.closed")}
           </p>
         )}
+        {/* Only while there is a pace to change and the order is running. */}
+        {orderId && (forecast.state === "lasts" || forecast.state === "runs_out_early") && <ForecastScenarioPanel orderId={orderId} />}
       </CardContent>
     </Card>
   )

@@ -36,3 +36,4 @@ is `PURCHASING_LEAD_TIME_WEEKS` (4 weeks, as in the challenge's example). The ca
 - Unavailable days count since [ADR 0016](0016-unavailable-days.md), and a holiday in the state someone works in since
   [ADR 0019](0019-public-holidays-per-state.md).
 - With no bookings in the last 4 weeks there is no forecast, and the screen says so instead of guessing.
+- A what-if (ticket #73) adds consultants at the team's average pace, or moves the order's end. Nothing is saved.

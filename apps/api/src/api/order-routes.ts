@@ -1,7 +1,7 @@
 // Orders, seen from each role (tickets #11 and #18). Every route checks the role here
 // and the use case narrows the data to the caller's own orders.
 import { Router } from "express"
-import { getOrderBudget } from "../application/get-order-budget.js"
+import { getOrderBudget, getOrderScenario } from "../application/get-order-budget.js"
 import { listOrderBookings } from "../application/list-order-bookings.js"
 import { closeOrder, createOrder, listAllOrders, reopenOrder, updateOrder } from "../application/manage-orders.js"
 import { listBookableOrders, listManagedOrders } from "../application/list-orders.js"
@@ -14,6 +14,8 @@ import type { Db } from "../persistence/db.js"
 import { proofOfWorkCsv, proofOfWorkFileName } from "./proof-of-work-csv.js"
 import {
   type OrderRequest,
+  forecastScenarioQuery,
+  toBudgetForecastResponse,
   invoiceCheckQuery,
   proofOfWorkQuery,
   toInvoiceCheckResponse,
@@ -83,6 +85,15 @@ export function orderRoutes(db: Db, purchasingLeadTimeWeeks: number) {
     setAuditContext(res, { targetType: "order", targetId: id })
     const { order, budget, forecast } = await getOrderBudget(db, req.user!, id, purchasingLeadTimeWeeks)
     res.json(toOrderBudgetDetailResponse(order, budget, forecast))
+  })
+
+  // What if? Same ownership check as the budget; nothing is saved (ticket #73).
+  router.get("/:id/forecast-scenario", requireRole("project_manager"), async (req, res) => {
+    const { id } = orderIdParams.parse(req.params)
+    const scenario = forecastScenarioQuery.parse(req.query)
+    setAuditContext(res, { targetType: "order", targetId: id, details: scenario })
+    const { order, forecast } = await getOrderScenario(db, req.user!, id, purchasingLeadTimeWeeks, scenario)
+    res.json(toBudgetForecastResponse(order, forecast))
   })
 
   // GET /api/orders/:id/time-entries – single bookings of the project manager's own order (same ownership check).

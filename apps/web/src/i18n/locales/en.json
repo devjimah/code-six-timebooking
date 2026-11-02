@@ -358,7 +358,9 @@
       "copied": "Copied",
       "refused": "Refused",
       "frameworkAgreementId": "Framework agreement",
-      "totalBudgetCents": "Total budget"
+      "totalBudgetCents": "Total budget",
+      "extraConsultants": "Extra consultants",
+      "extraWeeks": "Extra weeks"
     },
     "from": "From",
     "to": "To"
@@ -408,7 +410,8 @@
       "export_proof": "Downloaded a proof of work",
       "check_invoice": "Checked an invoice",
       "close": "Closed an order",
-      "reopen": "Reopened an order"
+      "reopen": "Reopened an order",
+      "forecast_scenario": "Tried a forecast scenario"
     },
     "audit": {
       "view": "Viewed audit log"
@@ -687,7 +690,12 @@
     "lasts": "At this pace the budget lasts until the order ends on {{end}}.",
     "noPace": "Nothing was booked in the last 4 weeks, so there is no pace to forecast from.",
     "ended": "This order ended on {{end}}.",
-    "closed": "This order is closed."
+    "closed": "This order is closed.",
+    "whatIf": "What if?",
+    "extraConsultants": "Extra consultants",
+    "extraWeeks": "Project runs longer, in weeks",
+    "scenarioShort": "Then the budget is used up on {{date}}, about {{hours}} short of the end on {{end}}.",
+    "scenarioLasts": "Then the budget lasts until the end on {{end}}."
   },
   "unavailable": {
     "title": "Days I am unavailable",

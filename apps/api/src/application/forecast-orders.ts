@@ -1,6 +1,6 @@
 // Loads what the forecast needs for several orders at once (ticket #51, ADR 0015): the pace, and how much of the
 // team is away on a coming day (ticket #10, ADR 0016). The calculation itself is in domain/forecast.ts.
-import { type BudgetForecast, PACE_WINDOW_DAYS, forecastBudget } from "../domain/forecast.js"
+import { type BudgetForecast, type ForecastScenario, PACE_WINDOW_DAYS, forecastBudget } from "../domain/forecast.js"
 import type { Order } from "../domain/models.js"
 import { addDays, publicHoliday } from "../domain/public-holidays.js"
 import type { Db } from "../persistence/db.js"
@@ -12,6 +12,7 @@ export async function forecastOrders(
   bookedMinutes: Map<number, number>,
   leadTimeWeeks: number,
   today: string,
+  scenario?: ForecastScenario,
 ): Promise<Map<number, BudgetForecast>> {
   const ids = orders.map((o) => o.id)
   const since = addDays(today, 1 - PACE_WINDOW_DAYS)
@@ -37,6 +38,8 @@ export async function forecastOrders(
         today,
         leadTimeWeeks,
         capacityOn,
+        scenario,
+        teamSize: people.length,
       })
       return [order.id, forecast]
     }),
