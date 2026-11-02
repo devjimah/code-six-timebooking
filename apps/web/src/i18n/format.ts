@@ -33,6 +33,11 @@ export function formatHours(minutes: number): string {
   return `${hours} h`
 }
 
+/** 5.75 person-days → "5,75" (de) or "5.75" (en) */
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat(locale(), { maximumFractionDigits: 2 }).format(value)
+}
+
 /** 123456 cents → "1.234,56 €" (de) or "€1,234.56" (en). Money is always integer cents (ADR 0008). */
 export function formatEuroCents(cents: number): string {
   return new Intl.NumberFormat(locale(), { style: "currency", currency: "EUR" }).format(cents / 100)

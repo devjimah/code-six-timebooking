@@ -5,7 +5,7 @@ import { TriangleAlert } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { formatDate, formatHours } from "@/i18n/format.ts"
+import { formatDate, formatHours, formatNumber } from "@/i18n/format.ts"
 import type { BudgetForecast } from "@/lib/api-types.ts"
 import { todayInCompanyTimeZone } from "@/lib/dates.ts"
 
@@ -24,7 +24,10 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
       <CardHeader>
         <CardTitle className="text-base">{t("forecast.title")}</CardTitle>
         <CardDescription className="tabular-nums">
-          {t("forecast.pace", { hours: formatHours(forecast.paceHoursPerWeek * 60) })}
+          {t("forecast.pace", {
+            hours: formatHours(forecast.paceHoursPerWeek * 60),
+            days: formatNumber(forecast.pacePersonDaysPerWeek),
+          })}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -36,7 +39,7 @@ export function BudgetForecastCard({ forecast, endDate }: Props) {
               <p>
                 {t("forecast.missing", {
                   hours: formatHours(forecast.missingHours * 60),
-                  days: forecast.missingPersonDays,
+                  days: formatNumber(forecast.missingPersonDays),
                 })}
               </p>
               {forecast.orderMoreBy && (

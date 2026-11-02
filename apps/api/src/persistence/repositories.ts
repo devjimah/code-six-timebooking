@@ -157,6 +157,10 @@ export function timeEntryRepository(db: Db) {
       const [row] = await db.insert(timeEntries).values(data).returning()
       return toTimeEntry(row!)
     },
+    /** For demo data: many bookings in one statement, with their status. */
+    async createMany(data: NewOf<TimeEntry>[]) {
+      await db.insert(timeEntries).values(data)
+    },
     async findById(id: number) {
       const [row] = await db.select().from(timeEntries).where(eq(timeEntries.id, id))
       return row ? toTimeEntry(row) : null

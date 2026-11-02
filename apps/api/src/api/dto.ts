@@ -305,6 +305,7 @@ export const toOrderBudgetResponse = (order: Order, budget: OrderBudget): OrderB
 export const budgetForecastResponse = z.object({
   state: z.enum(["no_pace", "ended", "lasts", "runs_out_early"]),
   paceHoursPerWeek: z.number().meta({ description: "Booked per week over the last 4 weeks" }),
+  pacePersonDaysPerWeek: z.number(),
   runsOutOn: z.string().nullable().meta({ description: "When the budget is used up at this pace" }),
   missingHours: z.number().meta({ description: "What the budget lacks until the order ends" }),
   missingPersonDays: z.number(),
@@ -315,6 +316,7 @@ export const budgetForecastResponse = z.object({
 const toBudgetForecastResponse = (order: Order, forecast: BudgetForecast): z.infer<typeof budgetForecastResponse> => ({
   state: forecast.state,
   paceHoursPerWeek: hours(forecast.paceMinutesPerWeek),
+  pacePersonDaysPerWeek: personDays(forecast.paceMinutesPerWeek),
   runsOutOn: forecast.runsOutOn,
   missingHours: hours(forecast.missingMinutes),
   missingPersonDays: personDays(forecast.missingMinutes),

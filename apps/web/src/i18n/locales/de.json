@@ -336,7 +336,8 @@
     "reasonPlaceholder": "z. B. diese Arbeit gehört auf eine andere Bestellung",
     "returnConfirm": "Buchung zurückgeben",
     "returning": "Wird zurückgegeben …",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "personDays": "{{days}} PT"
   },
   "password": {
     "title": "Passwort ändern",
@@ -471,7 +472,7 @@
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
-    "pace": "Aktuelles Tempo: {{hours}} pro Woche, aus den letzten 4 Wochen",
+    "pace": "Aktuelles Tempo: {{hours}} ({{days}} PT) pro Woche, aus den letzten 4 Wochen",
     "runsOut": "Bei diesem Tempo ist das Budget am {{date}} aufgebraucht, vor dem Ende der Bestellung am {{end}}.",
     "missing": "Bis dahin fehlen etwa {{hours}} ({{days}} Personentage).",
     "orderBy": "Bis {{date}} nachbestellen: Der Einkauf braucht {{weeks}} Wochen.",

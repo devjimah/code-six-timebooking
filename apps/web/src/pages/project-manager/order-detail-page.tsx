@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@work
 import { Progress } from "@workspace/ui/components/progress"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
-import { formatDate, formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
+import { formatDate, formatEuroCents, formatHours, formatNumber, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
 import type { OrderBooking, OrderBudgetDetail, OrderUnavailableDay } from "@/lib/api-types.ts"
 import { useApi } from "@/lib/use-api.ts"
@@ -79,17 +79,20 @@ export function OrderDetailPage() {
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {(
           [
-            ["myOrders.budget", order?.budgetHours, order?.budgetCents],
-            ["orders.totalBooked", order?.bookedHours, order?.bookedCents],
-            ["orders.totalRemaining", order?.remainingHours, order?.remainingCents],
+            ["myOrders.budget", order?.budgetHours, order?.budgetPersonDays, order?.budgetCents],
+            ["orders.totalBooked", order?.bookedHours, order?.bookedPersonDays, order?.bookedCents],
+            ["orders.totalRemaining", order?.remainingHours, order?.remainingPersonDays, order?.remainingCents],
           ] as const
-        ).map(([label, hours, cents]) => (
+        ).map(([label, hours, days, cents]) => (
           <Card key={label} className="gap-1 py-3 sm:py-4">
             <CardHeader className="px-3 sm:px-4">
               <CardDescription className="text-xs sm:text-sm">{t(label)}</CardDescription>
               <CardTitle className="text-sm tabular-nums sm:text-xl">
                 {hours === undefined ? <Skeleton className="h-7 w-20" /> : formatHours(hours * 60)}
               </CardTitle>
+              {days !== undefined && (
+                <span className="text-muted-foreground text-xs tabular-nums">{t("myOrders.personDays", { days: formatNumber(days) })}</span>
+              )}
               {cents !== undefined && (
                 <span className="text-muted-foreground text-xs tabular-nums">{formatEuroCents(cents)}</span>
               )}
@@ -113,7 +116,7 @@ export function OrderDetailPage() {
             <CardDescription>{t("unavailable.upcomingDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="grid gap-1 text-sm">
+            <ul className="grid max-h-48 gap-1 overflow-y-auto pr-2 text-sm">
               {unavailable.data.map((day) => (
                 <li key={`${day.date}-${day.consultantName}`} className="flex justify-between gap-3">
                   <span className="tabular-nums">{formatDate(day.date)}</span>

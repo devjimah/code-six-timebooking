@@ -1,5 +1,5 @@
 // Ticket #11: every role sees only its own slice of the orders.
-// Seed data (src/persistence/seed.ts): Acme has PO-2026-001 and PO-2026-002, Nordic has PO-2026-003;
+// Seed data (src/persistence/seed.ts): Acme has PO-2026-001 and PO-2026-002, Nordic has PO-2026-003 and PO-2026-004;
 // Paula (pm@demo.local) manages all three; Carl Consultant works for Acme.
 import { mkdtempSync, rmSync } from "node:fs"
 import type { Server } from "node:http"
@@ -78,7 +78,7 @@ describe("orders a consultant can book on", () => {
   it("shows a consultant of another supplier only that supplier's orders", async () => {
     const res = await get("bookable", await sessionCookieFor("nora@demo.local"))
 
-    expect((await res.json()).map((o: { code: string }) => o.code)).toEqual(["PO-2026-003"])
+    expect((await res.json()).map((o: { code: string }) => o.code)).toEqual(["PO-2026-003", "PO-2026-004"])
   })
 
   it("forbids project managers and admins with 403", async () => {
@@ -97,7 +97,7 @@ describe("orders a project manager is responsible for", () => {
 
     expect(res.status).toBe(200)
     const orders = await res.json()
-    expect(orders.map((o: { code: string }) => o.code)).toEqual(["PO-2026-001", "PO-2026-002", "PO-2026-003"])
+    expect(orders.map((o: { code: string }) => o.code)).toEqual(["PO-2026-001", "PO-2026-002", "PO-2026-003", "PO-2026-004"])
     expect(orders[1]).toMatchObject({ code: "PO-2026-002", budgetHours: 40, bookedHours: 4, remainingHours: 36 })
     // An order without any booking still shows its full budget.
     expect(orders[2]).toMatchObject({ code: "PO-2026-003", bookedHours: 0, remainingCents: 720_000, usedPercent: 0 })

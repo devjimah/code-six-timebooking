@@ -1,12 +1,14 @@
 // Demo data so the app is usable right after setup.
 // Idempotent: it does nothing if users already exist, so it is safe to run on every start.
 import bcrypt from "bcryptjs"
+import { todayInCompanyTimeZone } from "../application/clock.js"
 import type { Db } from "./db.js"
 import { orderRepository, supplierRepository, timeEntryRepository, userRepository } from "./repositories.js"
+import { seedBudgetExample } from "./seed-budget-example.js"
 
 export const DEMO_PASSWORD = "demo1234" // demo only – documented in the README
 
-export async function seed(db: Db): Promise<boolean> {
+export async function seed(db: Db, today = todayInCompanyTimeZone()): Promise<boolean> {
   const userRepo = userRepository(db)
   if ((await userRepo.findAll()).length > 0) return false
 
@@ -29,6 +31,12 @@ export async function seed(db: Db): Promise<boolean> {
     email: "consultant@demo.local", name: "Carl Consultant", role: "consultant", supplierId: acme.id, passwordHash,
   })
   void admin
+  const anna = await userRepo.create({
+    email: "anna@demo.local", name: "Anna Analyst", role: "consultant", supplierId: nordic.id, passwordHash,
+  })
+  const ben = await userRepo.create({
+    email: "ben@demo.local", name: "Ben Builder", role: "consultant", supplierId: nordic.id, passwordHash,
+  })
 
   const orderRepo = orderRepository(db)
   const portal = await orderRepo.create({
@@ -49,6 +57,8 @@ export async function seed(db: Db): Promise<boolean> {
   await entries.create({ userId: consultant.id, orderId: portal.id, workDate: "2026-10-26", startTime: "08:30", endTime: "17:00", breakMinutes: 30, durationMinutes: 480, description: "Kick-off and requirements workshop" })
   await entries.create({ userId: consultant.id, orderId: portal.id, workDate: "2026-10-27", startTime: "09:00", endTime: "17:00", breakMinutes: 30, durationMinutes: 450, description: "Login page implementation" })
   await entries.create({ userId: consultant.id, orderId: migration.id, workDate: "2026-10-28", startTime: "09:00", endTime: "13:00", breakMinutes: 0, durationMinutes: 240, description: "Analyse source data" })
+
+  await seedBudgetExample(db, { projectManagerId: pm.id, supplierId: nordic.id, annaId: anna.id, benId: ben.id }, today)
 
   return true
 }
