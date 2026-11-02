@@ -21,3 +21,28 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+
+  # Starts the product the way the README says, and checks that data survives a restart (compose.yaml).
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up --detach --build --wait
+      - name: The web app and the API answer through one port
+        run: |
+          curl --fail --silent http://localhost:5173/ | grep -q 'id="root"'
+          curl --fail --silent --output /dev/null http://localhost:5173/time
+          curl --fail --silent http://localhost:5173/api/health | grep -q '"ok"'
+      - name: A booking survives down and up
+        run: |
+          curl --fail --silent --output /dev/null --cookie-jar cookies.txt -H "Content-Type: application/json" \
+            -d '{"email":"consultant@demo.local","password":"demo1234"}' http://localhost:5173/api/auth/login
+          curl --fail --silent --output /dev/null --cookie cookies.txt -H "Content-Type: application/json" \
+            -d '{"orderId":1,"workDate":"2026-10-20","startTime":"09:00","endTime":"10:00","description":"Survives a restart"}' \
+            http://localhost:5173/api/time-entries
+          docker compose down
+          docker compose up --detach --wait
+          curl --fail --silent --cookie cookies.txt http://localhost:5173/api/time-entries/mine | grep -q 'Survives a restart'
+      - name: The logs, if something failed
+        if: failure()
+        run: docker compose logs
