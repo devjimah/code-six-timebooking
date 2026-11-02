@@ -28,11 +28,12 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { formatDate, formatHours, formatWeekday, translateApiError } from "@/i18n/format.ts"
 import { ApiError, api } from "@/lib/api.ts"
-import type { BookableOrder, CopyLastWeekResult, TimeEntry, UnavailableDay } from "@/lib/api-types.ts"
+import type { BookableOrder, CopyLastWeekResult, SentenceProposal, TimeEntry, UnavailableDay } from "@/lib/api-types.ts"
 import { findOverlap, previewWorkedMinutes, suggestedStart, todayInCompanyTimeZone } from "@/lib/dates.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { BookingCalendar } from "@/pages/consultant/booking-calendar.tsx"
 import { BookingList, DAILY_LIMIT_MINUTES } from "@/pages/consultant/booking-list.tsx"
+import { BookingSentence } from "@/pages/consultant/booking-sentence.tsx"
 import { UnavailableDaysCard } from "@/pages/consultant/unavailable-days-card.tsx"
 
 const BREAKS = ["0", "15", "30", "45", "60"] // minutes
@@ -87,6 +88,17 @@ export function BookTimePage() {
       description: entry.description,
     })
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  /** A proposal from a sentence fills in what it understood, and leaves the rest as it is. Nothing is saved yet. */
+  function applyProposal(proposal: SentenceProposal) {
+    update({
+      ...(proposal.orderId !== null && { orderId: String(proposal.orderId) }),
+      ...(proposal.workDate !== null && { workDate: proposal.workDate }),
+      ...(proposal.startTime !== null && { startTime: proposal.startTime }),
+      ...(proposal.endTime !== null && { endTime: proposal.endTime }),
+      ...(proposal.breakMinutes !== null && { breakMinutes: String(proposal.breakMinutes) }),
+    })
   }
 
   /** Repeat: a new booking with the same order, times and text, on the date already chosen. */
@@ -186,6 +198,7 @@ export function BookTimePage() {
             <p className="text-muted-foreground text-sm">{t("booking.noOrders")}</p>
           ) : (
             <form onSubmit={handleSubmit}>
+              {!editing && <BookingSentence onProposal={applyProposal} />}
               <FieldGroup>
                 {error && (
                   <Alert variant="destructive">

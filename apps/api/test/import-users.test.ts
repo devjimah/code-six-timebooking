@@ -66,7 +66,7 @@ describe("importing accounts", () => {
     expect(body.refused).toEqual([])
     expect(body.created.map((u: { email: string }) => u.email)).toEqual(["new.one@acme.example", "new.two@corp.example"])
     expect(body.created[0]).toMatchObject({ workState: "BY", mustChangePassword: true, supplierId: expect.any(Number) })
-    expect((await login("new.two@corp.example", PASSWORD)).body.user ?? (await login("new.two@corp.example", PASSWORD)).status).toBeTruthy()
+    expect((await login("new.two@corp.example", PASSWORD)).status).toBe(200)
   })
 
   it("reports each refused line with its reason, and still creates the others", async () => {

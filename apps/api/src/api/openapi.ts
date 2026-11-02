@@ -30,6 +30,8 @@ import {
   supplierResponse,
   timeEntryResponse,
   approveOpenResponse,
+  parseSentenceRequest,
+  sentenceProposalResponse,
   importUsersRequest,
   importUsersResponse,
   notificationResponse,
@@ -282,6 +284,13 @@ export const routes: RouteDoc[] = [
       403: "Not a project manager (FORBIDDEN), or not your order (NOT_YOUR_ORDER)",
       404: "The order does not exist (ORDER_NOT_FOUND)",
     },
+  },
+  {
+    method: "post", path: "/api/time-entries/parse-sentence", tag: "Time entries", roles: ["consultant"],
+    summary: "Turn a sentence into a proposal for the booking form. Rule-based; saves nothing; no data leaves the system",
+    body: parseSentenceRequest,
+    success: { status: 200, description: "The proposal; what was not understood is null", schema: sentenceProposalResponse },
+    errors: { 400: "Invalid body", 422: "Switched off with AI_MODE=off (AI_OFF)" },
   },
   {
     method: "post", path: "/api/time-entries/copy-last-week", tag: "Time entries", roles: ["consultant"],

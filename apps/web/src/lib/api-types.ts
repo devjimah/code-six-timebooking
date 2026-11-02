@@ -248,6 +248,15 @@ export type UserImportResult = {
   refused: { line: number; email: string; code: string; message: string }[]
 }
 
+// POST /api/time-entries/parse-sentence (ADR 0022): null = not understood
+export type SentenceProposal = {
+  orderId: number | null
+  workDate: string | null
+  startTime: string | null
+  endTime: string | null
+  breakMinutes: number | null
+}
+
 // GET /api/project-managers: names only
 export type ProjectManager = { id: number; name: string }
 

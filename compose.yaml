@@ -10,6 +10,7 @@ services:
       DATABASE_URL: file:/data/app.db
       SESSION_SECRET: ${SESSION_SECRET:-dev-only-secret-change-me}
       PURCHASING_LEAD_TIME_WEEKS: ${PURCHASING_LEAD_TIME_WEEKS:-4}
+      AI_MODE: ${AI_MODE:-mock}
       # nginx in the web container is the one proxy in front of the API, for the client IP in the audit log (ADR 0012).
       # This is safe because the API has no published port: every request comes through nginx.
       TRUST_PROXY_HOPS: 1

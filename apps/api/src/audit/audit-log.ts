@@ -38,6 +38,7 @@ export const ACTIONS: Record<string, string> = {
   "POST /api/time-entries": "time_entry.create",
   "GET /api/time-entries/mine": "time_entry.list_own",
   "POST /api/time-entries/copy-last-week": "time_entry.copy_last_week",
+  "POST /api/time-entries/parse-sentence": "time_entry.parse_sentence",
   "PUT /api/time-entries/:id": "time_entry.update",
   "DELETE /api/time-entries/:id": "time_entry.delete",
   "POST /api/time-entries/:id/approve": "time_entry.approve",

@@ -409,7 +409,8 @@
       "return": "Buchung zurückgegeben",
       "update": "Buchung korrigiert",
       "delete": "Buchung gelöscht",
-      "copy_last_week": "Letzte Woche kopiert"
+      "copy_last_week": "Letzte Woche kopiert",
+      "parse_sentence": "Formular aus einem Satz ausgefüllt"
     },
     "order": {
       "list_bookable": "Buchbare Bestellungen angesehen",
@@ -703,7 +704,8 @@
     "IMPORT_INVALID_EMAIL": "Das ist keine E-Mail-Adresse.",
     "IMPORT_INVALID_NAME": "Ein Name braucht 2 bis 100 Zeichen.",
     "IMPORT_INVALID_ROLE": "Diese Rolle gibt es nicht.",
-    "IMPORT_INVALID_STATE": "Dieses Bundesland gibt es nicht."
+    "IMPORT_INVALID_STATE": "Dieses Bundesland gibt es nicht.",
+    "AI_OFF": "Buchen aus einem Satz ist ausgeschaltet. Füllen Sie stattdessen das Formular aus."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
@@ -815,5 +817,13 @@
     "toCheck_other": "{{code}}: {{count}} Buchungen zu prüfen",
     "runsOut": "{{code}}: Das Budget ist am {{date}} aufgebraucht, vor dem Ende der Bestellung",
     "orderMore": "{{code}}: bis {{date}} nachbestellen"
+  },
+  "sentence": {
+    "label": "Oder in einem Satz",
+    "placeholder": "gestern 9-17 auf Portal Migration, 1 h Pause",
+    "fill": "Ausfüllen",
+    "hint": "Füllt das Formular aus, und Sie prüfen es. Noch wird nichts gespeichert, und keine Daten verlassen das System.",
+    "filled": "Ausgefüllt. Prüfen Sie es, ergänzen Sie, was Sie gemacht haben, und buchen Sie.",
+    "partly": "Ausgefüllt, soweit verstanden. Prüfen Sie es und ergänzen Sie den Rest."
   }
 }

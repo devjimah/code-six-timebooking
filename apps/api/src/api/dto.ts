@@ -204,6 +204,16 @@ export const copyLastWeekResponse = z.object({
   notYet: z.number().int().meta({ description: "Days of this week still to come, not copied" }),
 })
 
+// POST /api/time-entries/parse-sentence (ticket #79, ADR 0022): a proposal for the form, nothing is saved
+export const parseSentenceRequest = z.object({ sentence: z.string().trim().min(1).max(300) })
+export const sentenceProposalResponse = z.object({
+  orderId: z.number().int().nullable(),
+  workDate: z.string().nullable(),
+  startTime: z.string().nullable(),
+  endTime: z.string().nullable(),
+  breakMinutes: z.number().int().nullable(),
+})
+
 // POST /api/orders/:id/time-entries/approve-open
 export const approveOpenResponse = z.object({ approved: z.number().int().meta({ description: "How many were approved" }) })
 

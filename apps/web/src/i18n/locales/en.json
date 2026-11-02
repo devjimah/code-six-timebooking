@@ -409,7 +409,8 @@
       "return": "Returned a booking",
       "update": "Corrected a booking",
       "delete": "Deleted a booking",
-      "copy_last_week": "Copied last week"
+      "copy_last_week": "Copied last week",
+      "parse_sentence": "Filled in the form from a sentence"
     },
     "order": {
       "list_bookable": "Viewed bookable orders",
@@ -703,7 +704,8 @@
     "IMPORT_INVALID_EMAIL": "This is not an email address.",
     "IMPORT_INVALID_NAME": "A name needs 2 to 100 characters.",
     "IMPORT_INVALID_ROLE": "This role does not exist.",
-    "IMPORT_INVALID_STATE": "This state does not exist."
+    "IMPORT_INVALID_STATE": "This state does not exist.",
+    "AI_OFF": "Booking from a sentence is switched off. Fill in the form instead."
   },
   "forecast": {
     "title": "How long the budget lasts",
@@ -815,5 +817,13 @@
     "toCheck_other": "{{code}}: {{count}} bookings to check",
     "runsOut": "{{code}}: the budget runs out on {{date}}, before the order ends",
     "orderMore": "{{code}}: order more by {{date}}"
+  },
+  "sentence": {
+    "label": "Or say it in one sentence",
+    "placeholder": "yesterday 9-5 on portal migration, 1 h lunch",
+    "fill": "Fill in",
+    "hint": "Fills in the form, and you check it. Nothing is saved yet, and no data leaves the system.",
+    "filled": "Filled in. Check it, say what you worked on, and book.",
+    "partly": "Filled in what was understood. Check it and complete the rest."
   }
 }

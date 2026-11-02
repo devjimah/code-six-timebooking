@@ -15,6 +15,7 @@ import { publicHolidayRoutes } from "./api/public-holiday-routes.js"
 import { supplierBookingsRoutes } from "./api/supplier-bookings-routes.js"
 import { supplierRoutes } from "./api/supplier-routes.js"
 import { timeEntryRoutes } from "./api/time-entry-routes.js"
+import type { AiMode } from "./application/parse-booking-sentence.js"
 import { unavailableDayRoutes } from "./api/unavailable-day-routes.js"
 import { userRoutes } from "./api/user-routes.js"
 import type { Db } from "./persistence/db.js"
@@ -26,9 +27,11 @@ export type AppOptions = {
   trustProxyHops?: number
   /** How long purchasing needs for a follow-up order; the forecast says when to start (ADR 0015). */
   purchasingLeadTimeWeeks?: number
+  /** Booking from a sentence (ADR 0022): mock = the rule-based parser, off = switched off. No key is ever needed. */
+  aiMode?: AiMode
 }
 
-export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0, purchasingLeadTimeWeeks = 4 }: AppOptions) {
+export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0, purchasingLeadTimeWeeks = 4, aiMode = "mock" }: AppOptions) {
   const app = express()
   // Makes req.ip the client's address behind a reverse proxy (see TRUST_PROXY_HOPS in .env.example).
   app.set("trust proxy", trustProxyHops)
@@ -52,7 +55,7 @@ export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0
   app.use("/api/users", rememberMountPath, userRoutes(db))
   app.use("/api/supplier", rememberMountPath, supplierBookingsRoutes(db))
   app.use("/api/suppliers", rememberMountPath, supplierRoutes(db))
-  app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db))
+  app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db, aiMode))
   app.use("/api/framework-agreements", rememberMountPath, frameworkAgreementRoutes(db))
   app.use("/api/notifications", rememberMountPath, notificationRoutes(db, purchasingLeadTimeWeeks))
   app.use("/api/unavailable-days", rememberMountPath, unavailableDayRoutes(db))

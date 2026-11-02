@@ -29,6 +29,7 @@ export const ACTION_LABELS = {
   "time_entry.create": "auditActions.time_entry.create",
   "time_entry.list_own": "auditActions.time_entry.list_own",
   "time_entry.copy_last_week": "auditActions.time_entry.copy_last_week",
+  "time_entry.parse_sentence": "auditActions.time_entry.parse_sentence",
   "time_entry.update": "auditActions.time_entry.update",
   "time_entry.delete": "auditActions.time_entry.delete",
   "time_entry.approve": "auditActions.time_entry.approve",

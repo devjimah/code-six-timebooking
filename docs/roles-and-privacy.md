@@ -127,6 +127,7 @@ that is convenience, not security.
 | `POST /api/orders`, `PUT /api/orders/:id` | purchasing | order rules (code, period, project manager; budget, supplier and period protect booked time) |
 | `GET /api/project-managers` | purchasing | names only, no emails |
 | `GET /api/orders/:id/budget` | project manager | only own orders |
+| `POST /api/time-entries/parse-sentence` | consultant | only own orders; saves nothing; the sentence is not logged and leaves no system ([ADR 0022](adr/0022-use-of-ai.md)) |
 | `POST /api/time-entries/copy-last-week` | consultant | only own bookings, up to today; every copy passes the booking rules |
 | `PUT /api/time-entries/:id` | consultant | only own bookings; not when approved; booking rules run again; times not logged |
 | `DELETE /api/time-entries/:id` | consultant | only own bookings; not when approved |
