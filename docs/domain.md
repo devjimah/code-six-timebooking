@@ -17,6 +17,7 @@ The words used in the code, the API and the UI (German in brackets, as in the ap
 | Booking / time entry (Buchung) | One block of work by one consultant on one order on one day: start, end, break, the worked duration and what was done. `time_entries` in the database. |
 | Booking status | *Open* until the project manager checks it, then *approved* (final) or *returned* with a reason. A corrected booking is open again ([ADR 0014](adr/0014-booking-approval.md)). |
 | Worked duration (Dauer) | End − start − break of a booking, in minutes. Derived by the server, never typed in ([ADR 0010](adr/0010-time-entry-granularity.md)). |
+| Framework agreement (Rahmenvertrag) | A long-term contract with one supplier and a total budget that its orders draw from. |
 | Budget | What the client ordered: `budget hours × hourly rate`. *Booked* is the sum of all bookings on the order, *remaining* is budget − booked ([ADR 0008](adr/0008-budget-calculation.md)). |
 | Pace and forecast (Tempo, Prognose) | The hours booked on an order per week, over the last 4 weeks, and when the budget runs out at that pace. Computed, never stored ([ADR 0015](adr/0015-budget-forecast.md)). |
 | Unavailable day (nicht verfügbarer Tag) | A date a consultant marks as not available, never saying why. Nobody books on it, and the forecast counts it ([ADR 0016](adr/0016-unavailable-days.md)). |
@@ -72,6 +73,7 @@ erDiagram
         string end_date
         string accounting_object "cost centre or project element, optional"
         string closed_at "null = open"
+        int framework_agreement_id FK "optional"
     }
     TIME_ENTRY["Time entry (now)"] {
         int id PK
@@ -100,10 +102,12 @@ erDiagram
         string error_code
         string details "allow-listed JSON, never times or descriptions"
     }
-    FRAMEWORK_AGREEMENT["Framework agreement (later)"] {
+    FRAMEWORK_AGREEMENT["Framework agreement (now)"] {
         int id PK
+        string code UK
+        string title
         int supplier_id FK
-        int total_budget_hours
+        int total_budget_cents
         string start_date
         string end_date
     }
@@ -131,9 +135,9 @@ The audit event shows only its key columns; the full list is in [schema.ts](../a
   the employer's job, so vacation and sickness stay with the supplier ([ADR 0016](adr/0016-unavailable-days.md)).
 - **Proof of work and invoice check are computed, never stored** ([ADR 0018](adr/0018-proof-of-work-and-invoice-check.md)):
   one order's bookings in one month, and the difference between an invoice and the approved hours × rate.
+- **A framework agreement's total is a hard limit** for its orders ([ADR 0020](adr/0020-framework-agreements.md)).
 - **Not stored:** public holidays (computed from the year), the remaining budget, the forecast, the proof of work and the
   invoice check (all computed on read).
 - **Next stage, in one sentence each** (proposals, not built):
-  - *Framework agreement* – a long-term contract with a supplier whose total budget the orders draw from.
   - *Line items and accounting objects as their own table* – today the order holds one code; a list of valid cost centres
     and order items would need an import from the client's finance system.

@@ -42,6 +42,8 @@ assigned by an admin ([ADR 0004](adr/0004-role-model-and-accounts.md)).
 | Close and reopen an order; propose a follow-up order from an existing one | – | – | ✔ | – | built |
 | Create and edit purchase orders | – | – | ✔ | – | built |
 | See names of project managers (to assign an order) | – | – | ✔ names only | ✔ (user list) | built |
+| See orders, money and share per supplier | – | – | Σ per supplier | – | built |
+| Create and edit framework agreements; see what their orders take | – | – | ✔ | – | built |
 | Create and edit supplier companies | – | – | ✔ | read only (to assign consultants) | built |
 | Create user accounts | – | – | – | ✔ | built |
 | Edit and deactivate user accounts (never delete) | – | – | – | ✔ not own role, not self | built |
@@ -133,6 +135,8 @@ that is convenience, not security.
 | `PUT /api/unavailable-days/:date`, `DELETE …` | consultant | only own days; no reason field; a day with bookings cannot be marked |
 | `GET /api/orders/:id/unavailable-days` | project manager | only own orders; upcoming days of consultants who booked in the last 4 weeks; date and name only |
 | `POST /api/orders/:id/close`, `/reopen` | purchasing | closing needs all bookings approved; a closed order takes no bookings or changes |
+| `GET /api/suppliers/overview` | purchasing | sums per supplier, no persons or single bookings |
+| `/api/framework-agreements` | purchasing | an order beyond the total is refused ([ADR 0020](adr/0020-framework-agreements.md)) |
 | `GET /api/orders/:id/proof-of-work`, `.csv` | project manager | only own orders; no times; a month at a time |
 | `GET /api/orders/:id/invoice-check` | purchasing | sums only; the amount is neither stored nor logged |
 | `GET /api/orders/:id/time-entries` | project manager | only own orders; name but no email or user id; no totals per person; duration but no times |

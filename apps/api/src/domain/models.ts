@@ -39,10 +39,22 @@ export interface Order {
   endDate: string // "YYYY-MM-DD", last day work may be booked
   accountingObject: string | null // cost centre or project element that pays for this order
   closedAt: string | null // ISO timestamp when purchasing closed it; null = open
+  frameworkAgreementId: number | null // the contract whose total budget this order draws from; usually none
 }
 
 /** Check and approve (ADR 0014): open → approved, or open → returned → (corrected) → open. */
 export type BookingStatus = "open" | "approved" | "returned"
+
+/** A long-term contract with one supplier, whose total budget its orders draw from (ADR 0020). */
+export interface FrameworkAgreement {
+  id: number
+  code: string
+  title: string
+  supplierId: number
+  totalBudgetCents: number
+  startDate: string // "YYYY-MM-DD"
+  endDate: string // "YYYY-MM-DD"
+}
 
 export interface TimeEntry {
   id: number

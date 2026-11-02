@@ -12,7 +12,7 @@ import { Progress } from "@workspace/ui/components/progress"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { formatDate, formatEuroCents, formatHours, translateApiError } from "@/i18n/format.ts"
-import type { OrderOverview, ProjectManager, Supplier } from "@/lib/api-types.ts"
+import type { FrameworkAgreement, OrderOverview, ProjectManager, Supplier } from "@/lib/api-types.ts"
 import { useApi } from "@/lib/use-api.ts"
 import { OrderDrawer } from "@/pages/purchasing/order-drawer.tsx"
 
@@ -21,6 +21,7 @@ export function OrdersPage() {
   const orders = useApi<OrderOverview[]>("/orders")
   const suppliers = useApi<Supplier[]>("/suppliers")
   const projectManagers = useApi<ProjectManager[]>("/project-managers")
+  const agreements = useApi<FrameworkAgreement[]>("/framework-agreements")
   const [editing, setEditing] = React.useState<OrderOverview | "new" | { followUpOf: OrderOverview } | null>(null)
   const [showClosed, setShowClosed] = React.useState(false)
 
@@ -189,8 +190,12 @@ export function OrdersPage() {
         editing={editing}
         suppliers={suppliers.data ?? []}
         projectManagers={projectManagers.data ?? []}
+        agreements={agreements.data ?? []}
         onClose={() => setEditing(null)}
-        onSaved={orders.reload}
+        onSaved={() => {
+          orders.reload()
+          agreements.reload()
+        }}
       />
     </>
   )

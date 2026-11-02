@@ -24,13 +24,14 @@ import { formatEuroCents, formatHours, translateApiError } from "@/i18n/format.t
 import { ApiError, api } from "@/lib/api.ts"
 import { addDays } from "@/lib/dates.ts"
 import { euroToCents } from "@/lib/money.ts"
-import type { OrderOverview, OrderRequest, ProjectManager, Supplier } from "@/lib/api-types.ts"
+import type { FrameworkAgreement, OrderOverview, OrderRequest, ProjectManager, Supplier } from "@/lib/api-types.ts"
 
 type Props = {
   /** null = closed, "new" = place an order, an order = change it, followUpOf = a new order proposed from an existing one */
   editing: OrderOverview | "new" | { followUpOf: OrderOverview } | null
   suppliers: Supplier[]
   projectManagers: ProjectManager[]
+  agreements: FrameworkAgreement[]
   onClose: () => void
   onSaved: () => void
 }
@@ -45,7 +46,10 @@ type Form = {
   startDate: string
   endDate: string
   accountingObject: string
+  frameworkAgreementId: string
 }
+
+const NO_AGREEMENT = "none"
 
 const EMPTY: Form = {
   code: "",
@@ -57,6 +61,7 @@ const EMPTY: Form = {
   startDate: "",
   endDate: "",
   accountingObject: "",
+  frameworkAgreementId: NO_AGREEMENT,
 }
 
 /** `decimalComma`: show "95,00" in German, "95.00" in English – the way people type it in that language. */
@@ -70,6 +75,7 @@ const toForm = (order: OrderOverview, decimalComma: boolean): Form => ({
   startDate: order.startDate,
   endDate: order.endDate,
   accountingObject: order.accountingObject ?? "",
+  frameworkAgreementId: order.frameworkAgreementId === null ? NO_AGREEMENT : String(order.frameworkAgreementId),
 })
 
 /**
@@ -87,7 +93,7 @@ const toFollowUpForm = (order: OrderOverview, decimalComma: boolean): Form => {
   }
 }
 
-export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSaved }: Props) {
+export function OrderDrawer({ editing, suppliers, projectManagers, agreements, onClose, onSaved }: Props) {
   const { t, i18n } = useTranslation()
   const isMobile = useIsMobile()
   const followUpOf = editing && editing !== "new" && "followUpOf" in editing ? editing.followUpOf : null
@@ -143,6 +149,7 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
       startDate: form.startDate,
       endDate: form.endDate,
       accountingObject: form.accountingObject,
+      frameworkAgreementId: form.frameworkAgreementId === NO_AGREEMENT ? null : Number(form.frameworkAgreementId),
     }
     try {
       const saved = existing
@@ -227,7 +234,11 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
             </Field>
             <Field>
               <FieldLabel htmlFor="order-supplier">{t("orders.supplier")}</FieldLabel>
-              <Select value={form.supplierId} onValueChange={(supplierId) => update({ supplierId })} disabled={hasBookings}>
+              <Select
+                value={form.supplierId}
+                onValueChange={(supplierId) => update({ supplierId, frameworkAgreementId: NO_AGREEMENT })}
+                disabled={hasBookings}
+              >
                 <SelectTrigger id="order-supplier" className="w-full">
                   <SelectValue placeholder={t("users.chooseSupplier")} />
                 </SelectTrigger>
@@ -240,6 +251,24 @@ export function OrderDrawer({ editing, suppliers, projectManagers, onClose, onSa
                 </SelectContent>
               </Select>
               {hasBookings && <FieldDescription>{t("orders.supplierLocked")}</FieldDescription>}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="order-agreement">{t("agreements.field")}</FieldLabel>
+              <Select value={form.frameworkAgreementId} onValueChange={(frameworkAgreementId) => update({ frameworkAgreementId })}>
+                <SelectTrigger id="order-agreement" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_AGREEMENT}>{t("agreements.none")}</SelectItem>
+                  {agreements
+                    .filter((agreement) => String(agreement.supplierId) === form.supplierId)
+                    .map((agreement) => (
+                      <SelectItem key={agreement.id} value={String(agreement.id)}>
+                        {agreement.code} · {t("agreements.free", { amount: formatEuroCents(agreement.freeCents) })}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </Field>
             <Field>
               <FieldLabel htmlFor="order-pm">{t("orders.projectManager")}</FieldLabel>

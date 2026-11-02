@@ -4,9 +4,9 @@ import { and, asc, desc, eq, gte, inArray, lt, ne, notInArray, or, sql } from "d
 import { monthRange } from "../domain/proof-of-work.js"
 import { READ_METHODS } from "../domain/audit-retention.js"
 import { addDays } from "../domain/public-holidays.js"
-import type { AuditDetails, AuditEvent, AuditOutcome, Order, Supplier, TimeEntry, User } from "../domain/models.js"
+import type { AuditDetails, AuditEvent, AuditOutcome, FrameworkAgreement, Order, Supplier, TimeEntry, User } from "../domain/models.js"
 import type { Db } from "./db.js"
-import { auditEvents, orders, suppliers, timeEntries, unavailableDays, users } from "./schema.js"
+import { auditEvents, frameworkAgreements, orders, suppliers, timeEntries, unavailableDays, users } from "./schema.js"
 
 type NewOf<T> = Omit<T, "id">
 
@@ -33,6 +33,7 @@ const toOrder = (r: typeof orders.$inferSelect): Order => ({
   endDate: r.endDate,
   accountingObject: r.accountingObject,
   closedAt: r.closedAt,
+  frameworkAgreementId: r.frameworkAgreementId,
 })
 const toTimeEntry = (r: typeof timeEntries.$inferSelect): TimeEntry => ({
   id: r.id,
@@ -122,7 +123,12 @@ export function userRepository(db: Db) {
 export function orderRepository(db: Db) {
   return {
     /** The accounting object is optional, as it is for orders placed before it existed. */
-    async create(data: Omit<NewOf<Order>, "accountingObject" | "closedAt"> & { accountingObject?: string | null }) {
+    async create(
+      data: Omit<NewOf<Order>, "accountingObject" | "closedAt" | "frameworkAgreementId"> & {
+        accountingObject?: string | null
+        frameworkAgreementId?: number | null
+      },
+    ) {
       const [row] = await db.insert(orders).values(data).returning()
       return toOrder(row!)
     },
@@ -322,6 +328,36 @@ export function timeEntryRepository(db: Db) {
         )
         .orderBy(desc(timeEntries.workDate), desc(timeEntries.id))
       return rows
+    },
+  }
+}
+
+const toFrameworkAgreement = (r: typeof frameworkAgreements.$inferSelect): FrameworkAgreement => ({
+  id: r.id,
+  code: r.code,
+  title: r.title,
+  supplierId: r.supplierId,
+  totalBudgetCents: r.totalBudgetCents,
+  startDate: r.startDate,
+  endDate: r.endDate,
+})
+
+export function frameworkAgreementRepository(db: Db) {
+  return {
+    async create(data: NewOf<FrameworkAgreement>) {
+      const [row] = await db.insert(frameworkAgreements).values(data).returning()
+      return toFrameworkAgreement(row!)
+    },
+    async findById(id: number) {
+      const [row] = await db.select().from(frameworkAgreements).where(eq(frameworkAgreements.id, id))
+      return row ? toFrameworkAgreement(row) : null
+    },
+    async findAll() {
+      return (await db.select().from(frameworkAgreements).orderBy(asc(frameworkAgreements.code))).map(toFrameworkAgreement)
+    },
+    async update(id: number, data: NewOf<FrameworkAgreement>) {
+      const [row] = await db.update(frameworkAgreements).set(data).where(eq(frameworkAgreements.id, id)).returning()
+      return toFrameworkAgreement(row!)
     },
   }
 }

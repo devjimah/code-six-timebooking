@@ -257,7 +257,8 @@
     "orders": "Bestellungen",
     "myOrders": "Meine Bestellungen",
     "bookTime": "Zeit buchen",
-    "invoiceCheck": "Rechnungsprüfung"
+    "invoiceCheck": "Rechnungsprüfung",
+    "agreements": "Rahmenverträge"
   },
   "users": {
     "description": "Alle Konten. Nur Admins legen Konten an – es gibt keine Selbstregistrierung.",
@@ -333,7 +334,8 @@
       "user": "Benutzer #{{id}}",
       "order": "Bestellung #{{id}}",
       "supplier": "Dienstleister #{{id}}",
-      "timeEntry": "Buchung #{{id}}"
+      "timeEntry": "Buchung #{{id}}",
+      "frameworkAgreement": "Rahmenvertrag #{{id}}"
     },
     "details": {
       "email": "E-Mail",
@@ -354,7 +356,9 @@
       "accountingObject": "Kostenstelle oder PSP-Element",
       "month": "Monat",
       "copied": "Kopiert",
-      "refused": "Abgelehnt"
+      "refused": "Abgelehnt",
+      "frameworkAgreementId": "Rahmenvertrag",
+      "totalBudgetCents": "Gesamtbudget"
     },
     "from": "Von",
     "to": "Bis"
@@ -378,7 +382,8 @@
     "supplier": {
       "list": "Dienstleister angesehen",
       "create": "Dienstleister angelegt",
-      "update": "Dienstleister umbenannt"
+      "update": "Dienstleister umbenannt",
+      "overview": "Dienstleister-Übersicht angesehen"
     },
     "time_entry": {
       "create": "Zeit gebucht",
@@ -418,6 +423,11 @@
       "list_own": "Eigene nicht verfügbare Tage angesehen",
       "mark": "Tag als nicht verfügbar markiert",
       "remove": "Nicht verfügbaren Tag entfernt"
+    },
+    "framework": {
+      "list": "Rahmenverträge angesehen",
+      "create": "Rahmenvertrag angelegt",
+      "update": "Rahmenvertrag geändert"
     }
   },
   "suppliers": {
@@ -434,7 +444,12 @@
     "created": "{{name}} angelegt.",
     "renamed": "Umbenannt in {{name}}.",
     "empty": "Noch keine Dienstleister.",
-    "loadFailed": "Dienstleister konnten nicht geladen werden"
+    "loadFailed": "Dienstleister konnten nicht geladen werden",
+    "orders": "Bestellungen",
+    "ordered": "Bestellt",
+    "booked": "Gebucht",
+    "share": "Anteil an Bestellungen",
+    "shareOf": "{{percent}} % aller Bestellungen liegen bei {{name}}"
   },
   "orders": {
     "description": "Alle Bestellungen mit ihrem Budget – nur Summen, keine einzelnen Buchungen. Tippen Sie auf eine Bestellung, um sie zu ändern.",
@@ -654,7 +669,13 @@
     "DAY_HAS_BOOKINGS": "An diesem Tag haben Sie schon Zeit gebucht. Löschen Sie zuerst die Buchung, wenn Sie nicht verfügbar waren.",
     "WORK_STATE_ONLY_FOR_CONSULTANTS": "Nur Berater haben ein Bundesland des Arbeitsorts, wegen ihrer Feiertage. Lassen Sie es leer.",
     "ORDER_CLOSED": "Diese Bestellung ist abgeschlossen. Der Einkauf kann sie wieder öffnen.",
-    "ORDER_HAS_UNAPPROVED_BOOKINGS": "Diese Bestellung hat noch offene oder zurückgegebene Buchungen. Die Projektleitung muss sie zuerst prüfen."
+    "ORDER_HAS_UNAPPROVED_BOOKINGS": "Diese Bestellung hat noch offene oder zurückgegebene Buchungen. Die Projektleitung muss sie zuerst prüfen.",
+    "FRAMEWORK_BUDGET_EXCEEDED": "Bestellung abgelehnt: In diesem Rahmenvertrag ist nicht mehr genug frei.",
+    "FRAMEWORK_OTHER_SUPPLIER": "Dieser Rahmenvertrag besteht mit einem anderen Dienstleister.",
+    "FRAMEWORK_PERIOD": "Der Zeitraum der Bestellung muss im Rahmenvertrag liegen.",
+    "FRAMEWORK_NOT_FOUND": "Diesen Rahmenvertrag gibt es nicht.",
+    "FRAMEWORK_CODE_TAKEN": "Einen Rahmenvertrag mit diesem Code gibt es bereits.",
+    "FRAMEWORK_TOTAL_BELOW_ORDERS": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen."
   },
   "forecast": {
     "title": "Wie lange das Budget reicht",
@@ -719,5 +740,26 @@
     "ST": "Sachsen-Anhalt",
     "SH": "Schleswig-Holstein",
     "TH": "Thüringen"
+  },
+  "agreements": {
+    "description": "Langfristige Verträge mit einem Dienstleister. Bestellungen zehren vom Gesamtbudget, und der Server lehnt eine Bestellung darüber hinaus ab.",
+    "new": "Neuer Rahmenvertrag",
+    "change": "Ändern",
+    "changeNamed": "{{code}} ändern",
+    "loadFailed": "Die Rahmenverträge konnten nicht geladen werden",
+    "empty": "Noch keine Rahmenverträge.",
+    "field": "Rahmenvertrag",
+    "none": "Keiner",
+    "free": "{{amount}} frei",
+    "total": "Gesamt",
+    "ordered": "Bestellt",
+    "booked": "Gebucht",
+    "left": "Frei",
+    "orderCount_one": "{{count}} Bestellung",
+    "orderCount_other": "{{count}} Bestellungen",
+    "formDescription": "Ein Rahmenvertrag darf nicht unter seinen Bestellungen liegen und muss ihre Zeiträume abdecken.",
+    "title": "Titel",
+    "totalField": "Gesamtbudget in €",
+    "saved": "Rahmenvertrag {{code}} gespeichert."
   }
 }

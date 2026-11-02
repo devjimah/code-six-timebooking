@@ -2,6 +2,7 @@
 // a consultant's company when creating an account.
 import { Router } from "express"
 import { createSupplier, renameSupplier } from "../application/manage-suppliers.js"
+import { supplierOverview } from "../application/supplier-overview.js"
 import { setAuditContext } from "../audit/audit-log.js"
 import { requireRole } from "../auth/middleware.js"
 import type { Db } from "../persistence/db.js"
@@ -13,6 +14,11 @@ export function supplierRoutes(db: Db) {
 
   router.get("/", requireRole("admin", "purchasing"), async (_req, res) => {
     res.json((await supplierRepository(db).findAll()).map(toSupplierResponse))
+  })
+
+  // How much the company depends on each supplier (ticket #71): sums only, for purchasing.
+  router.get("/overview", requireRole("purchasing"), async (_req, res) => {
+    res.json(await supplierOverview(db))
   })
 
   router.post("/", requireRole("purchasing"), async (req, res) => {

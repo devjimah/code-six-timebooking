@@ -19,6 +19,10 @@ export const ACTION_LABELS = {
   "supplier.list": "auditActions.supplier.list",
   "supplier.create": "auditActions.supplier.create",
   "supplier.update": "auditActions.supplier.update",
+  "supplier.overview": "auditActions.supplier.overview",
+  "framework.list": "auditActions.framework.list",
+  "framework.create": "auditActions.framework.create",
+  "framework.update": "auditActions.framework.update",
   "time_entry.create": "auditActions.time_entry.create",
   "time_entry.list_own": "auditActions.time_entry.list_own",
   "time_entry.copy_last_week": "auditActions.time_entry.copy_last_week",
@@ -66,6 +70,7 @@ export function targetLabel(t: TFunction, event: AuditEvent, users: User[] | und
   }
   if (event.targetType === "order") return t("audit.target.order", { id: event.targetId })
   if (event.targetType === "supplier") return t("audit.target.supplier", { id: event.targetId })
+  if (event.targetType === "framework_agreement") return t("audit.target.frameworkAgreement", { id: event.targetId })
   if (event.targetType === "time_entry") return t("audit.target.timeEntry", { id: event.targetId })
   return `${event.targetType} #${event.targetId}`
 }
@@ -93,6 +98,8 @@ const DETAIL_LABELS = {
   startDate: "audit.details.startDate",
   endDate: "audit.details.endDate",
   accountingObject: "audit.details.accountingObject",
+  frameworkAgreementId: "audit.details.frameworkAgreementId",
+  totalBudgetCents: "audit.details.totalBudgetCents",
 } as const
 
 /** One detail as [label, value] in the admin's language, e.g. ["Duration", "3,5 h"]. */
@@ -105,6 +112,7 @@ export function detailEntry(t: TFunction, key: string, value: string | number | 
     return [label, formatDate(value)]
   }
   if (key === "budgetHours" && typeof value === "number") return [label, formatHours(value * 60)]
+  if (key === "totalBudgetCents" && typeof value === "number") return [label, formatEuroCents(value)]
   if (key === "hourlyRateCents" && typeof value === "number") return [label, formatEuroCents(value)]
   if (key === "role" && typeof value === "string") return [label, t(`roles.${value as Role}`)]
   return [label, String(value)]

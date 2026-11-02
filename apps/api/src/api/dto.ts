@@ -4,6 +4,7 @@
 import { z } from "zod"
 import type { OrderBudget } from "../domain/budget.js"
 import type { BudgetForecast } from "../domain/forecast.js"
+import type { AgreementOverview } from "../application/framework-agreements.js"
 import { GERMAN_STATES } from "../domain/public-holidays.js"
 import type { OrderInvoiceCheck, ProofOfWork } from "../application/proof-of-work.js"
 import type { AuditEvent, Order, Supplier, TimeEntry, User } from "../domain/models.js"
@@ -244,6 +245,7 @@ export const orderRequest = z.object({
     .default(null)
     .transform((value) => value || null)
     .meta({ example: "P-2026-0815.03", description: "Cost centre or project element that pays for this order" }),
+  frameworkAgreementId: z.number().int().positive().nullable().default(null),
 })
 export type OrderRequest = z.infer<typeof orderRequest>
 
@@ -259,6 +261,7 @@ export const orderResponse = z.object({
   endDate: z.string(),
   accountingObject: z.string().nullable(),
   closedAt: z.string().nullable().meta({ description: "ISO timestamp; null = open" }),
+  frameworkAgreementId: z.number().int().nullable(),
 })
 export const toOrderResponse = (order: Order): z.infer<typeof orderResponse> => ({ ...order })
 
@@ -311,6 +314,43 @@ export const invoiceCheckResponse = z.object({
   invoicedCents: z.number().int(),
   differenceCents: z.number().int().meta({ description: "Invoice minus approved; positive means invoiced more than approved" }),
   result: z.enum(["matches", "invoice_higher", "invoice_lower"]),
+})
+
+// /api/framework-agreements (ADR 0020), purchasing only
+export const frameworkAgreementRequest = z.object({
+  code: z.string().trim().min(3).max(40).meta({ example: "FA-2026-02" }),
+  title: z.string().trim().min(3).max(200),
+  supplierId: z.number().int().positive(),
+  totalBudgetCents: z.number().int().min(1).max(100_000_000_00).meta({ description: "Euro cents, because rates differ between orders" }),
+  startDate: z.iso.date(),
+  endDate: z.iso.date(),
+})
+export const frameworkAgreementIdParams = z.object({ id: z.coerce.number().int().positive() })
+export const frameworkAgreementResponse = frameworkAgreementRequest.extend({ id: z.number().int() })
+export const frameworkAgreementOverviewResponse = frameworkAgreementResponse.extend({
+  supplierName: z.string(),
+  orderCount: z.number().int(),
+  orderedCents: z.number().int().meta({ description: "What its orders take of the total" }),
+  bookedCents: z.number().int().meta({ description: "What has been booked on those orders" }),
+  freeCents: z.number().int().meta({ description: "What is left for new orders" }),
+})
+export const toFrameworkAgreementOverview = (row: AgreementOverview): z.infer<typeof frameworkAgreementOverviewResponse> => ({
+  ...row.agreement,
+  supplierName: row.supplierName,
+  orderCount: row.orderCount,
+  orderedCents: row.orderedCents,
+  bookedCents: row.bookedCents,
+  freeCents: row.freeCents,
+})
+
+// GET /api/suppliers/overview (ticket #71): sums per supplier
+export const supplierOverviewResponse = z.object({
+  supplierId: z.number().int(),
+  name: z.string(),
+  orderCount: z.number().int(),
+  budgetCents: z.number().int(),
+  bookedCents: z.number().int(),
+  sharePercent: z.number().meta({ description: "Share of everything ordered" }),
 })
 
 // GET /api/project-managers – what purchasing needs to pick the person responsible: no email, no role details.
@@ -402,6 +442,7 @@ export const toOrderBudgetDetailResponse = (
 
 // GET /api/orders – purchasing's overview: every order with supplier, project manager, period and budget.
 export const orderOverviewResponse = orderBudgetResponse.extend({
+  frameworkAgreementId: z.number().int().nullable(),
   accountingObject: z.string().nullable(),
   forecast: budgetForecastResponse,
   approvedHours: z.number().meta({ description: "Booked hours the project manager has approved" }),
@@ -425,6 +466,7 @@ export const toOrderOverviewResponse = (row: {
 }): z.infer<typeof orderOverviewResponse> => ({
   ...toOrderBudgetResponse(row.order, row.budget),
   accountingObject: row.order.accountingObject,
+  frameworkAgreementId: row.order.frameworkAgreementId,
   forecast: toBudgetForecastResponse(row.order, row.forecast),
   approvedHours: hours(row.approvedMinutes),
   notApprovedHours: hours(row.budget.bookedMinutes - row.approvedMinutes),

@@ -85,6 +85,13 @@
       "when": 1793625452445,
       "tag": "0011_order_closed",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1793625768660,
+      "tag": "0012_framework_agreements",
+      "breakpoints": true
     }
   ]
 }

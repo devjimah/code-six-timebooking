@@ -101,7 +101,34 @@ export type BudgetForecast = {
   orderEndDate: string
 }
 
+// GET /api/framework-agreements (ADR 0020)
+export type FrameworkAgreement = {
+  id: number
+  code: string
+  title: string
+  supplierId: number
+  supplierName: string
+  totalBudgetCents: number
+  startDate: string
+  endDate: string
+  orderCount: number
+  orderedCents: number
+  bookedCents: number
+  freeCents: number
+}
+
+// GET /api/suppliers/overview: sums per supplier
+export type SupplierOverview = {
+  supplierId: number
+  name: string
+  orderCount: number
+  budgetCents: number
+  bookedCents: number
+  sharePercent: number
+}
+
 export type OrderOverview = {
+  frameworkAgreementId: number | null
   accountingObject: string | null
   closedAt: string | null // ISO timestamp when purchasing closed it; null = open
   forecast: BudgetForecast
@@ -163,6 +190,7 @@ export type OrderRequest = {
   startDate: string
   endDate: string
   accountingObject: string | null
+  frameworkAgreementId: number | null
 }
 
 // GET /api/orders/:id/proof-of-work (ADR 0018)

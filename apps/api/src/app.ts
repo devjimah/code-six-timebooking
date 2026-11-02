@@ -7,6 +7,7 @@ import { authRoutes } from "./api/auth-routes.js"
 import { auditLog, rememberMountPath } from "./audit/audit-log.js"
 import { errorHandler } from "./api/error-handler.js"
 import { buildOpenApiDocument } from "./api/openapi.js"
+import { frameworkAgreementRoutes } from "./api/framework-agreement-routes.js"
 import { orderRoutes } from "./api/order-routes.js"
 import { projectManagerRoutes } from "./api/project-manager-routes.js"
 import { publicHolidayRoutes } from "./api/public-holiday-routes.js"
@@ -49,6 +50,7 @@ export function createApp({ db, sessionSecret, secureCookies, trustProxyHops = 0
   app.use("/api/users", rememberMountPath, userRoutes(db))
   app.use("/api/suppliers", rememberMountPath, supplierRoutes(db))
   app.use("/api/time-entries", rememberMountPath, timeEntryRoutes(db))
+  app.use("/api/framework-agreements", rememberMountPath, frameworkAgreementRoutes(db))
   app.use("/api/unavailable-days", rememberMountPath, unavailableDayRoutes(db))
   app.use("/api/orders", rememberMountPath, orderRoutes(db, purchasingLeadTimeWeeks))
   app.use("/api/project-managers", rememberMountPath, projectManagerRoutes(db))

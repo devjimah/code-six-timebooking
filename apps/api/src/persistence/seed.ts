@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs"
 import { todayInCompanyTimeZone } from "../application/clock.js"
 import type { Db } from "./db.js"
-import { orderRepository, supplierRepository, timeEntryRepository, userRepository } from "./repositories.js"
+import { frameworkAgreementRepository, orderRepository, supplierRepository, timeEntryRepository, userRepository } from "./repositories.js"
 import { seedBudgetExample } from "./seed-budget-example.js"
 
 export const DEMO_PASSWORD = "demo1234" // demo only – documented in the README
@@ -39,15 +39,20 @@ export async function seed(db: Db, today = todayInCompanyTimeZone()): Promise<bo
   })
 
   const orderRepo = orderRepository(db)
+  // A framework agreement with Acme, whose total budget its first two orders draw from (ADR 0020).
+  const agreement = await frameworkAgreementRepository(db).create({
+    code: "FA-2026-01", title: "Acme software services 2026–2027", supplierId: acme.id, totalBudgetCents: 5_000_000,
+    startDate: "2026-01-01", endDate: "2027-12-31",
+  })
   const portal = await orderRepo.create({
     code: "PO-2026-001", title: "Customer portal relaunch", supplierId: acme.id,
     projectManagerId: pm.id, budgetHours: 120, hourlyRateCents: 9500, startDate: "2026-07-01", endDate: "2027-01-31",
-    accountingObject: "P-2026-0815.03",
+    accountingObject: "P-2026-0815.03", frameworkAgreementId: agreement.id,
   })
   const migration = await orderRepo.create({
     code: "PO-2026-002", title: "SAP data migration", supplierId: acme.id,
     projectManagerId: pm.id, budgetHours: 40, hourlyRateCents: 11000, startDate: "2026-09-01", endDate: "2026-12-31",
-    accountingObject: "CC-4100",
+    accountingObject: "CC-4100", frameworkAgreementId: agreement.id,
   })
   await orderRepo.create({
     code: "PO-2026-003", title: "Mobile app security audit", supplierId: nordic.id,

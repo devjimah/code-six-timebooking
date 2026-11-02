@@ -145,4 +145,5 @@ const auditFacts = (input: OrderRequest) => ({
   startDate: input.startDate,
   endDate: input.endDate,
   accountingObject: input.accountingObject,
+  frameworkAgreementId: input.frameworkAgreementId,
 })

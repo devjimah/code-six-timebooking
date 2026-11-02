@@ -42,6 +42,20 @@ export const users = sqliteTable("users", {
   ...timestamps,
 })
 
+// A long-term contract with one supplier, whose total budget its orders draw from (ADR 0020).
+export const frameworkAgreements = sqliteTable("framework_agreements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  code: text("code").notNull().unique(),
+  title: text("title").notNull(),
+  supplierId: integer("supplier_id")
+    .notNull()
+    .references(() => suppliers.id),
+  totalBudgetCents: integer("total_budget_cents").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  ...timestamps,
+})
+
 // A client order placed with one supplier, with a budget.
 export const orders = sqliteTable("orders", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -65,6 +79,7 @@ export const orders = sqliteTable("orders", {
   accountingObject: text("accounting_object"),
   // Set when purchasing closes the order (ticket #70). No more bookings or changes; it is never deleted.
   closedAt: text("closed_at"),
+  frameworkAgreementId: integer("framework_agreement_id").references(() => frameworkAgreements.id),
   ...timestamps,
 })
 

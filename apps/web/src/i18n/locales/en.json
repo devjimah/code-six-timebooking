@@ -257,7 +257,8 @@
     "orders": "Orders",
     "myOrders": "My orders",
     "bookTime": "Book time",
-    "invoiceCheck": "Invoice check"
+    "invoiceCheck": "Invoice check",
+    "agreements": "Framework agreements"
   },
   "users": {
     "description": "All accounts. Only admins create accounts – there is no self-registration.",
@@ -333,7 +334,8 @@
       "user": "User #{{id}}",
       "order": "Order #{{id}}",
       "supplier": "Supplier #{{id}}",
-      "timeEntry": "Booking #{{id}}"
+      "timeEntry": "Booking #{{id}}",
+      "frameworkAgreement": "Framework agreement #{{id}}"
     },
     "details": {
       "email": "Email",
@@ -354,7 +356,9 @@
       "accountingObject": "Cost centre or project element",
       "month": "Month",
       "copied": "Copied",
-      "refused": "Refused"
+      "refused": "Refused",
+      "frameworkAgreementId": "Framework agreement",
+      "totalBudgetCents": "Total budget"
     },
     "from": "From",
     "to": "To"
@@ -378,7 +382,8 @@
     "supplier": {
       "list": "Viewed suppliers",
       "create": "Created supplier",
-      "update": "Renamed supplier"
+      "update": "Renamed supplier",
+      "overview": "Viewed the supplier overview"
     },
     "time_entry": {
       "create": "Booked time",
@@ -418,6 +423,11 @@
       "list_own": "Viewed own unavailable days",
       "mark": "Marked a day as unavailable",
       "remove": "Removed an unavailable day"
+    },
+    "framework": {
+      "list": "Viewed framework agreements",
+      "create": "Created a framework agreement",
+      "update": "Changed a framework agreement"
     }
   },
   "suppliers": {
@@ -434,7 +444,12 @@
     "created": "{{name}} created.",
     "renamed": "Renamed to {{name}}.",
     "empty": "No suppliers yet.",
-    "loadFailed": "Suppliers could not be loaded"
+    "loadFailed": "Suppliers could not be loaded",
+    "orders": "Orders",
+    "ordered": "Ordered",
+    "booked": "Booked",
+    "share": "Share of orders",
+    "shareOf": "{{percent}} % of everything ordered is with {{name}}"
   },
   "orders": {
     "description": "All orders with their budget – sums only, no single bookings. Tap an order to change it.",
@@ -654,7 +669,13 @@
     "DAY_HAS_BOOKINGS": "You already booked time on this day. Delete the booking first if you were not available.",
     "WORK_STATE_ONLY_FOR_CONSULTANTS": "Only consultants have a work state, for their public holidays. Leave it empty.",
     "ORDER_CLOSED": "This order is closed. Purchasing can reopen it.",
-    "ORDER_HAS_UNAPPROVED_BOOKINGS": "This order still has bookings that are open or returned. The project manager must check them first."
+    "ORDER_HAS_UNAPPROVED_BOOKINGS": "This order still has bookings that are open or returned. The project manager must check them first.",
+    "FRAMEWORK_BUDGET_EXCEEDED": "Order rejected: not enough is left in this framework agreement.",
+    "FRAMEWORK_OTHER_SUPPLIER": "This framework agreement is with another supplier.",
+    "FRAMEWORK_PERIOD": "The order's period must lie inside the framework agreement.",
+    "FRAMEWORK_NOT_FOUND": "This framework agreement does not exist.",
+    "FRAMEWORK_CODE_TAKEN": "A framework agreement with this code already exists.",
+    "FRAMEWORK_TOTAL_BELOW_ORDERS": "A framework agreement cannot be lower than its orders."
   },
   "forecast": {
     "title": "How long the budget lasts",
@@ -719,5 +740,26 @@
     "ST": "Saxony-Anhalt",
     "SH": "Schleswig-Holstein",
     "TH": "Thuringia"
+  },
+  "agreements": {
+    "description": "Long-term contracts with a supplier. Orders draw from the total budget, and the server refuses an order beyond it.",
+    "new": "New framework agreement",
+    "change": "Change",
+    "changeNamed": "Change {{code}}",
+    "loadFailed": "The framework agreements could not be loaded",
+    "empty": "No framework agreements yet.",
+    "field": "Framework agreement",
+    "none": "None",
+    "free": "{{amount}} left",
+    "total": "Total",
+    "ordered": "Ordered",
+    "booked": "Booked",
+    "left": "Left",
+    "orderCount_one": "{{count}} order",
+    "orderCount_other": "{{count}} orders",
+    "formDescription": "An agreement cannot be lower than its orders or stop covering their periods.",
+    "title": "Title",
+    "totalField": "Total budget in €",
+    "saved": "Framework agreement {{code}} saved."
   }
 }
