@@ -15,8 +15,11 @@ The words used in the code, the API and the UI (German in brackets, as in the ap
 | Order (Bestellung) | The client's purchase order to one supplier: a code such as `PO-2026-001`, a title, a period, a budget in hours and an hourly rate. Every booked hour belongs to one order. |
 | Project manager (Projektleitung) | The person on the client side responsible for an order. Sees the bookings on their orders, as durations only. |
 | Booking / time entry (Buchung) | One block of work by one consultant on one order on one day: start, end, break, the worked duration and what was done. `time_entries` in the database. |
+| Booking status | *Open* until the project manager checks it, then *approved* (final) or *returned* with a reason. A corrected booking is open again ([ADR 0014](adr/0014-booking-approval.md)). |
 | Worked duration (Dauer) | End − start − break of a booking, in minutes. Derived by the server, never typed in ([ADR 0010](adr/0010-time-entry-granularity.md)). |
 | Budget | What the client ordered: `budget hours × hourly rate`. *Booked* is the sum of all bookings on the order, *remaining* is budget − booked ([ADR 0008](adr/0008-budget-calculation.md)). |
+| Pace and forecast (Tempo, Prognose) | The hours booked on an order per week, over the last 4 weeks, and when the budget runs out at that pace. Computed, never stored ([ADR 0015](adr/0015-budget-forecast.md)). |
+| Unavailable day (nicht verfügbarer Tag) | A date a consultant marks as not available, never saying why. Nobody books on it, and the forecast counts it ([ADR 0016](adr/0016-unavailable-days.md)). |
 | Person-day (PD, Personentag) | 8 hours. Budgets are shown in hours and person-days; the database stores hours and minutes. |
 | Public holiday (Feiertag) | A day on which nobody may book. Today: the holidays valid in every German state, computed in code, not stored ([public-holidays.ts](../apps/api/src/domain/public-holidays.ts)). |
 | Working Time Act (ArbZG) | The German law behind several booking rules: at most 10 hours per day, 11 hours rest between working days, no work on Sundays and public holidays. |
@@ -34,6 +37,7 @@ erDiagram
     USER ||--o{ ORDER : "manages as project manager"
     USER ||--o{ TIME_ENTRY : "books as consultant"
     ORDER ||--o{ TIME_ENTRY : "is booked on"
+    USER ||--o{ UNAVAILABLE_DAY : "marks as consultant"
     USER |o..o{ AUDIT_EVENT : "acts in (no foreign key)"
 
     SUPPLIER ||--o{ FRAMEWORK_AGREEMENT : "signs"
@@ -41,7 +45,6 @@ erDiagram
     ACCOUNTING_OBJECT ||--o{ ORDER : "pays for"
     ORDER ||--o{ PROOF_OF_WORK : "is approved per month in"
     PROOF_OF_WORK |o--o{ TIME_ENTRY : "covers"
-    USER ||--o{ ABSENCE : "is absent"
 
     SUPPLIER["Supplier (now)"] {
         int id PK
@@ -79,6 +82,13 @@ erDiagram
         int break_minutes
         int duration_minutes "derived: end - start - break"
         string description
+        string status "open | approved | returned"
+        string return_reason "why it was returned, else null"
+    }
+    UNAVAILABLE_DAY["Unavailable day (now)"] {
+        int id PK
+        int user_id FK
+        string date "YYYY-MM-DD, unique per person, no reason"
     }
     AUDIT_EVENT["Audit event (now)"] {
         int id PK
@@ -108,13 +118,6 @@ erDiagram
         string status "open | submitted | approved | rejected"
         int approved_by FK
     }
-    ABSENCE["Absence (later)"] {
-        int id PK
-        int user_id FK
-        string kind "vacation | sick"
-        string from_date
-        string to_date
-    }
 ```
 
 The audit event shows only its key columns; the full list is in [schema.ts](../apps/api/src/persistence/schema.ts).
@@ -133,9 +136,12 @@ The audit event shows only its key columns; the full list is in [schema.ts](../a
   the client side sees durations or sums ([roles-and-privacy.md](roles-and-privacy.md)).
 - **Bookings are never deleted with their user.** A deactivated account keeps its bookings, so the order's budget
   stays correct. The audit log has no foreign key on purpose, so it outlives any account.
-- **Not stored:** public holidays (computed from the year) and the remaining budget (computed on read).
+- **Approval is a status on each booking** ([ADR 0014](adr/0014-booking-approval.md)). Returned hours stay in the
+  budget until they are corrected: they were reported as worked.
+- **Unavailable days have no reason on purpose.** Sick days are health data, and managing a supplier's absences is
+  the employer's job, so vacation and sickness stay with the supplier ([ADR 0016](adr/0016-unavailable-days.md)).
+- **Not stored:** public holidays (computed from the year), the remaining budget and the forecast (both computed on read).
 - **Next stage, in one sentence each** (proposals, not built):
   - *Framework agreement* – a long-term contract with a supplier whose total budget the orders draw from.
   - *Accounting object* – the cost centre or project element that pays for an order.
-  - *Proof of work* – the monthly list of an order's hours that the project manager approves before the invoice.
-  - *Absence* – vacation or sick days, so nobody books time on them.
+  - *Proof of work* – the monthly list of an order's hours for the invoice, built on the booking statuses we have now.
