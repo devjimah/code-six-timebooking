@@ -46,13 +46,13 @@ Written on Tue 3 Nov from the pull requests, commits and board, not at the end o
 
 - **One story per pull request.** 21 pull requests in two days, each with its tests, and 260 API tests at the end.
 - **Decisions written down.** 13 ADRs, so the reasons did not depend on anyone's memory.
-- **Fast review on Saturday.** Most pull requests that day were merged within about an hour or two of being opened.
+- **Short waits on Saturday.** The 15 pull requests opened and merged that day were all merged within about two hours.
 
 **What slowed us down**
 
 - **A long chain late in the sprint.** #42 → #43 → #44 → #49 were opened on Saturday evening and merged on Sunday
   morning, so the sprint ran one morning long.
-- **Decisions without an owner.** #10 and #20 waited for a team decision and moved to Sprint 2.
+- **Open decisions.** #10 and #20 waited for a team decision and moved to Sprint 2.
 - **Documents left for later.** The product vision, the domain model and the compose file were still open at the end.
 - **Uneven review.** 13 of the 21 pull requests have a teammate's approval; the other 8 have only Copilot's automated review.
 

@@ -5,7 +5,7 @@ Plan: [Sprint 2 backlog](sprint-2-backlog.md) · Board: [GitHub Project #2](http
 **Sprint goal:** the client checks the work and looks ahead. Project managers approve bookings before an invoice is
 paid, and project managers and purchasing see how long a budget lasts at the current pace.
 
-**Result:** goal reached. All 6 committed and all 3 stretch stories are merged, and 8 more stories from the backlog
+**Result:** goal reached. All 6 committed and all 3 stretch stories are merged, and 12 more stories from the backlog
 with them. The demo script in the [README](../../README.md) shows the goal on order PO-2026-004.
 
 ## Delivered
@@ -47,8 +47,8 @@ Written on Tue 3 Nov from the pull requests, commits and board, not at the end o
 **What slowed us down**
 
 - **Wrong target branch.** #87 merged into a feature branch instead of master, so it had to be opened again as #89.
-- **Stacks going out of date.** Chains of pull requests had to be brought up to date with master, and the last one
-  contains merge commits because of that.
+- **Stacks going out of date.** Chains of pull requests had to be brought up to date with master, and the last two
+  (#111, #113) contain merge commits because of that.
 - **A big batch at the end.** 12 pull requests (#101–#113) merged within one minute on Monday, after the goal was
   reached. That is much to review at once, and it added scope late.
 
