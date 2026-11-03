@@ -2,7 +2,7 @@
 
 - **Status:** proposed
 - **Date:** 2026-10-31
-- **Deciders:** TODO (team names)
+- **Deciders:** Kamaldeen Fadatoyo, Abdulrashid, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
 - **Ticket:** [#6](https://github.com/devjimah/code-six-timebooking/issues/6)
 
 ## Context

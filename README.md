@@ -122,7 +122,7 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 
 | Name | GitHub | Role |
 |---|---|---|
-| Kamaldeen | [@kamaldeenfadatoyo99-code](https://github.com/kamaldeenfadatoyo99-code) | Product Owner |
+| Kamaldeen Fadatoyo | [@kamaldeenfadatoyo99-code](https://github.com/kamaldeenfadatoyo99-code) | Product Owner |
 | Abdulrashid | [@abdulrashidfadila](https://github.com/abdulrashidfadila) | Scrum Master |
 | Jimah Abraham Zorwi | [@devjimah](https://github.com/devjimah) | Developer |
 | Fazail Osuman | [@fazail-creator](https://github.com/fazail-creator) | Developer |

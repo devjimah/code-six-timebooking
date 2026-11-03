@@ -31,9 +31,9 @@ after Sprint 2's work was merged. Stories finished earlier are in the [Sprint 1 
 
 ### Incident stories from the Product Owner
 
-Added by the Product Owner on 2 Nov, as written in the issues. They describe a faulty working-time calculation, a works
-council complaint and a platform with 99 customer companies. They have no priority or sprint yet: **the Product Owner
-decides how they relate to this product and the hand-in.**
+Added by the Product Owner on 2 Nov. They are a crisis-response exercise that the team submits separately: a faulty
+working-time calculation, a works council complaint and a platform with 99 customer companies. They are not part of
+this product's scope, so they have no priority or sprint.
 
 | Issue | Story |
 |---|---|
