@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-31
-- **Deciders:** TODO (team names)
+- **Deciders:** Kamaldeen, Abdulrashid, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
 
 ## Context
 

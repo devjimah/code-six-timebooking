@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-11-01
-- **Deciders:** TODO (team names)
+- **Deciders:** Kamaldeen, Abdulrashid, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
 - **Ticket:** [#51](https://github.com/devjimah/code-six-timebooking/issues/51)
 
 ## Context
