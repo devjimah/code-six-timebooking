@@ -129,4 +129,4 @@ Where the technical jury finds the evidence for each [technical criterion](docs/
 | Anwaar Ibrahim | [@ibanwaaar-del](https://github.com/ibanwaaar-del) | Developer |
 | Mansura Bawah | [@MansuraBawah](https://github.com/MansuraBawah) | Developer |
 
-How we plan: the [project board](https://github.com/users/devjimah/projects/2/views/1), the [product backlog](docs/product-backlog.md), the [Sprint 1 review](docs/sprints/sprint-1-review.md) and the [Sprint 2 backlog](docs/sprints/sprint-2-backlog.md).
+How we plan: the [project board](https://github.com/users/devjimah/projects/2/views/1), the [product backlog](docs/product-backlog.md), the [Sprint 1 review](docs/sprints/sprint-1-review.md), the [Sprint 2 backlog](docs/sprints/sprint-2-backlog.md) and the [Sprint 2 review](docs/sprints/sprint-2-review.md).
