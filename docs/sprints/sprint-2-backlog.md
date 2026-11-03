@@ -31,7 +31,7 @@ Only when the committed stories are done. Label `stretch` on the board.
 ## Result (Mon 2 Nov)
 
 All committed and stretch stories are merged, and more from the backlog with them; the list is in the
-[product backlog](../product-backlog.md). The team's review of this sprint is still to be written.
+[product backlog](../product-backlog.md). What came of it: [Sprint 2 review](sprint-2-review.md).
 
 ## Decisions for sprint planning
 

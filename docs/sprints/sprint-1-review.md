@@ -40,8 +40,24 @@ left, 260 API tests (`npm test`).
 
 ## Retrospective
 
-TODO – the team fills this in together (10 minutes). Suggested questions:
+Written on Tue 3 Nov from the pull requests, commits and board, not at the end of the sprint.
 
-- What helped us most this sprint?
-- What slowed us down? (For example: long chains of stacked PRs waiting for review.)
-- One thing we change in Sprint 2.
+**What helped most**
+
+- **One story per pull request.** 21 pull requests in two days, each with its tests, and 260 API tests at the end.
+- **Decisions written down.** 13 ADRs, so the reasons did not depend on anyone's memory.
+- **Short waits on Saturday.** The 15 pull requests opened and merged that day were all merged within about two hours.
+
+**What slowed us down**
+
+- **A long chain late in the sprint.** #42 → #43 → #44 → #49 were opened on Saturday evening and merged on Sunday
+  morning, so the sprint ran one morning long.
+- **Open decisions.** #10 and #20 waited for a team decision and moved to Sprint 2.
+- **Documents left for later.** The product vision, the domain model and the compose file were still open at the end.
+- **Uneven review.** 13 of the 21 pull requests have a teammate's approval; the other 8 have only Copilot's automated review.
+
+**What changed in Sprint 2**
+
+- The open questions were listed in the plan, under *Decisions for sprint planning*.
+- The missing documents became stories: #58, #52 and #57.
+- CI runs on every pull request (#56).

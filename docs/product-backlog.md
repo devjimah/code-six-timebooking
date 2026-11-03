@@ -17,7 +17,7 @@ after Sprint 2's work was merged. Stories finished earlier are in the [Sprint 1 
 | Sprint | Days | Goal | Plan |
 |---|---|---|---|
 | Sprint 1 | Fri 30 – Sat 31 Oct | A consultant books time; the client sees the budget change | [review](sprints/sprint-1-review.md) |
-| Sprint 2 | Sun 1 – Mon 2 Nov | The client checks the work and looks ahead | [backlog and result](sprints/sprint-2-backlog.md) |
+| Sprint 2 | Sun 1 – Mon 2 Nov | The client checks the work and looks ahead | [backlog](sprints/sprint-2-backlog.md), [review](sprints/sprint-2-review.md) |
 | Sprint 3 – Ship | Tue 3 Nov, until 11:00 | The jury runs it from the README | #58, #60 still open |
 
 ## Open
