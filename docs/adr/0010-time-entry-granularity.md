@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-31 (proposed), 2026-11-01 (accepted in Sprint 2 planning)
-- **Deciders:** Kamaldeen Fadatoyo, Abdulrashid, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
+- **Deciders:** Kamaldeen Fadatoyo, Abdul Rashid Fadilatu, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
 - **Ticket:** [#20](https://github.com/devjimah/code-six-timebooking/issues/20)
 
 ## Context
