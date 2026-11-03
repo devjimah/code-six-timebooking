@@ -69,7 +69,7 @@ Decision: [ADR 0001](adr/0001-database-and-api-stack.md); web app: [ADR 0013](ad
 | Name | GitHub | Role |
 |---|---|---|
 | Kamaldeen Fadatoyo | [@kamaldeenfadatoyo99-code](https://github.com/kamaldeenfadatoyo99-code) | Product Owner |
-| Abdulrashid | [@abdulrashidfadila](https://github.com/abdulrashidfadila) | Scrum Master |
+| Abdul Rashid Fadilatu | [@abdulrashidfadila](https://github.com/abdulrashidfadila) | Scrum Master |
 | Jimah Abraham Zorwi | [@devjimah](https://github.com/devjimah) | Developer |
 | Fazail Osuman | [@fazail-creator](https://github.com/fazail-creator) | Developer |
 | Anwaar Ibrahim | [@ibanwaaar-del](https://github.com/ibanwaaar-del) | Developer |
