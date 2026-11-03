@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-11-02
-- **Deciders:** Kamaldeen, Abdulrashid, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
+- **Deciders:** Kamaldeen Fadatoyo, Abdulrashid, Jimah Abraham Zorwi, Fazail Osuman, Anwaar Ibrahim, Mansura Bawah
 - **Ticket:** [#66](https://github.com/devjimah/code-six-timebooking/issues/66)
 
 ## Context
